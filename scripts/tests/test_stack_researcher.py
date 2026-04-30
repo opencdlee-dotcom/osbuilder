@@ -1,0 +1,101 @@
+"""Tests for scripts/stack_researcher.py — RES-01..RES-04.
+
+All tests in this file FAIL or SKIP before Plan 03-03 lands.
+That is by design (TDD RED state).
+
+`stack_researcher` is imported lazily inside the `sr` fixture so pytest
+can COLLECT every test function before Plan 03-03 lands.
+"""
+from __future__ import annotations
+
+import importlib
+import json
+from pathlib import Path
+
+import pytest
+
+
+@pytest.fixture
+def sr():
+    """Lazy import of scripts/stack_researcher.py — skips when not yet created."""
+    try:
+        return importlib.import_module("stack_researcher")
+    except ImportError:
+        pytest.skip("stack_researcher module not yet created (Wave 1 target)")
+
+
+def test_calls_brainiac(sr, fake_shell, tmp_project_root):
+    """RES-01: research() calls a brainiac subprocess and returns a structured dict."""
+    fake_shell.program(
+        "python3 -m brainiac",
+        returncode=0,
+        stdout=json.dumps({
+            "framework": {"name": "next.js", "version": "16.2.4", "rationale": "industry default"},
+            "orm": {"name": "drizzle-orm", "version": "0.45.2", "rationale": "lightweight"},
+        }),
+    )
+    result = sr.research_stack(app_type="web", project_root=tmp_project_root)
+    assert isinstance(result, dict), "research_stack() must return a dict"
+    assert "framework" in result, "Result must include 'framework' key"
+    brainiac_calls = [
+        c for c in fake_shell.calls
+        if (isinstance(c[0], list) and any("brainiac" in str(part) for part in c[0]))
+        or (isinstance(c[0], str) and "brainiac" in c[0])
+    ]
+    assert len(brainiac_calls) >= 1, "stack_researcher must invoke a brainiac subprocess (RES-01)"
+
+
+def test_output_is_structured(sr, fake_shell, tmp_project_root):
+    """RES-02: research_stack() returns structured JSON with name/version/rationale per component."""
+    fake_shell.program(
+        "python3 -m brainiac",
+        returncode=0,
+        stdout=json.dumps({
+            "framework": {"name": "next.js", "version": "16.2.4", "rationale": "standard"},
+            "orm": {"name": "drizzle-orm", "version": "0.45.2", "rationale": "lightweight"},
+            "database": {"name": "postgres", "version": "18-alpine", "rationale": "multi-user"},
+            "css": {"name": "tailwindcss", "version": "4.2.4", "rationale": "utility-first"},
+            "package_manager": {"name": "pnpm", "version": "10.33.2", "rationale": "fast"},
+        }),
+    )
+    result = sr.research_stack(app_type="web", project_root=tmp_project_root)
+    assert isinstance(result, dict), "Result must be a dict"
+    for key in ("framework", "orm", "database", "css", "package_manager"):
+        assert key in result, f"Result must include '{key}' key (RES-02)"
+        component = result[key]
+        assert isinstance(component, dict), f"result['{key}'] must be a dict"
+        assert "name" in component, f"result['{key}'] must have 'name' field"
+        assert "version" in component, f"result['{key}'] must have 'version' field"
+
+
+def test_fallback_to_stack_menu(sr, fake_shell, tmp_project_root):
+    """RES-03: returns stack-menu.md defaults when brainiac returns empty/timeout."""
+    # Simulate brainiac returning empty output (timeout/inconclusive path)
+    fake_shell.program("python3 -m brainiac", returncode=0, stdout="")
+    result = sr.research_stack(app_type="web", project_root=tmp_project_root)
+    assert result, "Fallback must return non-empty stack_choices dict (RES-03)"
+    assert "framework" in result, (
+        "Fallback from stack-menu.md must include 'framework' key (RES-03)"
+    )
+
+
+def test_advanced_override(sr, fake_shell, tmp_project_root):
+    """RES-04: --advanced overrides merge over researched stack choices."""
+    fake_shell.program(
+        "python3 -m brainiac",
+        returncode=0,
+        stdout=json.dumps({
+            "framework": {"name": "next.js", "version": "16.2.4", "rationale": "standard"},
+            "orm": {"name": "drizzle-orm", "version": "0.45.2", "rationale": "lightweight"},
+        }),
+    )
+    overrides = {"orm": {"name": "prisma", "version": "5.0.0", "source": "user-override"}}
+    result = sr.research_stack(
+        app_type="web",
+        project_root=tmp_project_root,
+        advanced_overrides=overrides,
+    )
+    assert result["orm"]["name"] == "prisma", (
+        "--advanced override must replace researched orm choice (RES-04). "
+        f"Got: {result.get('orm')}"
+    )
