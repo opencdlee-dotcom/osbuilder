@@ -88,7 +88,13 @@ Plans:
   5. Attempting to install a hallucinated package name (e.g., `npm install @anthropic/clauded-code-helper`) is blocked by `scripts/registry_verify.py` before any network call to the registry; the verification gate runs with `--ignore-scripts` until the package is verified to exist on the public registry.
   6. After `/clear` is fired mid-build, re-invoking OSBuilder reads `state.md`'s `retry_count` and `last_failure` and resumes from the same retry budget rather than restarting the counter at zero.
   7. Every phase invokes `/predator` and `/gsd-code-review` after `/code-tester` and before the phase is marked done in `state.md`.
-**Plans:** TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 04-01-PLAN.md — Wave 0: extend state_writer.py ALLOWED_FIELDS (gsd_phase_count, failure_class, escalation_log) + >= 25 RED stubs across test_gsd_driver.py / test_failure_classifier.py / test_registry_verify.py; brings total collected to >= 71
+- [ ] 04-02-PLAN.md — scripts/gsd_driver.py: GSD phase loop state machine — emit-next, PHASE_STEP_COMMANDS dispatch (steps 0-9), VERIFICATION.md write, retry/escalation, build_install_cmd [TDD] (ROLE-01..06, ROLE-08, HEAL-06, HEAL-07, VER-01..04)
+- [ ] 04-03-PLAN.md — scripts/failure_classifier.py: 4-class taxonomy + priority-ordered regex + handle_transient (4x backoff) + build_escalation_handoff [TDD] (HEAL-01..04, HEAL-07)
+- [ ] 04-04-PLAN.md — scripts/registry_verify.py: npm/PyPI/crates.io HEAD-request gate + fail-open on network error + CLI exit codes [TDD] (HEAL-05, HEAL-06)
+- [ ] 04-05-PLAN.md — references/roles/qa.md: VERIFICATION.md format, falsifiability rule, forbidden patterns, >= 5 observable-behavior examples, 2-5 count rule (VER-01 support)
 
 ### Phase 5: Common-person UX polish
 **Goal:** With the verify loop proven, layer the UX that makes OSBuilder usable by someone who has never written code — tutor mode, friendly errors, dev-team narration ("PM is gathering requirements... ✓"), outcome-framed questions, and beginner-mode default.
@@ -179,7 +185,7 @@ Plans:
 | 1. Foundation | 5/5 | Complete | 2026-04-29 |
 | 2. Pre-flight installer | 4/4 | Complete | 2026-04-30 |
 | 3. Intake + Research + Web playbook | 0/5 | Ready to execute (5 plans created) | - |
-| 4. GSD handoff + Verify + Healing | 0/TBD | Not started | - |
+| 4. GSD handoff + Verify + Healing | 0/5 | Ready to execute (5 plans created 2026-04-30) | - |
 | 5. Common-person UX polish | 0/TBD | Not started | - |
 | 6. Ship + scalable defaults | 0/TBD | Not started | - |
 | 7. Additional playbooks | 0/TBD | Not started | - |
@@ -187,4 +193,4 @@ Plans:
 
 ---
 *Roadmap defined: 2026-04-29*
-*Last updated: 2026-04-30 after Phase 3 planning (5 plans created)*
+*Last updated: 2026-04-30 after Phase 4 planning (5 plans created)*
