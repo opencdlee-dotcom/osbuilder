@@ -10,7 +10,7 @@
 ## Phases
 
 - [x] **Phase 1: Foundation** — Skill skeleton + state plumbing so a `/clear`'d session can resume mid-build *(complete 2026-04-29)*
-- [ ] **Phase 2: Pre-flight installer** — Cross-platform auto-install of Node/Python/git/gh/Docker for non-developers
+- [x] **Phase 2: Pre-flight installer** — Cross-platform auto-install of Node/Python/git/gh/Docker for non-developers (completed 2026-04-30)
 - [ ] **Phase 3: Intake + Stack research + Web playbook (one-playbook E2E)** — Prove the loop with deterministic scaffolder-first web builds
 - [ ] **Phase 4: GSD handoff + Verify loop + Failure classifier** — Quality moat: classified retries, 3-reflection cap, falsifiable verification
 - [ ] **Phase 5: Common-person UX polish** — Tutor mode, friendly errors, dev-team narration that the audience actually understands
@@ -49,12 +49,12 @@ Plans:
   4. Running `/osbuilder uninstall` on a machine where preflight installed five tools removes all five (and only those five — pre-existing tools are left intact).
   5. On a Windows machine without Docker Desktop, passing `--no-docker` lets the user complete a full SQLite-only single-user CLI build to private GitHub without ever being prompted for Docker.
   6. End-to-end: a non-developer on a fresh Mac runs `/osbuilder` and the install flow completes (all required prereqs present, ready for intake) in ≤ 3 minutes including download time.
-**Plans:** 4 plans
+**Plans:** 4/4 plans complete
 Plans:
-- [ ] 02-01-PLAN.md — Wave 0 test infrastructure: extend conftest.py with FakeShell + 3 fixtures, drop ≥ 15 RED stubs across test_preflight.py + test_uninstall.py (covers PRE-01..PRE-07)
-- [ ] 02-02-PLAN.md — scripts/preflight_check.py: detect / plan / render_preview / apply / rollback / uninstall / main with stdlib-only Python 3.13, atomic install-log, all-or-nothing rollback (PRE-01, PRE-02, PRE-03, PRE-04, PRE-05, PRE-07) [TDD]
-- [ ] 02-03-PLAN.md — scripts/uninstall.py: thin wrapper around preflight_check.uninstall (PRE-06)
-- [ ] 02-04-PLAN.md — references/preflight/{README,macos,linux,windows}.md: per-OS install matrices, decision trees, edge cases — handoff entry point (no SKILL.md edit)
+- [x] 02-01-PLAN.md — Wave 0 test infrastructure: extend conftest.py with FakeShell + 3 fixtures, drop ≥ 15 RED stubs across test_preflight.py + test_uninstall.py (covers PRE-01..PRE-07)
+- [x] 02-02-PLAN.md — scripts/preflight_check.py: detect / plan / render_preview / apply / rollback / uninstall / main with stdlib-only Python 3.13, atomic install-log, all-or-nothing rollback (PRE-01, PRE-02, PRE-03, PRE-04, PRE-05, PRE-07) [TDD]
+- [x] 02-03-PLAN.md — scripts/uninstall.py: thin wrapper around preflight_check.uninstall (PRE-06)
+- [x] 02-04-PLAN.md — references/preflight/{README,macos,linux,windows}.md: per-OS install matrices, decision trees, edge cases — handoff entry point (no SKILL.md edit)
 
 ### Phase 3: Intake + Stack research + Web playbook (one-playbook E2E)
 **Goal:** A user describes a web app in plain English and OSBuilder produces a scaffolded, runnable Next.js + Postgres + Tailwind project on disk — proving the full intake → research → scaffold loop end-to-end on the most-validated playbook before any other playbooks are added.
