@@ -200,3 +200,116 @@ def test_state_updates_after_emission(gd, tmp_project_root, writer):
                     project_root=tmp_project_root, check=True, capture=True)
     step = int(result.stdout.strip())
     assert step == 1, "phase_step must increment to 1 after first emission"
+
+
+# HEAL-05: step 2 invokes registry_verify.py when stack_choices has pkg + ecosystem
+def test_step_2_calls_registry_verify(gd, tmp_project_root, writer, monkeypatch):
+    import subprocess as _real_subprocess
+    # Capture the real run BEFORE monkeypatching so state_writer subprocess
+    # calls (issued from inside selective_run) don't re-enter selective_run.
+    _real_run = _real_subprocess.run
+
+    calls = []
+
+    def selective_run(cmd, *args, **kwargs):
+        sig = " ".join(str(c) for c in cmd) if isinstance(cmd, list) else str(cmd)
+        if "registry_verify" in sig:
+            calls.append(list(cmd))
+            return _real_subprocess.CompletedProcess(cmd, 0, "", "")
+        return _real_run(cmd, *args, **kwargs)
+
+    writer("init", "--goal", "test", project_root=tmp_project_root)
+    writer("write", "--field", "current_phase", "--value", "1",
+           project_root=tmp_project_root)
+    writer("write", "--field", "phase_step", "--value", "2",
+           project_root=tmp_project_root)
+    writer("write", "--field", "stack_choices",
+           "--value", '{"pkg": "next", "ecosystem": "npm"}',
+           project_root=tmp_project_root)
+
+    monkeypatch.setattr(gd.subprocess, "run", selective_run)
+    result = gd.emit_next_command(project_root=tmp_project_root)
+
+    assert result == 0
+    assert any("registry_verify" in str(c) for call in calls for c in call), \
+        "registry_verify.py was not invoked at phase_step=2"
+    assert any(c == "--pkg" for call in calls for c in call), \
+        "--pkg flag missing from registry_verify call"
+    assert any(c == "next" for call in calls for c in call), \
+        "package name 'next' not passed to registry_verify"
+    assert any(c == "--ecosystem" for call in calls for c in call), \
+        "--ecosystem flag missing from registry_verify call"
+    assert any(c == "npm" for call in calls for c in call), \
+        "ecosystem 'npm' not passed to registry_verify"
+
+
+# HEAL-05: step 2 blocks when registry_verify exits 1 (hallucinated package)
+def test_step_2_blocks_on_registry_failure(gd, tmp_project_root, writer, monkeypatch):
+    import subprocess as _real_subprocess
+    _real_run = _real_subprocess.run
+
+    def selective_run(cmd, *args, **kwargs):
+        sig = " ".join(str(c) for c in cmd) if isinstance(cmd, list) else str(cmd)
+        if "registry_verify" in sig:
+            return _real_subprocess.CompletedProcess(cmd, 1, "", "not found")
+        return _real_run(cmd, *args, **kwargs)
+
+    writer("init", "--goal", "test", project_root=tmp_project_root)
+    writer("write", "--field", "current_phase", "--value", "1",
+           project_root=tmp_project_root)
+    writer("write", "--field", "phase_step", "--value", "2",
+           project_root=tmp_project_root)
+    writer("write", "--field", "stack_choices",
+           "--value", '{"pkg": "fake-hallucinated-pkg", "ecosystem": "npm"}',
+           project_root=tmp_project_root)
+
+    monkeypatch.setattr(gd.subprocess, "run", selective_run)
+    result = gd.emit_next_command(project_root=tmp_project_root)
+
+    assert result == 1, "emit_next_command must return 1 when registry check fails"
+
+    # phase_step must NOT have advanced
+    step_result = writer("read", "--field", "phase_step",
+                         project_root=tmp_project_root, check=True, capture=True)
+    assert step_result.stdout.strip() == "2", \
+        "phase_step must remain at 2 when registry gate blocks"
+
+    # last_failure must be written
+    lf_result = writer("read", "--field", "last_failure",
+                       project_root=tmp_project_root, check=True, capture=True)
+    assert lf_result.stdout.strip() != "", \
+        "last_failure must be written when registry gate blocks"
+
+
+# HEAL-05: step 2 advances normally when stack_choices is absent (gate deferred)
+def test_step_2_skips_gate_without_stack_choices(gd, tmp_project_root, writer, monkeypatch):
+    import subprocess as _real_subprocess
+    _real_run = _real_subprocess.run
+
+    calls = []
+
+    def selective_run(cmd, *args, **kwargs):
+        sig = " ".join(str(c) for c in cmd) if isinstance(cmd, list) else str(cmd)
+        if "registry_verify" in sig:
+            calls.append(list(cmd))
+            return _real_subprocess.CompletedProcess(cmd, 0, "", "")
+        return _real_run(cmd, *args, **kwargs)
+
+    writer("init", "--goal", "test", project_root=tmp_project_root)
+    writer("write", "--field", "current_phase", "--value", "1",
+           project_root=tmp_project_root)
+    writer("write", "--field", "phase_step", "--value", "2",
+           project_root=tmp_project_root)
+    # Intentionally do NOT write stack_choices
+
+    monkeypatch.setattr(gd.subprocess, "run", selective_run)
+    result = gd.emit_next_command(project_root=tmp_project_root)
+
+    assert result == 0, "emit_next_command must return 0 when stack_choices absent"
+    assert calls == [], "registry_verify must NOT be called when stack_choices absent"
+
+    # phase_step must have advanced to 3
+    step_result = writer("read", "--field", "phase_step",
+                         project_root=tmp_project_root, check=True, capture=True)
+    assert step_result.stdout.strip() == "3", \
+        "phase_step must advance to 3 when gate is skipped"
