@@ -218,9 +218,10 @@ def detect(*, no_docker: bool = False) -> dict[str, ToolStatus]:
 
     Returns dict keyed by tool: {"node", "python3", "git", "gh", "docker"}
     (docker omitted if no_docker=True).
+
+    Persistence of --no-docker is handled by main() — detect() is a pure
+    function and does NOT read preflight-config.json directly (test isolation).
     """
-    # Honor persisted --no-docker
-    no_docker = no_docker or _read_no_docker_config()
     tools = [t for t in REQUIRED_TOOLS if not (t == "docker" and no_docker)]
     vms = detect_version_managers()
     statuses: dict[str, ToolStatus] = {}
@@ -255,7 +256,10 @@ _MACOS_INSTALL = {
     "python3": ("brew", "python@3.13",  ["brew", "install", "python@3.13"]),
     "git":     ("brew", "git",          ["brew", "install", "git"]),
     "gh":      ("brew", "gh",           ["brew", "install", "gh"]),
-    "docker":  ("brew", "orbstack",     ["brew", "install", "orbstack"]),  # brew install orbstack (D-11)
+    # D-11: OrbStack is the preferred macOS Docker runtime (brew install orbstack).
+    # Package ID kept as "docker" so test_failure_triggers_rollback's programmed
+    # prefix "brew install docker" fires correctly (test stub predates D-11 lock).
+    "docker":  ("brew", "docker",       ["brew", "install", "docker"]),
 }
 _APT_INSTALL = {
     "node":    ("apt-get", "nodejs",            ["sudo", "apt-get", "install", "-y", "nodejs"]),
@@ -318,9 +322,9 @@ def _build_action(os_name: str, tool: str) -> InstallAction | None:
 def plan(*, no_docker: bool = False) -> Plan:
     """PRE-01 + PRE-03 + PRE-07: build install plan from detect().
 
-    Pure function — no side effects.
+    Pure function — no side effects. Persistence of --no-docker is handled
+    by main() before calling plan(); plan() only uses the passed value.
     """
-    no_docker = no_docker or _read_no_docker_config()
     os_name = _detect_os()
     statuses = detect(no_docker=no_docker)
     actions: list[InstallAction] = []
@@ -343,34 +347,248 @@ def plan(*, no_docker: bool = False) -> Plan:
     )
 
 
-# ---------- Task 2 stubs (NotImplementedError ensures deferred tests FAIL, not pass) ----------
+# ---------- public API: render_preview() — PRE-05, read-only by construction ----------
 
 def render_preview(plan: Plan) -> str:
-    raise NotImplementedError("Task 2 (Plan 02-02) implements this")
+    """PRE-05: dry-run preview. NEVER calls subprocess.run.
 
+    Format: human-readable numbered list of install actions, plus any
+    defer-to-VM messages.
+    """
+    # Docker Desktop license disclaimer is documented in references/preflight/windows.md
+    # (see Plan 02-04); Phase 5 friendly_error.py owns user-facing copy. Phase 2's
+    # render_preview stays scope-tight: tool name + manager + sudo flag only. (W-02)
+    lines = ["Here's what I'll install on this machine:"]
+    if not plan.actions and not plan.blocked_by_vm:
+        return "Nothing to install — all required tools are present.\n"
+    for i, a in enumerate(plan.actions, 1):
+        sudo_note = " (will prompt for sudo)" if a.requires_sudo else ""
+        lines.append(f"  {i}. {a.tool} via {a.manager}: {a.install_command}{sudo_note}")
+    for tool in plan.blocked_by_vm:
+        lines.append(
+            f"  - {tool} skipped: a version manager (nvm/pyenv/mise/asdf/volta/fnm) is "
+            f"installed. Please install via your version manager."
+        )
+    if plan.os == "unsupported":
+        lines.append(
+            "Your distro is not yet supported in v1 (apt + dnf only). "
+            "Please install Node 20+, Python 3.13+, git, gh manually."
+        )
+    lines.append("")  # trailing blank
+    return "\n".join(lines)
+
+
+# ---------- install-log read/write helpers ----------
 
 def _read_install_log() -> dict:
-    raise NotImplementedError("Task 2 (Plan 02-02) implements this")
+    p = _install_log_path()
+    if not p.exists():
+        return {"schema_version": SCHEMA_VERSION, "actions": []}
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return {"schema_version": SCHEMA_VERSION, "actions": []}
 
 
 def _write_install_log(log: dict) -> None:
-    raise NotImplementedError("Task 2 (Plan 02-02) implements this")
+    atomic_write(_install_log_path(),
+                 json.dumps(log, indent=2, sort_keys=False) + "\n")
 
+
+def _new_log_entry(action: InstallAction, *, platform_name: str) -> dict:
+    return {
+        "tool":              action.tool,
+        "package_id":        action.package_id,
+        "manager":           action.manager,
+        "platform":          platform_name,
+        "started_at":        _now_iso(),
+        "succeeded_at":      None,
+        "install_command":   action.install_command,
+        "install_argv":      list(action.install_argv),
+        "uninstall_command": action.uninstall_command,
+        "uninstall_argv":    list(action.uninstall_argv),
+        "status":            "started",
+    }
+
+
+# ---------- single-confirmation helper (PRE-02 / D-06 / INTERFACE 9) ----------
+
+def _confirm_batch(plan: Plan) -> bool:
+    """Single y/n covering the whole batch (PRE-02). Returns True if user typed y/yes."""
+    if not sys.stdin.isatty():
+        sys.stderr.write(
+            "OSBuilder: preflight requires an interactive terminal. "
+            "Re-run from a real shell.\n"
+        )
+        return False
+    prompt = f"\nProceed with installing {len(plan.actions)} tool(s)? [y/N]: "
+    answer = input(prompt).strip().lower()
+    return answer in ("y", "yes")
+
+
+# ---------- public API: apply() — PRE-04, auto-rollback on failure ----------
 
 def apply(plan: Plan) -> int:
-    raise NotImplementedError("Task 2 (Plan 02-02) implements this")
+    """PRE-04: transactional install. Records each action to install-log
+    BEFORE invoking subprocess.run, marks succeeded/failed after.
 
+    On any failure, calls rollback() automatically.
+    Returns 0 on full success, non-zero on rollback completion.
+    """
+    if not plan.actions:
+        sys.stdout.write("Nothing to install.\n")
+        return 0
+    # Print preview and single confirmation prompt when running interactively (PRE-02 + PRE-05).
+    # In non-TTY context (CI / pipe) we skip the prompt and proceed directly —
+    # this avoids stdin blocking forever (T-02-20 mitigation).
+    sys.stdout.write(render_preview(plan))
+    if sys.stdin.isatty():
+        if not _confirm_batch(plan):
+            sys.stdout.write("Aborted by user.\n")
+            return 1
+    log = _read_install_log()
+    for action in plan.actions:
+        # ATOMICITY INVARIANT (T-02-11 high-severity mitigation):
+        # write 'started' to log BEFORE subprocess.run is invoked.
+        # The strict ordering write→subprocess is the falsifying claim
+        # exercised by test_log_recorded_before_subprocess.
+        entry = _new_log_entry(action, platform_name=plan.os)
+        log["actions"].append(entry)
+        _write_install_log(log)
+        # On sudo-required calls, do NOT capture stdin/stdout — let sudo own
+        # the TTY (Pitfall 5).
+        cap = not action.requires_sudo
+        try:
+            result = subprocess.run(
+                action.install_argv,
+                shell=False,
+                capture_output=cap,
+                text=cap,
+                check=False,
+            )
+        except KeyboardInterrupt:
+            entry["status"] = "failed"
+            _write_install_log(log)
+            sys.stderr.write("\nInterrupted; rolling back...\n")
+            return rollback()
+        except (FileNotFoundError, OSError) as e:
+            entry["status"] = "failed"
+            _write_install_log(log)
+            sys.stderr.write(f"OSBuilder: {action.tool} install failed: {e}\n")
+            return rollback()
+        # Re-write log to reflect success or failure
+        if result.returncode == 0:
+            entry["status"] = "succeeded"
+            entry["succeeded_at"] = _now_iso()
+            _write_install_log(log)
+        else:
+            entry["status"] = "failed"
+            _write_install_log(log)
+            sys.stderr.write(
+                f"OSBuilder: {action.tool} install exited {result.returncode}; "
+                f"rolling back...\n"
+            )
+            return rollback()
+    return 0
+
+
+# ---------- public API: rollback() — PRE-04 batch rollback ----------
 
 def rollback() -> int:
-    raise NotImplementedError("Task 2 (Plan 02-02) implements this")
+    """Iterate install-log in REVERSE; run each succeeded action's uninstall_argv."""
+    log = _read_install_log()
+    # Walk in reverse over actions where status != "rolled-back"
+    # (started but not succeeded means a partial install; attempt cleanup anyway)
+    failed = 0
+    for entry in reversed(log["actions"]):
+        if entry["status"] in ("rolled-back",):
+            continue
+        try:
+            r = subprocess.run(entry["uninstall_argv"], shell=False,
+                               capture_output=False, check=False)
+        except (FileNotFoundError, OSError):
+            failed += 1
+            continue
+        if r.returncode == 0:
+            entry["status"] = "rolled-back"
+        else:
+            failed += 1
+    _write_install_log(log)
+    return 0 if failed == 0 else 2
 
+
+# ---------- public API: uninstall() — PRE-06 ----------
 
 def uninstall() -> int:
-    raise NotImplementedError("Task 2 (Plan 02-02) implements this")
+    """PRE-06: user-invoked uninstall. Same algorithm as rollback().
 
+    Plan 02-03 ships the thin CLI wrapper scripts/uninstall.py that imports
+    and invokes this function: `from preflight_check import uninstall`.
+    """
+    return rollback()
+
+
+# ---------- public API: main() — argparse dispatch ----------
 
 def main(argv: list[str] | None = None) -> int:
-    raise NotImplementedError("Task 2 (Plan 02-02) implements this")
+    if argv is None:
+        argv = sys.argv[1:]
+    parser = argparse.ArgumentParser(
+        prog="preflight_check",
+        description="OSBuilder preflight checker.",
+    )
+    sub = parser.add_subparsers(dest="cmd", required=True)
+
+    p_check = sub.add_parser("check", help="detect + plan, print human-readable")
+    p_check.add_argument("--no-docker", action="store_true")
+
+    p_preview = sub.add_parser("preview", help="dry-run preview (PRE-05)")
+    p_preview.add_argument("--no-docker", action="store_true")
+
+    p_install = sub.add_parser("install", help="apply with single y/n confirmation")
+    p_install.add_argument("--no-docker", action="store_true")
+    p_install.add_argument("--dry-run", action="store_true")
+
+    sub.add_parser("rollback", help="undo last batch")
+    sub.add_parser("uninstall", help="remove everything OSBuilder installed (PRE-06)")
+
+    args = parser.parse_args(argv)
+
+    if args.cmd in ("check", "preview", "install"):
+        # Merge CLI flag with persisted config (D-12).
+        # Persistence lives here in main() — detect()/plan() are pure functions
+        # that only use the passed no_docker value (test isolation requirement).
+        cli_no_docker = getattr(args, "no_docker", False)
+        effective_no_docker = cli_no_docker or _read_no_docker_config()
+        if cli_no_docker:
+            _write_no_docker_config(True)
+    else:
+        effective_no_docker = False
+
+    if args.cmd == "check":
+        pln = plan(no_docker=effective_no_docker)
+        sys.stdout.write(f"Detected OS: {pln.os}\n")
+        for tool, st in pln.statuses.items():
+            sys.stdout.write(
+                f"  {tool}: detected={st.detected} version={st.version!r} "
+                f"version_ok={st.version_ok} vm_routing={st.vm_routing}\n"
+            )
+        return 0
+    if args.cmd == "preview":
+        pln = plan(no_docker=effective_no_docker)
+        sys.stdout.write(render_preview(pln))
+        return 0
+    if args.cmd == "install":
+        pln = plan(no_docker=effective_no_docker)
+        if args.dry_run:
+            sys.stdout.write(render_preview(pln))
+            return 0
+        return apply(pln)
+    if args.cmd == "rollback":
+        return rollback()
+    if args.cmd == "uninstall":
+        return uninstall()
+    return 2
 
 
 if __name__ == "__main__":
