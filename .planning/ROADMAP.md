@@ -49,7 +49,12 @@ Plans:
   4. Running `/osbuilder uninstall` on a machine where preflight installed five tools removes all five (and only those five — pre-existing tools are left intact).
   5. On a Windows machine without Docker Desktop, passing `--no-docker` lets the user complete a full SQLite-only single-user CLI build to private GitHub without ever being prompted for Docker.
   6. End-to-end: a non-developer on a fresh Mac runs `/osbuilder` and the install flow completes (all required prereqs present, ready for intake) in ≤ 3 minutes including download time.
-**Plans:** TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 02-01-PLAN.md — Wave 0 test infrastructure: extend conftest.py with FakeShell + 3 fixtures, drop ≥ 15 RED stubs across test_preflight.py + test_uninstall.py (covers PRE-01..PRE-07)
+- [ ] 02-02-PLAN.md — scripts/preflight_check.py: detect / plan / render_preview / apply / rollback / uninstall / main with stdlib-only Python 3.13, atomic install-log, all-or-nothing rollback (PRE-01, PRE-02, PRE-03, PRE-04, PRE-05, PRE-07) [TDD]
+- [ ] 02-03-PLAN.md — scripts/uninstall.py: thin wrapper around preflight_check.uninstall (PRE-06)
+- [ ] 02-04-PLAN.md — references/preflight/{README,macos,linux,windows}.md: per-OS install matrices, decision trees, edge cases — handoff entry point (no SKILL.md edit)
 
 ### Phase 3: Intake + Stack research + Web playbook (one-playbook E2E)
 **Goal:** A user describes a web app in plain English and OSBuilder produces a scaffolded, runnable Next.js + Postgres + Tailwind project on disk — proving the full intake → research → scaffold loop end-to-end on the most-validated playbook before any other playbooks are added.
@@ -166,7 +171,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 1/5 | Executing (Wave 0 done) | - |
-| 2. Pre-flight installer | 0/TBD | Not started | - |
+| 2. Pre-flight installer | 0/4 | Plan ready (Wave 0 + Wave 1) | - |
 | 3. Intake + Research + Web playbook | 0/TBD | Not started | - |
 | 4. GSD handoff + Verify + Healing | 0/TBD | Not started | - |
 | 5. Common-person UX polish | 0/TBD | Not started | - |
