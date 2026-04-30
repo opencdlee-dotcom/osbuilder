@@ -29,12 +29,18 @@ def test_uninstall_reverses_all(un, fake_shell, tmp_install_log, monkeypatch):
              "platform": "macos", "started_at": "2026-04-29T10:00:00Z",
              "succeeded_at": "2026-04-29T10:00:30Z",
              "install_command": "brew install node@20",
-             "uninstall_command": "brew uninstall node@20", "status": "succeeded"},
+             "install_argv": ["brew", "install", "node@20"],
+             "uninstall_command": "brew uninstall node@20",
+             "uninstall_argv": ["brew", "uninstall", "node@20"],
+             "status": "succeeded"},
             {"tool": "gh", "manager": "brew", "package_id": "gh",
              "platform": "macos", "started_at": "2026-04-29T10:00:31Z",
              "succeeded_at": "2026-04-29T10:00:45Z",
              "install_command": "brew install gh",
-             "uninstall_command": "brew uninstall gh", "status": "succeeded"},
+             "install_argv": ["brew", "install", "gh"],
+             "uninstall_command": "brew uninstall gh",
+             "uninstall_argv": ["brew", "uninstall", "gh"],
+             "status": "succeeded"},
         ],
     }
     tmp_install_log.write_text(json.dumps(log), encoding="utf-8")
@@ -61,7 +67,10 @@ def test_uninstall_preserves_pre_existing(un, fake_shell, tmp_install_log, monke
              "platform": "macos", "started_at": "2026-04-29T10:00:31Z",
              "succeeded_at": "2026-04-29T10:00:45Z",
              "install_command": "brew install gh",
-             "uninstall_command": "brew uninstall gh", "status": "succeeded"},
+             "install_argv": ["brew", "install", "gh"],
+             "uninstall_command": "brew uninstall gh",
+             "uninstall_argv": ["brew", "uninstall", "gh"],
+             "status": "succeeded"},
         ],
     }
     tmp_install_log.write_text(json.dumps(log), encoding="utf-8")
