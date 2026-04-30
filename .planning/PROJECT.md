@@ -14,15 +14,18 @@ If anything else fails, this single promise must hold: *describe → working app
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] User can describe an app in plain English (paragraph or structured spec) and get a `derived_spec.md` handoff document — Validated in Phase 3 (IN-01, IN-02): `parse_paragraph()` and `parse_structured()` both write the `/gsd-new-project --auto` format
+- [x] OSBuilder web-researches the right modern stack for the described app — Validated in Phase 3 (RES-01..RES-04): `stack_researcher.py` calls brainiac subprocess, returns structured JSON per component with fallback to `stack-menu.md` defaults and `--advanced` override support
+- [x] OSBuilder always starts from a deterministic scaffolder — Validated in Phase 3 (SCAF-01, SCAF-06): `scaffold_web()` runs `pnpm create next-app@latest` with pinned flags; never hand-writes `package.json`
+- [x] All questioning uses plain-English, outcome-framed options — Validated in Phase 3 (IN-03): `question-bank.md` passes jargon gate (no "responsive", "ORM", "framework", etc.)
+- [x] Every question has an "I don't know, you decide" option — Validated in Phase 3 (IN-04): all 6 question sections in `question-bank.md` include this option
 
 ### Active
 
 #### Core build pipeline
 
-- [ ] User can describe an app in plain English (paragraph, structured spec, OR pointing at a reference app like `professor/`) and OSBuilder takes it from there
-- [ ] OSBuilder web-researches the right modern stack for the described app (no fixed default — Next.js for web, FastAPI for AI services, Tauri for desktop, etc.)
-- [ ] OSBuilder always starts from a deterministic scaffolder (`create-next-app`, `create-t3-app`, `npm create vite`, `cargo new`, etc.) where one exists — never hand-writes `package.json`
+- [ ] User can describe an app by pointing at a reference app like `professor/` and OSBuilder takes it from there
+- [ ] OSBuilder web-researches the right modern stack for the described app (no fixed default — Next.js for web, FastAPI for AI services, Tauri for desktop, etc.) ← _research validated; full GSD handoff pending Phase 4_
 - [ ] OSBuilder hands off to GSD's spec → plan → execute → verify loop for actual implementation (does not reimplement what GSD already does)
 - [ ] OSBuilder produces a working local app the user can run with one documented command after clone
 - [ ] OSBuilder pushes the result to a **private GitHub repo** with a clone-and-run runbook in the README
@@ -111,9 +114,9 @@ If anything else fails, this single promise must hold: *describe → working app
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Build OSBuilder as a Claude Code skill (not CLI, not web app) | Standalone CLI would have to re-implement Claude's reasoning to do "anything end-to-end"; skill leverages existing toolbelt + skills ecosystem | — Pending |
-| Always start from deterministic scaffolder (create-next-app etc.) when one exists; never hand-write boilerplate | Bolt.new / vibe-coding mode burns 10M+ tokens generating package.json from scratch and produces messy code; deterministic scaffolders are free, reproducible, idiomatic | — Pending |
+| Always start from deterministic scaffolder (create-next-app etc.) when one exists; never hand-write boilerplate | Bolt.new / vibe-coding mode burns 10M+ tokens generating package.json from scratch and produces messy code; deterministic scaffolders are free, reproducible, idiomatic | Validated in Phase 3 (SCAF-01, SCAF-06): `pnpm create next-app@latest` with pinned flags |
 | Orchestrator pattern over monolith — delegate to existing skills (gsd, brainiac, predator, code-tester, problem-solver, gsd:debug) | Anthropic's official skill guidance + 211M-line study shows duplication is the failure mode; composition is the way out | — Pending |
-| Research per build (not fixed stack) | User explicit choice; matches modern best practice that picks Next.js/FastAPI/Tauri based on what's being built | — Pending |
+| Research per build (not fixed stack) | User explicit choice; matches modern best practice that picks Next.js/FastAPI/Tauri based on what's being built | Validated in Phase 3 (RES-01..RES-04): brainiac subprocess + fallback menu |
 | Auto-fix mode default with 3-reflection cap, then escalate with structured handoff | Matches Aider's empirically-validated limit; production self-healing pattern requires failure classification before retry | — Pending |
 | Tutor mode ON by default, `--quiet` opt-out | Audience is "common person"; explanation builds trust and teaches; power users can disable | — Pending |
 | Auto-install prerequisites with single confirmation prompt | "Common person" can't be expected to know how to install Node/Docker/gh; confirmation keeps trust without blocking flow | — Pending |
@@ -140,4 +143,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-29 after initialization*
+*Last updated: 2026-04-30 — Phase 3 complete: intake → stack research → scaffold loop validated*
