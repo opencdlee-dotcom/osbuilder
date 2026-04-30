@@ -1,0 +1,42 @@
+# OSBuilder Stack Menu — Web Playbook Defaults
+
+> Fallback defaults loaded by `stack_researcher.py` when `/brainiac` times out
+> or returns a low-confidence result (RES-03).
+> Loaded on-demand — not pulled into SKILL.md.
+
+## Web playbook defaults
+
+| Component | Package | Version | Rationale |
+|-----------|---------|---------|-----------|
+| Framework | next.js | 16.2.4 | Full-stack React; App Router default; create-next-app scaffolded |
+| ORM | drizzle-orm | 0.45.2 | 33KB bundle; type-safe; faster cold start than Prisma |
+| Database | postgres | 18-alpine | Multi-user default; compose.yaml service |
+| CSS | tailwindcss | 4.2.4 | Bundled by create-next-app --tailwind; CSS-first in v4 |
+| Package Manager | pnpm | 10.33.2 | Disk-efficient; --use-pnpm flag in create-next-app |
+
+Supporting packages (not parsed by `_read_stack_menu` — for reference only):
+
+| Package | Version | Role |
+|---------|---------|------|
+| drizzle-kit | 0.31.10 | Migrations + codegen (companion to drizzle-orm) |
+| postgres.js | 3.4.9 | Postgres driver for Drizzle (postgres package) |
+
+## How stack_researcher.py reads this file
+
+`_read_stack_menu()` parses rows in the "## Web playbook defaults" table above.
+It maps column 1 (Component) to internal keys: framework, orm, database, css, package_manager.
+Returns `{"framework": {"name": "next.js", "version": "16.2.4", "source": "stack-menu"}, ...}`.
+Returns hardcoded equivalent if this file is absent or unreadable.
+
+## Updating defaults
+
+When a package releases a new major version:
+1. Verify against npm registry: `npm view <pkg> version`
+2. Update the version in the table above
+3. Update RESEARCH.md Standard Stack section to match
+4. Run `python3 -m pytest scripts/tests/ -x` to confirm no test regressions
+
+## See also
+
+- `references/playbooks/web.md` — playbook spec that consumes these defaults
+- `scripts/stack_researcher.py` — implementation that reads this file
