@@ -212,8 +212,14 @@ def test_step_2_calls_registry_verify(gd, tmp_project_root, writer, monkeypatch)
     calls = []
 
     def selective_run(cmd, *args, **kwargs):
-        sig = " ".join(str(c) for c in cmd) if isinstance(cmd, list) else str(cmd)
-        if "registry_verify" in sig:
+        # Match only when an argv token is the registry_verify.py script path —
+        # do NOT use a loose substring scan over the whole command line, since
+        # the state_writer last_failure value could legitimately contain the
+        # substring "registry_verify" and would otherwise be misclassified.
+        is_registry_call = isinstance(cmd, list) and any(
+            isinstance(c, str) and c.endswith("registry_verify.py") for c in cmd
+        )
+        if is_registry_call:
             calls.append(list(cmd))
             return _real_subprocess.CompletedProcess(cmd, 0, "", "")
         return _real_run(cmd, *args, **kwargs)
@@ -249,8 +255,12 @@ def test_step_2_blocks_on_registry_failure(gd, tmp_project_root, writer, monkeyp
     _real_run = _real_subprocess.run
 
     def selective_run(cmd, *args, **kwargs):
-        sig = " ".join(str(c) for c in cmd) if isinstance(cmd, list) else str(cmd)
-        if "registry_verify" in sig:
+        # Match by argv token (script path) — see test_step_2_calls_registry_verify
+        # for rationale (avoid false positives from values containing "registry_verify").
+        is_registry_call = isinstance(cmd, list) and any(
+            isinstance(c, str) and c.endswith("registry_verify.py") for c in cmd
+        )
+        if is_registry_call:
             return _real_subprocess.CompletedProcess(cmd, 1, "", "not found")
         return _real_run(cmd, *args, **kwargs)
 
@@ -289,8 +299,14 @@ def test_step_2_skips_gate_without_stack_choices(gd, tmp_project_root, writer, m
     calls = []
 
     def selective_run(cmd, *args, **kwargs):
-        sig = " ".join(str(c) for c in cmd) if isinstance(cmd, list) else str(cmd)
-        if "registry_verify" in sig:
+        # Match only when an argv token is the registry_verify.py script path —
+        # do NOT use a loose substring scan over the whole command line, since
+        # the state_writer last_failure value could legitimately contain the
+        # substring "registry_verify" and would otherwise be misclassified.
+        is_registry_call = isinstance(cmd, list) and any(
+            isinstance(c, str) and c.endswith("registry_verify.py") for c in cmd
+        )
+        if is_registry_call:
             calls.append(list(cmd))
             return _real_subprocess.CompletedProcess(cmd, 0, "", "")
         return _real_run(cmd, *args, **kwargs)

@@ -188,6 +188,69 @@ def build_install_cmd(package: str, ecosystem: str) -> list[str]:
     raise ValueError(f"Unknown ecosystem: {ecosystem}")
 
 
+def _run_registry_gate(project_root: Path, state: dict) -> int:
+    """HEAL-05: invoke registry_verify.py if stack_choices is available.
+
+    Returns 0 if the gate passes (package verified or skipped) — caller advances phase_step.
+    Returns 1 if the gate blocks (package not on registry) — caller does NOT advance.
+
+    Fail-open: network errors are handled inside registry_verify.py (exits 0 on URLError).
+    This function only blocks on explicit exit 1 (package definitively not on registry).
+
+    If stack_choices is absent, empty, or malformed, the gate is skipped silently and
+    phase_step advances. This is correct: the package may not be known at plan time (it
+    comes from the execute phase in some builds). The gate at the actual install call site
+    (build_install_cmd) remains the final backstop.
+
+    T-04-06-01 (Tampering): pkg/eco values flow into subprocess.run as list elements
+    with shell=False — no shell interpolation. stack_choices was written by state_writer
+    which enforces _check_value_safe (rejects newlines and "..").
+    T-04-06-02 (Tampering): last_failure message template is hardcoded; pkg/eco come from
+    state_writer's allowlist + _check_value_safe so the final value passes
+    state_writer.write's _check_value_safe on the way back to disk.
+    """
+    raw = state.get("stack_choices", "").strip()
+    if not raw:
+        # No package info yet — gate deferred; advance normally.
+        _bump_field(project_root, "phase_step")
+        return 0
+
+    try:
+        choices = json.loads(raw)
+    except (json.JSONDecodeError, ValueError):
+        # Malformed JSON — skip gate rather than crashing the phase loop.
+        _bump_field(project_root, "phase_step")
+        return 0
+
+    pkg = choices.get("pkg", "").strip()
+    eco = choices.get("ecosystem", "").strip()
+
+    if not pkg or not eco:
+        # Package or ecosystem not resolved yet — skip gate.
+        _bump_field(project_root, "phase_step")
+        return 0
+
+    result = subprocess.run(
+        [sys.executable, str(REGISTRY_VERIFY), "--pkg", pkg, "--ecosystem", eco],
+        shell=False,
+    )
+
+    if result.returncode != 0:
+        # Package not found on registry — write last_failure, do NOT advance phase_step.
+        # Message uses neutral wording ("slopsquatting gate") so substring matchers
+        # (e.g., test selective_run filters keyed on "registry_verify") do not
+        # accidentally classify this state_writer write as a registry_verify call.
+        _write_field(
+            project_root,
+            "last_failure",
+            f"slopsquatting gate blocked pkg {pkg} on {eco}",
+        )
+        return 1
+
+    _bump_field(project_root, "phase_step")
+    return 0
+
+
 def emit_next_command(project_root: Path) -> int:
     """Read state.md and emit the next GSD slash command to stdout.
 
@@ -216,9 +279,9 @@ def emit_next_command(project_root: Path) -> int:
 
     # 4. dispatch by phase_step
     if phase_step == 2:
-        # Registry verify gate — no slash command; advance step
-        _bump_field(project_root, "phase_step")
-        return 0
+        # HEAL-05: Registry verify gate — check package against public registry.
+        # Delegates to _run_registry_gate which reads stack_choices from state.
+        return _run_registry_gate(project_root, state)
 
     if phase_step == 7:
         # VER-01: write VERIFICATION.md
