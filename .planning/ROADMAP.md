@@ -30,7 +30,13 @@
   3. On a machine where Python is missing, running `bash bootstrap.sh` (POSIX) or `pwsh bootstrap.ps1` (Windows) installs Python and re-execs into `state_writer.py` without manual intervention.
   4. After `scripts/state_writer.py write --goal "test"` runs, `<project-root>/.planning/osbuilder/state.md` is on disk, ≤ 20 lines, and contains all 10 named fields (goal, app_type, playbook, current_role, current_phase, phase_step, last_failure, retry_count, escalation_level, next_action).
   5. After a simulated `/clear`, re-loading SKILL.md and reading `state.md` returns the user to the same `current_role` / `current_phase` as before the clear.
-**Plans:** TBD
+**Plans:** 5 plans
+Plans:
+- [x] 01-01-PLAN.md — Wave 0 test infrastructure (pyproject.toml, .gitattributes, pytest stubs for FOUND-01/02/05) — completed 2026-04-29 (commits bedee58 + e3758de)
+- [ ] 01-02-PLAN.md — SKILL.md (≤ 200 lines, valid frontmatter, Resume Protocol) + references/README.md seed (FOUND-01, FOUND-02)
+- [ ] 01-03-PLAN.md — install.sh (idempotent, anchored paths) + .gitkeep markers for the 4-dir layout (FOUND-03)
+- [ ] 01-04-PLAN.md — scripts/state_writer.py: 10-field state.md plumbing, atomic os.replace, V5/V12/V7 input validation (FOUND-05) [TDD]
+- [ ] 01-05-PLAN.md — scripts/bootstrap.sh (POSIX) + scripts/bootstrap.ps1 (PowerShell 5.1) cross-platform Python install shims (FOUND-04)
 
 ### Phase 2: Pre-flight installer (cross-platform)
 **Goal:** A non-developer with a fresh machine — no Node, no Python beyond what was bootstrapped, no git, no `gh`, no Docker — runs `/osbuilder` once and ends up with all required prerequisites installed, with no manual command-line work.
@@ -159,7 +165,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 1/5 | Executing (Wave 0 done) | - |
 | 2. Pre-flight installer | 0/TBD | Not started | - |
 | 3. Intake + Research + Web playbook | 0/TBD | Not started | - |
 | 4. GSD handoff + Verify + Healing | 0/TBD | Not started | - |
@@ -170,4 +176,4 @@
 
 ---
 *Roadmap defined: 2026-04-29*
-*Last updated: 2026-04-29 after initial creation*
+*Last updated: 2026-04-29 after Plan 01-01 completion*
