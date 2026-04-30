@@ -34,27 +34,38 @@ Requirements for initial release. Each maps to exactly one roadmap phase (see Tr
 
 ### Intake (plain-English → structured brief)
 
-- [ ] **IN-01**: User can describe an app in a plain-English paragraph and OSBuilder takes it from there
-- [ ] **IN-02**: User can submit a structured spec (features list / stack hints / users) instead of paragraph form
-- [ ] **IN-03**: All clarifying questions are outcome-framed in plain English (e.g., "Should it work on phones too?" — never "responsive design?")
-- [ ] **IN-04**: Every clarifying question has an "I don't know, you decide" option that picks the documented sensible default
-- [ ] **IN-05**: OSBuilder synthesizes the intake into a brief that it hands off to `/gsd-new-project --auto`
+- [x] **IN-01
+**: User can describe an app in a plain-English paragraph and OSBuilder takes it from there
+- [x] **IN-02
+**: User can submit a structured spec (features list / stack hints / users) instead of paragraph form
+- [x] **IN-03
+**: All clarifying questions are outcome-framed in plain English (e.g., "Should it work on phones too?" — never "responsive design?")
+- [x] **IN-04
+**: Every clarifying question has an "I don't know, you decide" option that picks the documented sensible default
+- [x] **IN-05
+**: OSBuilder synthesizes the intake into a brief that it hands off to `/gsd-new-project --auto`
 
 ### Stack research per build
 
-- [ ] **RES-01**: For each build, OSBuilder uses `/brainiac` (or a focused web-research agent) to research the right modern stack for the described app type
-- [ ] **RES-02**: Stack research output is structured (libraries with verified versions, anti-recommendations, rationale)
-- [ ] **RES-03**: Stack research falls back to OSBuilder's `references/stack-menu.md` when web research is inconclusive
-- [ ] **RES-04**: User can override the researched stack via `--advanced` mode
+- [x] **RES-01
+**: For each build, OSBuilder uses `/brainiac` (or a focused web-research agent) to research the right modern stack for the described app type
+- [x] **RES-02
+**: Stack research output is structured (libraries with verified versions, anti-recommendations, rationale)
+- [x] **RES-03
+**: Stack research falls back to OSBuilder's `references/stack-menu.md` when web research is inconclusive
+- [x] **RES-04
+**: User can override the researched stack via `--advanced` mode
 
 ### Deterministic scaffolders (always-scaffold-first)
 
-- [ ] **SCAF-01**: OSBuilder maintains `references/playbooks/web.md` covering create-next-app + Drizzle + Postgres-via-compose + Tailwind 4 + pnpm
+- [x] **SCAF-01
+**: OSBuilder maintains `references/playbooks/web.md` covering create-next-app + Drizzle + Postgres-via-compose + Tailwind 4 + pnpm
 - [ ] **SCAF-02**: OSBuilder maintains `references/playbooks/ai-service.md` covering FastAPI + uv + Pydantic v2 (with OSBuilder-supplied template `assets/fastapi-starter/` since no `create-fastapi-app` exists)
 - [ ] **SCAF-03**: OSBuilder maintains `references/playbooks/cli.md` covering Python + Typer + Rich + SQLite for single-user CLIs
 - [ ] **SCAF-04**: OSBuilder maintains `references/playbooks/desktop.md` covering Tauri 2 (refuses Electron in v1)
 - [ ] **SCAF-05**: OSBuilder maintains `references/playbooks/hub-platform.md` for Professor-Hub-style umbrella workspaces (top-level CLAUDE.md routing table + sub-tool subdirectories)
-- [ ] **SCAF-06**: `scripts/scaffold_dispatch.py` invokes the right deterministic scaffolder for the chosen playbook — OSBuilder never hand-writes `package.json`, `tsconfig.json`, `pyproject.toml`, etc., when a scaffolder exists
+- [x] **SCAF-06
+**: `scripts/scaffold_dispatch.py` invokes the right deterministic scaffolder for the chosen playbook — OSBuilder never hand-writes `package.json`, `tsconfig.json`, `pyproject.toml`, etc., when a scaffolder exists
 
 ### GSD handoff + role orchestration (single-threaded)
 
