@@ -17,13 +17,20 @@ Requirements for initial release. Each maps to exactly one roadmap phase (see Tr
 
 ### Pre-flight installer (the moat)
 
-- [ ] **PRE-01**: OSBuilder detects which prerequisites are missing on first run (Node 20+, Python 3.13+, git, `gh` CLI, Docker — Docker only when needed)
-- [ ] **PRE-02**: For each missing tool, OSBuilder offers auto-install with a single confirmation prompt ("To build this app I need a tool called Node.js — want me to install it for you?")
-- [ ] **PRE-03**: Pre-flight installer works on macOS (Homebrew), Linux (apt/dnf with auto-detection), and Windows (winget primary → scoop fallback → choco last resort)
-- [ ] **PRE-04**: Pre-flight installer is transactional — failed installs roll back, never leave the system half-broken
-- [ ] **PRE-05**: Pre-flight installer offers a dry-run preview ("Here's what I'll install: …") before any state change
-- [ ] **PRE-06**: Pre-flight installer has an uninstall path that cleanly removes anything OSBuilder added
-- [ ] **PRE-07**: A `--no-docker` mode lets users with Docker friction (e.g., Windows individual users without Docker Desktop) build SQLite-only single-user apps
+- [x] **PRE-01
+**: OSBuilder detects which prerequisites are missing on first run (Node 20+, Python 3.13+, git, `gh` CLI, Docker — Docker only when needed)
+- [x] **PRE-02
+**: For each missing tool, OSBuilder offers auto-install with a single confirmation prompt ("To build this app I need a tool called Node.js — want me to install it for you?")
+- [x] **PRE-03
+**: Pre-flight installer works on macOS (Homebrew), Linux (apt/dnf with auto-detection), and Windows (winget primary → scoop fallback → choco last resort)
+- [x] **PRE-04
+**: Pre-flight installer is transactional — failed installs roll back, never leave the system half-broken
+- [x] **PRE-05
+**: Pre-flight installer offers a dry-run preview ("Here's what I'll install: …") before any state change
+- [x] **PRE-06
+**: Pre-flight installer has an uninstall path that cleanly removes anything OSBuilder added
+- [x] **PRE-07
+**: A `--no-docker` mode lets users with Docker friction (e.g., Windows individual users without Docker Desktop) build SQLite-only single-user apps
 
 ### Intake (plain-English → structured brief)
 
