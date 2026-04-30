@@ -83,10 +83,15 @@ def _now_iso() -> str:
 # ---------- core read/write ----------
 
 def render_state_md(fields: dict) -> str:
-    """Render a 10-field state.md content string. ~13 lines."""
+    """Render state.md. Writes required fields first, then any extra allowed fields."""
     lines = ["# OSBuilder State", ""]
     for f in REQUIRED_FIELDS:
         lines.append(f"{f}: {fields.get(f, '')}")
+    # Persist optional allowed fields so sequential writes don't erase each other
+    extras = sorted(ALLOWED_FIELDS - set(REQUIRED_FIELDS))
+    for f in extras:
+        if f in fields:
+            lines.append(f"{f}: {fields[f]}")
     lines.append(f"updated_at: {fields.get('updated_at', _now_iso())}")
     return "\n".join(lines) + "\n"
 
