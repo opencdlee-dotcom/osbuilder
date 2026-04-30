@@ -69,25 +69,39 @@ Requirements for initial release. Each maps to exactly one roadmap phase (see Tr
 
 ### GSD handoff + role orchestration (single-threaded)
 
-- [ ] **ROLE-01**: OSBuilder runs `/gsd-new-project --auto` once with the synthesized brief, then drives GSD's per-phase commands sequentially (never forks GSD's logic)
-- [ ] **ROLE-02**: PM role delegates to `/gsd-spec-phase` for ambiguity scoring + spec lock
-- [ ] **ROLE-03**: Architect role delegates to `/gsd-plan-phase` and `/brainiac` for stack/architecture decisions
-- [ ] **ROLE-04**: Frontend / Backend / DevOps roles delegate to `/gsd-execute-phase` (sequentially, NOT in parallel — multi-agent is an anti-feature)
-- [ ] **ROLE-05**: QA role delegates to `/code-tester` and `/gsd-verify-work` against falsifiable success criteria
-- [ ] **ROLE-06**: Reviewer role delegates to `/predator` and `/gsd-code-review` before any phase is marked done
+- [x] **ROLE-01
+**: OSBuilder runs `/gsd-new-project --auto` once with the synthesized brief, then drives GSD's per-phase commands sequentially (never forks GSD's logic)
+- [x] **ROLE-02
+**: PM role delegates to `/gsd-spec-phase` for ambiguity scoring + spec lock
+- [x] **ROLE-03
+**: Architect role delegates to `/gsd-plan-phase` and `/brainiac` for stack/architecture decisions
+- [x] **ROLE-04
+**: Frontend / Backend / DevOps roles delegate to `/gsd-execute-phase` (sequentially, NOT in parallel — multi-agent is an anti-feature)
+- [x] **ROLE-05
+**: QA role delegates to `/code-tester` and `/gsd-verify-work` against falsifiable success criteria
+- [x] **ROLE-06
+**: Reviewer role delegates to `/predator` and `/gsd-code-review` before any phase is marked done
 - [ ] **ROLE-07**: Tech Writer role delegates to `/gsd-docs-update` and `/humanizer` for plain-English README and runbook
-- [ ] **ROLE-08**: Debug-cap delegates to `/gsd-debug` and `/problem-solver` when the failure classifier hits the retry limit on the same failure class
+- [x] **ROLE-08
+**: Debug-cap delegates to `/gsd-debug` and `/problem-solver` when the failure classifier hits the retry limit on the same failure class
 - [ ] **ROLE-09**: User-facing progress is narrated at the dev-team level ("PM is gathering requirements... ✓ / Frontend dev is building the homepage...") — never raw command output
 
 ### Self-healing build loop
 
-- [ ] **HEAL-01**: A failure classifier (`scripts/failure_classifier.py`) categorizes errors into 4 classes: transient / context-overflow / tool-failure / validation-failure
-- [ ] **HEAL-02**: Each failure class has a documented retry strategy (transient → exponential backoff; context → compress + retry; tool → fallback path; validation → re-plan, NOT retry)
-- [ ] **HEAL-03**: Hard cap of 3 reflections per failure (Aider's empirically-validated limit); beyond that, escalate
-- [ ] **HEAL-04**: Escalation produces a structured handoff to the user: state, last error, what was tried, recommended next action
-- [ ] **HEAL-05**: A registry-verification gate (`scripts/registry_verify.py`) checks every package against the public registry before any `npm install` / `pip install` / `cargo add` (slopsquatting defense)
-- [ ] **HEAL-06**: Package install runs with `--ignore-scripts` until registry verification passes
-- [ ] **HEAL-07**: Retry counter and last-failure persist in `state.md` so retries survive `/clear` and compaction
+- [x] **HEAL-01
+**: A failure classifier (`scripts/failure_classifier.py`) categorizes errors into 4 classes: transient / context-overflow / tool-failure / validation-failure
+- [x] **HEAL-02
+**: Each failure class has a documented retry strategy (transient → exponential backoff; context → compress + retry; tool → fallback path; validation → re-plan, NOT retry)
+- [x] **HEAL-03
+**: Hard cap of 3 reflections per failure (Aider's empirically-validated limit); beyond that, escalate
+- [x] **HEAL-04
+**: Escalation produces a structured handoff to the user: state, last error, what was tried, recommended next action
+- [x] **HEAL-05
+**: A registry-verification gate (`scripts/registry_verify.py`) checks every package against the public registry before any `npm install` / `pip install` / `cargo add` (slopsquatting defense)
+- [x] **HEAL-06
+**: Package install runs with `--ignore-scripts` until registry verification passes
+- [x] **HEAL-07
+**: Retry counter and last-failure persist in `state.md` so retries survive `/clear` and compaction
 
 ### Common-person UX
 
@@ -99,10 +113,14 @@ Requirements for initial release. Each maps to exactly one roadmap phase (see Tr
 
 ### Verify against falsifiable criteria
 
-- [ ] **VER-01**: Every phase has a list of falsifiable success criteria (testable outcomes, not "tests pass")
-- [ ] **VER-02**: `/gsd-verify-work` is invoked at the end of every phase against those criteria
-- [ ] **VER-03**: `/code-tester` runs adversarial tests on every phase before it's marked done
-- [ ] **VER-04**: `/predator` reviews architecture and security on every phase before it's marked done
+- [x] **VER-01
+**: Every phase has a list of falsifiable success criteria (testable outcomes, not "tests pass")
+- [x] **VER-02
+**: `/gsd-verify-work` is invoked at the end of every phase against those criteria
+- [x] **VER-03
+**: `/code-tester` runs adversarial tests on every phase before it's marked done
+- [x] **VER-04
+**: `/predator` reviews architecture and security on every phase before it's marked done
 
 ### Ship to private GitHub
 
