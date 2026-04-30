@@ -42,9 +42,10 @@ export default defineConfig({
 });
 """
 
-# Password is 5 chars — placeholder only, not a real credential (T-3-04)
+# _ENV_EXAMPLE: DATABASE_URL uses password "myapp" (5 chars) — placeholder only (T-3-04)
 _ENV_EXAMPLE = "DATABASE_URL=postgresql://myapp:myapp@localhost:5432/myapp\n"
 
+# _COMPOSE_YAML: POSTGRES_PASSWORD uses "myapp_secret" — dev-only placeholder (T-3-04)
 _COMPOSE_YAML = """\
 services:
   postgres:
@@ -99,11 +100,17 @@ def _validate_project_name(name: str) -> None:
         raise SystemExit("OSBuilder: project_name must contain only [a-zA-Z0-9_-] characters.")
 
 
+_PNPM_VERSION = "10.33.2"  # keep in sync with stack-menu.md and _WEB_DEFAULTS
+
+
 def ensure_pnpm() -> None:
     """Install pnpm via npm if absent (Pitfall 5 mitigation)."""
     if shutil.which("pnpm") is not None:
         return
-    subprocess.run(["npm", "install", "-g", "pnpm@latest"], shell=False, check=True)
+    subprocess.run(
+        ["npm", "install", "-g", f"pnpm@{_PNPM_VERSION}"],
+        shell=False, check=True,
+    )
 
 
 def write_drizzle_files(project_dir: Path) -> None:
@@ -140,14 +147,25 @@ def scaffold_web(project_name: str, project_root: Path) -> Path:
     project_dir = project_root / project_name
     write_drizzle_files(project_dir)
 
-    subprocess.run(
+    result = subprocess.run(
         ["pnpm", "add", "drizzle-orm", "postgres"],
         cwd=str(project_dir), shell=False, check=False,
     )
-    subprocess.run(
+    if result.returncode != 0:
+        sys.stderr.write(
+            f"OSBuilder: warning — pnpm add drizzle-orm postgres failed "
+            f"(exit {result.returncode}). Run manually in {project_dir}\n"
+        )
+
+    result = subprocess.run(
         ["pnpm", "add", "-D", "drizzle-kit"],
         cwd=str(project_dir), shell=False, check=False,
     )
+    if result.returncode != 0:
+        sys.stderr.write(
+            f"OSBuilder: warning — pnpm add -D drizzle-kit failed "
+            f"(exit {result.returncode}). Run manually in {project_dir}\n"
+        )
     return project_dir
 
 
