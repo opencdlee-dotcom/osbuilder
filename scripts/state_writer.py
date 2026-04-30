@@ -31,7 +31,13 @@ REQUIRED_FIELDS = (
     "phase_step", "last_failure", "retry_count", "escalation_level", "next_action",
 )
 COUNTER_FIELDS = ("retry_count", "escalation_level", "phase_step")
-ALLOWED_FIELDS = set(REQUIRED_FIELDS)
+# Phase 3 fields: optional (ALLOWED but not REQUIRED) so Phase 1/2 state files
+# continue to pass `validate` without these fields present.
+ALLOWED_FIELDS = set(REQUIRED_FIELDS) | {
+    "project_path",    # absolute path to scaffolded project on disk
+    "stack_choices",   # JSON string: researched/confirmed stack (RES-02)
+    "stack_overrides", # JSON string: --advanced user overrides (RES-04)
+}
 
 
 # ---------- input validation (V5/V12 mitigations) ----------
