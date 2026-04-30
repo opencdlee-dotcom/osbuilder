@@ -9,7 +9,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Foundation** — Skill skeleton + state plumbing so a `/clear`'d session can resume mid-build
+- [x] **Phase 1: Foundation** — Skill skeleton + state plumbing so a `/clear`'d session can resume mid-build *(complete 2026-04-29)*
 - [ ] **Phase 2: Pre-flight installer** — Cross-platform auto-install of Node/Python/git/gh/Docker for non-developers
 - [ ] **Phase 3: Intake + Stack research + Web playbook (one-playbook E2E)** — Prove the loop with deterministic scaffolder-first web builds
 - [ ] **Phase 4: GSD handoff + Verify loop + Failure classifier** — Quality moat: classified retries, 3-reflection cap, falsifiable verification
@@ -33,10 +33,10 @@
 **Plans:** 5 plans
 Plans:
 - [x] 01-01-PLAN.md — Wave 0 test infrastructure (pyproject.toml, .gitattributes, pytest stubs for FOUND-01/02/05) — completed 2026-04-29 (commits bedee58 + e3758de)
-- [ ] 01-02-PLAN.md — SKILL.md (≤ 200 lines, valid frontmatter, Resume Protocol) + references/README.md seed (FOUND-01, FOUND-02)
-- [ ] 01-03-PLAN.md — install.sh (idempotent, anchored paths) + .gitkeep markers for the 4-dir layout (FOUND-03)
-- [ ] 01-04-PLAN.md — scripts/state_writer.py: 10-field state.md plumbing, atomic os.replace, V5/V12/V7 input validation (FOUND-05) [TDD]
-- [ ] 01-05-PLAN.md — scripts/bootstrap.sh (POSIX) + scripts/bootstrap.ps1 (PowerShell 5.1) cross-platform Python install shims (FOUND-04)
+- [x] 01-02-PLAN.md — SKILL.md (≤ 200 lines, valid frontmatter, Resume Protocol) + references/README.md seed (FOUND-01, FOUND-02) — completed 2026-04-29 (commit 5c3a8d2)
+- [x] 01-03-PLAN.md — install.sh (idempotent, anchored paths) + .gitkeep markers for the 4-dir layout (FOUND-03) — completed 2026-04-29 (commit cee92cb)
+- [x] 01-04-PLAN.md — scripts/state_writer.py: 10-field state.md plumbing, atomic os.replace, V5/V12/V7 input validation (FOUND-05) [TDD] — completed 2026-04-29 (commit 271640c)
+- [x] 01-05-PLAN.md — scripts/bootstrap.sh (POSIX) + scripts/bootstrap.ps1 (PowerShell 5.1) cross-platform Python install shims (FOUND-04) — completed 2026-04-29 (commit 99af455)
 
 ### Phase 2: Pre-flight installer (cross-platform)
 **Goal:** A non-developer with a fresh machine — no Node, no Python beyond what was bootstrapped, no git, no `gh`, no Docker — runs `/osbuilder` once and ends up with all required prerequisites installed, with no manual command-line work.
