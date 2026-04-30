@@ -2,16 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_plan: null
-status: phase-1-complete
-stopped_at: "Phase 1 (Foundation) complete — all 5 plans shipped, /osbuilder skill installed and working"
-last_updated: "2026-04-30T06:30:00.000Z"
+status: completed
+stopped_at: Completed 01-01-PLAN.md (Wave 0 test infrastructure — 15 RED stubs)
+last_updated: "2026-04-30T06:46:00.709Z"
 progress:
   total_phases: 8
   completed_phases: 1
-  total_plans: 5
+  total_plans: 9
   completed_plans: 5
-  percent: 12
+  percent: 56
 ---
 
 # Project State: OSBuilder
@@ -124,5 +123,5 @@ To be confirmed in Phase 1:
 ---
 *State file initialized at roadmap creation. Updated per phase / milestone transition.*
 
-**Planned Phase:** 1 (Foundation) — 5 plans — 2026-04-30T02:55:31.260Z
+**Planned Phase:** 2 (Pre-flight installer (cross-platform)) — 4 plans — 2026-04-30T06:46:00.691Z
 **Plan 01-01 completed:** 2026-04-30T04:24:21Z — commits bedee58 (pyproject+gitattributes), e3758de (test stubs)
