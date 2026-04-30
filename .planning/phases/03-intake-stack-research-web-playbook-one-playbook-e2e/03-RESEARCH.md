@@ -647,22 +647,25 @@ REQUIRED_FIELDS = (
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does `state_writer.py` extension require bumping REQUIRED_FIELDS?**
    - What we know: `REQUIRED_FIELDS` is checked by the `validate` subcommand; if new fields are required, old state files (from Phase 1/2) will fail validation.
    - What's unclear: Should Phase 3 fields be optional (in ALLOWED_FIELDS but not REQUIRED_FIELDS)?
    - Recommendation: Add to ALLOWED_FIELDS only (not REQUIRED_FIELDS) — these are Phase 3+ fields that won't exist in early-phase state files. Validate only the original 10 as required.
+   - **RESOLVED:** ALLOWED_FIELDS only. Plan 03-02 implements this: `ALLOWED_FIELDS = set(REQUIRED_FIELDS) | {"project_path", "stack_choices", "stack_overrides"}`. REQUIRED_FIELDS unchanged.
 
 2. **What is the exact `--auto` document format GSD uses to extract requirements?**
    - What we know: `gsd-new-project --auto` takes "file reference or pasted/written text in the prompt." The workflow reads questioning.md and templates/project.md.
    - What's unclear: Does GSD expect a specific markdown structure, or can any prose work?
    - Recommendation: Keep `derived_spec.md` simple prose with the header structure shown in Pattern 3. If GSD doesn't extract correctly, adjust the format — not the GSD skill.
+   - **RESOLVED:** Structured prose (headers + bullets) as shown in Pattern 3. Plan 03-02 specifies the exact format for `derived_spec.md`.
 
 3. **Should the E2E `pnpm dev` boot check be part of Phase 3 or Phase 4?**
    - What we know: Success criterion 5 ("pnpm install && pnpm dev boots") is a Phase 3 requirement.
    - What's unclear: Running a real Next.js dev server in tests is an integration test, not a unit test. It requires Docker for Postgres or a mock DATABASE_URL.
    - Recommendation: Phase 3 verifies the scaffold produces a bootable project via human UAT (not automated test). The automated test mocks the subprocess calls. Phase 4 adds the full verify loop including server boot.
+   - **RESOLVED:** Human UAT in Phase 3. VALIDATION.md documents this as a Manual-Only Verification. Automated tests mock subprocess calls only.
 
 ---
 
