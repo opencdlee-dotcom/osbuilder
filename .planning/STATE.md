@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_plan: 2
-status: executing
-stopped_at: Completed 01-01-PLAN.md (Wave 0 test infrastructure — 15 RED stubs)
-last_updated: "2026-04-30T04:27:39.626Z"
+current_plan: null
+status: phase-1-complete
+stopped_at: "Phase 1 (Foundation) complete — all 5 plans shipped, /osbuilder skill installed and working"
+last_updated: "2026-04-30T06:30:00.000Z"
 progress:
   total_phases: 8
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
-  completed_plans: 1
-  percent: 20
+  completed_plans: 5
+  percent: 12
 ---
 
 # Project State: OSBuilder
@@ -22,34 +22,36 @@ progress:
 
 **Core Value:** A non-developer describes what they want, and OSBuilder delivers a working, scalable, version-controlled app — without ever touching a command line manually or learning a framework.
 
-**Current Focus:** Phase 1 — Foundation
+**Current Focus:** Phase 1 → Phase 2 transition (Phase 1 complete)
 
 ## Current Position
 
-Phase: 1 (Foundation) — EXECUTING
-Current Plan: 2
-Total Plans: 5
+Phase: 1 (Foundation) — ✓ COMPLETE
+Plans complete: 5/5
 
 - **Milestone:** v1 (initial open-source publish-ready release)
-- **Phase:** 1 — Foundation
-- **Plan:** 01-01 complete; ready for Wave 1 (plans 02/03/04/05 in parallel — disjoint files)
-- **Status:** Executing Phase 1
-- **Progress:** [██░░░░░░░░] 20%
+- **Phase:** 1 — Foundation ✓ shipped
+- **Plans:** 01-01 (test infra), 01-02 (SKILL.md), 01-03 (install.sh), 01-04 (state_writer.py), 01-05 (bootstrap shims) — all complete
+- **Status:** Phase 1 complete; ready for Phase 2 (Pre-flight installer)
+- **Progress:** [█░░░░░░░░░] 12% (1/8 phases)
 
 ## Performance Metrics
 
 | Metric | Value |
 |--------|-------|
 | Phases planned | 1 / 8 |
-| Phases completed | 0 / 8 |
-| Plans executed | 1 |
+| Phases completed | 1 / 8 |
+| Plans executed | 5 |
 | v1 requirements mapped | 68 / 68 (100%) |
-| v1 requirements completed | 0 / 68 |
+| v1 requirements completed | 5 / 68 (FOUND-01..05 ✓) |
 
-| Plan | Duration | Tasks | Files | Completed |
-|------|----------|-------|-------|-----------|
-| 01-01 (Wave 0 test infra) | ~85 min | 2 | 8 | 2026-04-29 |
-| Phase 01 P01 | 85min | 2 tasks | 8 files |
+| Plan | Tasks | Files | Completed | Commit |
+|------|-------|-------|-----------|--------|
+| 01-01 (Wave 0 test infra) | 2 | 8 | 2026-04-29 | bedee58 + e3758de |
+| 01-02 (SKILL.md + references seed) | 2 | 2 | 2026-04-29 | 5c3a8d2 |
+| 01-03 (install.sh + .gitkeep) | 2 | 4 | 2026-04-29 | cee92cb |
+| 01-04 (state_writer.py [TDD]) | 1 | 1 | 2026-04-29 | 271640c |
+| 01-05 (bootstrap.sh + bootstrap.ps1) | 2 | 2 | 2026-04-29 | 99af455 |
 
 ## Accumulated Context
 
@@ -72,9 +74,9 @@ Total Plans: 5
 
 - [x] Plan Phase 1: Foundation (`/gsd-plan-phase 1`)
 - [x] Execute Plan 01-01 (Wave 0 test infrastructure) — 15 RED-state stubs
-- [ ] Execute Wave 1 plans 02 (SKILL.md), 03 (install.sh), 04 (state_writer.py), 05 (bootstrap shims)
-- [ ] Verify Phase 1 against 5 falsifiable success criteria in ROADMAP.md
-- [ ] Transition to Phase 2
+- [x] Execute Wave 1 plans 02 (SKILL.md), 03 (install.sh), 04 (state_writer.py), 05 (bootstrap shims)
+- [x] Verify Phase 1 against 5 falsifiable success criteria in ROADMAP.md (all 5 passed; 15/15 pytest GREEN; install.sh real-machine smoke OK)
+- [ ] Transition to Phase 2 (Pre-flight installer)
 
 ### Known Blockers
 
