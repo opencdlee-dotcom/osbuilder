@@ -1,37 +1,64 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+current_plan: 2
+status: executing
+stopped_at: Completed 01-01-PLAN.md (Wave 0 test infrastructure — 15 RED stubs)
+last_updated: "2026-04-30T04:27:39.626Z"
+progress:
+  total_phases: 8
+  completed_phases: 0
+  total_plans: 5
+  completed_plans: 1
+  percent: 20
+---
+
 # Project State: OSBuilder
 
-**Last Updated:** 2026-04-29 (after roadmap creation)
+**Last Updated:** 2026-04-29 (after Plan 01-01 completion)
 
 ## Project Reference
 
 **Core Value:** A non-developer describes what they want, and OSBuilder delivers a working, scalable, version-controlled app — without ever touching a command line manually or learning a framework.
 
-**Current Focus:** Foundation — establish the skill skeleton, directory layout, and `state.md` plumbing so every subsequent phase has a resumable spine to build on.
+**Current Focus:** Phase 1 — Foundation
 
 ## Current Position
 
+Phase: 1 (Foundation) — EXECUTING
+Current Plan: 2
+Total Plans: 5
+
 - **Milestone:** v1 (initial open-source publish-ready release)
 - **Phase:** 1 — Foundation
-- **Plan:** Not yet planned (run `/gsd-plan-phase 1` next)
-- **Status:** Roadmap created; awaiting Phase 1 planning
-- **Progress:** [□□□□□□□□] 0/8 phases complete
+- **Plan:** 01-01 complete; ready for Wave 1 (plans 02/03/04/05 in parallel — disjoint files)
+- **Status:** Executing Phase 1
+- **Progress:** [██░░░░░░░░] 20%
 
 ## Performance Metrics
 
 | Metric | Value |
 |--------|-------|
-| Phases planned | 0 / 8 |
+| Phases planned | 1 / 8 |
 | Phases completed | 0 / 8 |
-| Plans executed | 0 |
+| Plans executed | 1 |
 | v1 requirements mapped | 68 / 68 (100%) |
 | v1 requirements completed | 0 / 68 |
 
+| Plan | Duration | Tasks | Files | Completed |
+|------|----------|-------|-------|-----------|
+| 01-01 (Wave 0 test infra) | ~85 min | 2 | 8 | 2026-04-29 |
+| Phase 01 P01 | 85min | 2 tasks | 8 files |
+
 ## Accumulated Context
 
-### Key Decisions Locked In (from PROJECT.md + research)
+### Key Decisions Locked In (from PROJECT.md + research + execution)
 
 - **Form:** Claude Code skill at `~/.claude/skills/osbuilder/` — never a standalone CLI/web app
 - **Helper-script language:** Python 3.13 (cross-platform; bash fails Windows; Node has chicken-and-egg with preflight)
+- **Test collection pattern (added 01-01):** Lazy-import-via-fixture for not-yet-implemented modules — `pytest.importorskip` at module top causes whole-file collection skip and breaks Nyquist `>=N tests collected` gates; use a `sw`-style fixture so individual test names always appear in `--collect-only`
+- **Line-ending discipline (added 01-01):** Glob form `*.sh text eol=lf` (not per-file form) — VALIDATION regex `^\*\.sh text eol=lf$` only matches glob, BLOCKER 4 closure pattern
 - **Architecture:** Orchestrator-with-playbooks (Anthropic Pattern 1 + 2 fused); SKILL.md ≤ 200 lines; progressive disclosure to `references/`
 - **Execution model:** Strictly single-threaded; dev-team metaphor is **narration only**, never parallel agents (DeepMind Dec 2025 documented 41-86.7% multi-agent failure rates)
 - **Reflection cap:** Hard 3 per failure (Aider's empirically-validated limit); structured escalation beyond
@@ -43,14 +70,16 @@
 
 ### Active Todos
 
-- [ ] Plan Phase 1: Foundation (`/gsd-plan-phase 1`)
-- [ ] Execute Phase 1 plans (per plan)
-- [ ] Verify Phase 1 against falsifiable success criteria
+- [x] Plan Phase 1: Foundation (`/gsd-plan-phase 1`)
+- [x] Execute Plan 01-01 (Wave 0 test infrastructure) — 15 RED-state stubs
+- [ ] Execute Wave 1 plans 02 (SKILL.md), 03 (install.sh), 04 (state_writer.py), 05 (bootstrap shims)
+- [ ] Verify Phase 1 against 5 falsifiable success criteria in ROADMAP.md
 - [ ] Transition to Phase 2
 
 ### Known Blockers
 
 None currently. Research flags noted for later phases (do not block Phase 1):
+
 - **Phase 2:** Windows-without-WSL preflight UX needs hands-on validation; admin-escalation prompt UX matters; Docker Desktop licensing communication
 - **Phase 7 (hub-platform):** Direct inspection of `../professor/` structure needed before writing the playbook
 - **Phase 8 (`--production-ready`):** Phase-boundary decisions (bundled vs opt-in-per-feature) is a v1.x design call
@@ -58,6 +87,7 @@ None currently. Research flags noted for later phases (do not block Phase 1):
 ### Sub-skill Dependency Versions (to be pinned in SKILL.md frontmatter)
 
 To be confirmed in Phase 1:
+
 - gsd >= TBD
 - brainiac >= TBD
 - predator >= TBD
@@ -67,15 +97,22 @@ To be confirmed in Phase 1:
 
 ## Session Continuity
 
-**Last session:** Initialization (PROJECT.md → REQUIREMENTS.md → research/ → ROADMAP.md)
+**Last session:** 2026-04-30T04:27:39.616Z
+
+**Stopped At:** Completed 01-01-PLAN.md (Wave 0 test infrastructure — 15 RED stubs)
 
 **Where to resume:**
-1. Run `/gsd-plan-phase 1` to plan Foundation phase
-2. The plan will decompose Phase 1 success criteria into atomic plans
-3. Execute plans via `/gsd-execute-phase 1`
-4. Verify against the 5 success criteria documented in ROADMAP.md Phase 1
+
+1. Execute Wave 1 plans in parallel (disjoint files): 01-02 (SKILL.md), 01-03 (install.sh + .gitkeep), 01-04 (state_writer.py), 01-05 (bootstrap.{sh,ps1})
+2. Each Wave 1 plan flips its assigned RED stubs to GREEN — verify via `pytest scripts/tests/`
+3. Run `/gsd-verify-phase 1` once all 4 Wave 1 plans complete
+4. Verify against the 5 falsifiable success criteria in ROADMAP.md Phase 1
+5. Transition to Phase 2 via `/gsd-transition`
+
+**Resume file:** None
 
 **Files of record:**
+
 - `.planning/PROJECT.md` — vision, scope, constraints, key decisions
 - `.planning/REQUIREMENTS.md` — 68 v1 requirements (all mapped)
 - `.planning/ROADMAP.md` — 8 phases with falsifiable success criteria
@@ -84,3 +121,6 @@ To be confirmed in Phase 1:
 
 ---
 *State file initialized at roadmap creation. Updated per phase / milestone transition.*
+
+**Planned Phase:** 1 (Foundation) — 5 plans — 2026-04-30T02:55:31.260Z
+**Plan 01-01 completed:** 2026-04-30T04:24:21Z — commits bedee58 (pyproject+gitattributes), e3758de (test stubs)
