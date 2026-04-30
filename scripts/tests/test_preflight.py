@@ -62,7 +62,7 @@ def test_detect_linux_distro_ubuntu(pf, fake_shell, fake_which, monkeypatch):
     assert plan.os.startswith("linux-debian"), f"Expected linux-debian prefix, got: {plan.os!r}"
 
 
-def test_single_confirmation_for_batch(pf, fake_shell, fake_which, monkeypatch):
+def test_single_confirmation_for_batch(pf, fake_shell, fake_which, tmp_install_log, monkeypatch):
     """PRE-02: Exactly one input() call covers a 5-tool batch (not 5 individual prompts).
 
     Asserts len(prompts) == 1 — NOT '<= 1'. This falsifies both 'zero prompts'
@@ -128,7 +128,7 @@ def test_windows_uses_winget(pf, fake_shell, fake_which, monkeypatch):
     )
 
 
-def test_failure_triggers_rollback(pf, fake_shell, fake_which, monkeypatch):
+def test_failure_triggers_rollback(pf, fake_shell, fake_which, tmp_install_log, monkeypatch):
     """PRE-04: A failed install triggers rollback of successfully-installed earlier tools.
 
     Program: brew install gh → success, brew install docker → failure.
