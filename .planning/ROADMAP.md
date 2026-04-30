@@ -68,7 +68,13 @@ Plans:
   5. After research completes, `scripts/scaffold_dispatch.py` runs `pnpm create next-app@latest …` (or the verified equivalent) and produces a project where `pnpm install && pnpm dev` boots the scaffolded homepage on `localhost:3000` — with zero hand-written `package.json` / `tsconfig.json` lines committed by OSBuilder.
   6. Passing `--advanced` lets the user override any researched stack choice via the prompt; the override is logged to `state.md` and respected downstream.
   7. End-to-end: passing a paragraph describing a TODO app produces a working scaffolded project + GSD project plan within 60 seconds (excluding network fetch time for `pnpm install`).
-**Plans:** TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 03-01-PLAN.md — Wave 0 test infrastructure: 16 RED stubs across test_intake.py (IN-01..05), test_stack_researcher.py (RES-01..04), test_scaffold_dispatch.py (SCAF-01, SCAF-06); brings total collected to ≥ 46
+- [ ] 03-02-PLAN.md — scripts/intake_handler.py: parse_paragraph + parse_structured → derived_spec.md + state_writer.py ALLOWED_FIELDS extension (IN-01..05) [TDD]
+- [ ] 03-03-PLAN.md — scripts/stack_researcher.py: brainiac delegation + stack-menu fallback + advanced overrides → stack_choices in state.md (RES-01..04) [TDD]
+- [ ] 03-04-PLAN.md — scripts/scaffold_dispatch.py: ensure_pnpm + create-next-app + Drizzle wiring → project on disk (SCAF-01, SCAF-06) [TDD]
+- [ ] 03-05-PLAN.md — references/playbooks/web.md + references/stack-menu.md + references/question-bank.md: playbook spec, fallback defaults, jargon-free question bank (SCAF-01 support, RES-03 support, IN-03/IN-04 support)
 
 ### Phase 4: GSD handoff + Verify loop + Failure classifier
 **Goal:** Once a project is scaffolded, OSBuilder drives GSD's per-phase loop with role delegation, classified failure handling capped at 3 reflections, and falsifiable verification on every phase — so quality is real before the UX layer wraps it.
@@ -170,9 +176,9 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 1/5 | Executing (Wave 0 done) | - |
-| 2. Pre-flight installer | 0/4 | Plan ready (Wave 0 + Wave 1) | - |
-| 3. Intake + Research + Web playbook | 0/TBD | Not started | - |
+| 1. Foundation | 5/5 | Complete | 2026-04-29 |
+| 2. Pre-flight installer | 4/4 | Complete | 2026-04-30 |
+| 3. Intake + Research + Web playbook | 0/5 | Ready to execute (5 plans created) | - |
 | 4. GSD handoff + Verify + Healing | 0/TBD | Not started | - |
 | 5. Common-person UX polish | 0/TBD | Not started | - |
 | 6. Ship + scalable defaults | 0/TBD | Not started | - |
@@ -181,4 +187,4 @@ Plans:
 
 ---
 *Roadmap defined: 2026-04-29*
-*Last updated: 2026-04-29 after Plan 01-01 completion*
+*Last updated: 2026-04-30 after Phase 3 planning (5 plans created)*
