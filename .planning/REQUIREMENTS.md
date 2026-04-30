@@ -240,7 +240,7 @@ Each v1 requirement maps to exactly one phase. See ROADMAP.md for full phase def
 | HEAL-02 | Phase 4 | Pending |
 | HEAL-03 | Phase 4 | Pending |
 | HEAL-04 | Phase 4 | Pending |
-| HEAL-05 | Phase 4 | Pending |
+| HEAL-05 | Phase 4 | Complete (Plan 04-04 + 04-06 — gate exists and is wired into gsd_driver step 2; commits a9eb751, 73401de, 298b27c) |
 | HEAL-06 | Phase 4 | Pending |
 | HEAL-07 | Phase 4 | Pending |
 | UX-01 | Phase 5 | Pending |
