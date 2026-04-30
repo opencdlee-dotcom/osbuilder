@@ -49,3 +49,59 @@ def fake_home(tmp_path: Path, monkeypatch) -> Path:
     fake.mkdir()
     monkeypatch.setenv("HOME", str(fake))
     return fake
+
+
+class FakeShell:
+    """Records every subprocess.run call and replays canned results.
+
+    Use to test install logic without actually installing anything.
+    Match by command-prefix; default to (returncode=0, "", "") if no match.
+    """
+    def __init__(self):
+        self.calls = []  # [(cmd_list_or_str, returncode, stdout, stderr), ...]
+        self._programmed = {}  # cmd_signature_prefix -> (returncode, stdout, stderr)
+
+    def program(self, cmd_signature: str, returncode: int = 0,
+                stdout: str = "", stderr: str = ""):
+        """Pre-program a response for any subprocess.run that startswith(cmd_signature)."""
+        self._programmed[cmd_signature] = (returncode, stdout, stderr)
+
+    def __call__(self, cmd, *args, **kwargs):
+        sig = " ".join(cmd) if isinstance(cmd, list) else cmd
+        for prefix, (rc, so, se) in self._programmed.items():
+            if sig.startswith(prefix):
+                self.calls.append((cmd, rc, so, se))
+                return subprocess.CompletedProcess(cmd, rc, so, se)
+        # default: success with empty output
+        self.calls.append((cmd, 0, "", ""))
+        return subprocess.CompletedProcess(cmd, 0, "", "")
+
+
+@pytest.fixture
+def fake_shell(monkeypatch):
+    fs = FakeShell()
+    monkeypatch.setattr("subprocess.run", fs)
+    return fs
+
+
+@pytest.fixture
+def fake_which(monkeypatch):
+    """Programmable shutil.which — set fake_which["node"] = "/usr/bin/node"."""
+    found: dict[str, str | None] = {}
+    monkeypatch.setattr("shutil.which", lambda name: found.get(name))
+    return found
+
+
+@pytest.fixture
+def tmp_install_log(tmp_path, monkeypatch):
+    """Isolate ~/.osbuilder/ to a tmp dir for tests.
+
+    Returns the Path that ~/.osbuilder/install-log.json WILL resolve to
+    (the file itself does not exist yet — preflight_check creates it).
+    """
+    fake_home = tmp_path / "home"
+    fake_home.mkdir()
+    monkeypatch.setenv("HOME", str(fake_home))
+    monkeypatch.setattr("pathlib.Path.home", lambda: fake_home)
+    return fake_home / ".osbuilder" / "install-log.json"
+
