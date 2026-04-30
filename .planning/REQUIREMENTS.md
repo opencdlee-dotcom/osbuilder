@@ -160,84 +160,94 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Traceability
 
-Filled by roadmapper during roadmap creation. Each v1 requirement maps to exactly one phase.
+Each v1 requirement maps to exactly one phase. See ROADMAP.md for full phase definitions and falsifiable success criteria.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | TBD | Pending |
-| FOUND-02 | TBD | Pending |
-| FOUND-03 | TBD | Pending |
-| FOUND-04 | TBD | Pending |
-| FOUND-05 | TBD | Pending |
-| PRE-01 | TBD | Pending |
-| PRE-02 | TBD | Pending |
-| PRE-03 | TBD | Pending |
-| PRE-04 | TBD | Pending |
-| PRE-05 | TBD | Pending |
-| PRE-06 | TBD | Pending |
-| PRE-07 | TBD | Pending |
-| IN-01 | TBD | Pending |
-| IN-02 | TBD | Pending |
-| IN-03 | TBD | Pending |
-| IN-04 | TBD | Pending |
-| IN-05 | TBD | Pending |
-| RES-01 | TBD | Pending |
-| RES-02 | TBD | Pending |
-| RES-03 | TBD | Pending |
-| RES-04 | TBD | Pending |
-| SCAF-01 | TBD | Pending |
-| SCAF-02 | TBD | Pending |
-| SCAF-03 | TBD | Pending |
-| SCAF-04 | TBD | Pending |
-| SCAF-05 | TBD | Pending |
-| SCAF-06 | TBD | Pending |
-| ROLE-01 | TBD | Pending |
-| ROLE-02 | TBD | Pending |
-| ROLE-03 | TBD | Pending |
-| ROLE-04 | TBD | Pending |
-| ROLE-05 | TBD | Pending |
-| ROLE-06 | TBD | Pending |
-| ROLE-07 | TBD | Pending |
-| ROLE-08 | TBD | Pending |
-| ROLE-09 | TBD | Pending |
-| HEAL-01 | TBD | Pending |
-| HEAL-02 | TBD | Pending |
-| HEAL-03 | TBD | Pending |
-| HEAL-04 | TBD | Pending |
-| HEAL-05 | TBD | Pending |
-| HEAL-06 | TBD | Pending |
-| HEAL-07 | TBD | Pending |
-| UX-01 | TBD | Pending |
-| UX-02 | TBD | Pending |
-| UX-03 | TBD | Pending |
-| UX-04 | TBD | Pending |
-| UX-05 | TBD | Pending |
-| VER-01 | TBD | Pending |
-| VER-02 | TBD | Pending |
-| VER-03 | TBD | Pending |
-| VER-04 | TBD | Pending |
-| SHIP-01 | TBD | Pending |
-| SHIP-02 | TBD | Pending |
-| SHIP-03 | TBD | Pending |
-| SHIP-04 | TBD | Pending |
-| SHIP-05 | TBD | Pending |
-| SCL-01 | TBD | Pending |
-| SCL-02 | TBD | Pending |
-| SCL-03 | TBD | Pending |
-| SCL-04 | TBD | Pending |
-| SCL-05 | TBD | Pending |
-| SCL-06 | TBD | Pending |
-| QUAL-01 | TBD | Pending |
-| QUAL-02 | TBD | Pending |
-| QUAL-03 | TBD | Pending |
-| QUAL-04 | TBD | Pending |
-| QUAL-05 | TBD | Pending |
+| FOUND-01 | Phase 1 | Pending |
+| FOUND-02 | Phase 1 | Pending |
+| FOUND-03 | Phase 1 | Pending |
+| FOUND-04 | Phase 1 | Pending |
+| FOUND-05 | Phase 1 | Pending |
+| PRE-01 | Phase 2 | Pending |
+| PRE-02 | Phase 2 | Pending |
+| PRE-03 | Phase 2 | Pending |
+| PRE-04 | Phase 2 | Pending |
+| PRE-05 | Phase 2 | Pending |
+| PRE-06 | Phase 2 | Pending |
+| PRE-07 | Phase 2 | Pending |
+| IN-01 | Phase 3 | Pending |
+| IN-02 | Phase 3 | Pending |
+| IN-03 | Phase 3 | Pending |
+| IN-04 | Phase 3 | Pending |
+| IN-05 | Phase 3 | Pending |
+| RES-01 | Phase 3 | Pending |
+| RES-02 | Phase 3 | Pending |
+| RES-03 | Phase 3 | Pending |
+| RES-04 | Phase 3 | Pending |
+| SCAF-01 | Phase 3 | Pending |
+| SCAF-02 | Phase 7 | Pending |
+| SCAF-03 | Phase 7 | Pending |
+| SCAF-04 | Phase 7 | Pending |
+| SCAF-05 | Phase 7 | Pending |
+| SCAF-06 | Phase 3 | Pending |
+| ROLE-01 | Phase 4 | Pending |
+| ROLE-02 | Phase 4 | Pending |
+| ROLE-03 | Phase 4 | Pending |
+| ROLE-04 | Phase 4 | Pending |
+| ROLE-05 | Phase 4 | Pending |
+| ROLE-06 | Phase 4 | Pending |
+| ROLE-07 | Phase 5 | Pending |
+| ROLE-08 | Phase 4 | Pending |
+| ROLE-09 | Phase 5 | Pending |
+| HEAL-01 | Phase 4 | Pending |
+| HEAL-02 | Phase 4 | Pending |
+| HEAL-03 | Phase 4 | Pending |
+| HEAL-04 | Phase 4 | Pending |
+| HEAL-05 | Phase 4 | Pending |
+| HEAL-06 | Phase 4 | Pending |
+| HEAL-07 | Phase 4 | Pending |
+| UX-01 | Phase 5 | Pending |
+| UX-02 | Phase 5 | Pending |
+| UX-03 | Phase 5 | Pending |
+| UX-04 | Phase 5 | Pending |
+| UX-05 | Phase 5 | Pending |
+| VER-01 | Phase 4 | Pending |
+| VER-02 | Phase 4 | Pending |
+| VER-03 | Phase 4 | Pending |
+| VER-04 | Phase 4 | Pending |
+| SHIP-01 | Phase 6 | Pending |
+| SHIP-02 | Phase 6 | Pending |
+| SHIP-03 | Phase 6 | Pending |
+| SHIP-04 | Phase 6 | Pending |
+| SHIP-05 | Phase 6 | Pending |
+| SCL-01 | Phase 6 | Pending |
+| SCL-02 | Phase 6 | Pending |
+| SCL-03 | Phase 6 | Pending |
+| SCL-04 | Phase 6 | Pending |
+| SCL-05 | Phase 6 | Pending |
+| SCL-06 | Phase 6 | Pending |
+| QUAL-01 | Phase 8 | Pending |
+| QUAL-02 | Phase 8 | Pending |
+| QUAL-03 | Phase 8 | Pending |
+| QUAL-04 | Phase 8 | Pending |
+| QUAL-05 | Phase 8 | Pending |
 
 **Coverage:**
-- v1 requirements: 65 total
-- Mapped to phases: 0 (filled by roadmapper)
-- Unmapped: 65 ⚠️ (will be 0 after roadmap creation)
+- v1 requirements: 68 total (REQUIREMENTS.md previously stated "65 total" — that header was a counting error; hand-counting every REQ-ID across the 12 categories yields 68)
+- Mapped to phases: 68 (100%)
+- Unmapped: 0 ✓
+
+**Phase distribution:**
+- Phase 1 (Foundation): 5
+- Phase 2 (Pre-flight): 7
+- Phase 3 (Intake + Research + Web playbook): 11
+- Phase 4 (GSD handoff + Verify + Healing): 18
+- Phase 5 (Common-person UX polish): 7
+- Phase 6 (Ship + scalable defaults): 11
+- Phase 7 (Additional playbooks): 4
+- Phase 8 (Skill quality / publish-bar): 5
 
 ---
 *Requirements defined: 2026-04-29*
-*Last updated: 2026-04-29 after initial definition*
+*Last updated: 2026-04-29 after roadmap creation (traceability filled, count corrected to 68)*
