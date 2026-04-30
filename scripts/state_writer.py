@@ -37,6 +37,10 @@ ALLOWED_FIELDS = set(REQUIRED_FIELDS) | {
     "project_path",    # absolute path to scaffolded project on disk
     "stack_choices",   # JSON string: researched/confirmed stack (RES-02)
     "stack_overrides", # JSON string: --advanced user overrides (RES-04)
+    # Phase 4 additions — ALLOWED only, NOT REQUIRED (same pattern as Phase 3)
+    "gsd_phase_count",    # total phases discovered from GSD ROADMAP.md
+    "failure_class",      # last classified failure class for resume
+    "escalation_log",     # JSON array of escalation steps taken
 }
 
 
