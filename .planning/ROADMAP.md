@@ -70,11 +70,11 @@ Plans:
   7. End-to-end: passing a paragraph describing a TODO app produces a working scaffolded project + GSD project plan within 60 seconds (excluding network fetch time for `pnpm install`).
 **Plans:** 5 plans
 Plans:
-- [ ] 03-01-PLAN.md — Wave 0 test infrastructure: 16 RED stubs across test_intake.py (IN-01..05), test_stack_researcher.py (RES-01..04), test_scaffold_dispatch.py (SCAF-01, SCAF-06); brings total collected to ≥ 46
-- [ ] 03-02-PLAN.md — scripts/intake_handler.py: parse_paragraph + parse_structured → derived_spec.md + state_writer.py ALLOWED_FIELDS extension (IN-01..05) [TDD]
-- [ ] 03-03-PLAN.md — scripts/stack_researcher.py: brainiac delegation + stack-menu fallback + advanced overrides → stack_choices in state.md (RES-01..04) [TDD]
-- [ ] 03-04-PLAN.md — scripts/scaffold_dispatch.py: ensure_pnpm + create-next-app + Drizzle wiring → project on disk (SCAF-01, SCAF-06) [TDD]
-- [ ] 03-05-PLAN.md — references/playbooks/web.md + references/stack-menu.md + references/question-bank.md: playbook spec, fallback defaults, jargon-free question bank (SCAF-01 support, RES-03 support, IN-03/IN-04 support)
+- [x] 03-01-PLAN.md — Wave 0 test infrastructure: 16 RED stubs across test_intake.py (IN-01..05), test_stack_researcher.py (RES-01..04), test_scaffold_dispatch.py (SCAF-01, SCAF-06); brings total collected to ≥ 46
+- [x] 03-02-PLAN.md — scripts/intake_handler.py: parse_paragraph + parse_structured → derived_spec.md + state_writer.py ALLOWED_FIELDS extension (IN-01..05) [TDD]
+- [x] 03-03-PLAN.md — scripts/stack_researcher.py: brainiac delegation + stack-menu fallback + advanced overrides → stack_choices in state.md (RES-01..04) [TDD]
+- [x] 03-04-PLAN.md — scripts/scaffold_dispatch.py: ensure_pnpm + create-next-app + Drizzle wiring → project on disk (SCAF-01, SCAF-06) [TDD]
+- [x] 03-05-PLAN.md — references/playbooks/web.md + references/stack-menu.md + references/question-bank.md: playbook spec, fallback defaults, jargon-free question bank (SCAF-01 support, RES-03 support, IN-03/IN-04 support)
 
 ### Phase 4: GSD handoff + Verify loop + Failure classifier
 **Goal:** Once a project is scaffolded, OSBuilder drives GSD's per-phase loop with role delegation, classified failure handling capped at 3 reflections, and falsifiable verification on every phase — so quality is real before the UX layer wraps it.
