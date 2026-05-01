@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-02-PLAN.md (friendly_error translator + 30-entry dictionary + 5-script wiring; 89 tests pass, 35 skipped, 0 failed)
-last_updated: "2026-05-01T06:58:02.774Z"
+stopped_at: Completed 05-04-PLAN.md (mode gating in intake_handler + stack_researcher; 8/8 mode_gating tests pass; 97 passed, 29 skipped, 0 failed)
+last_updated: "2026-05-01T07:10:12.022Z"
 progress:
   total_phases: 8
   completed_phases: 4
   total_plans: 25
-  completed_plans: 22
-  percent: 88
+  completed_plans: 23
+  percent: 92
 ---
 
 # Project State: OSBuilder
@@ -26,14 +26,14 @@ progress:
 ## Current Position
 
 Phase: 05 (common-person-ux-polish) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 Plans complete: 6/6
 
 - **Milestone:** v1 (initial open-source publish-ready release)
 - **Phase:** 4
 - **Plans:** 04-01 (Wave 0 RED stubs), 04-02 (gsd_driver state machine), 04-03 (failure_classifier), 04-04 (registry_verify), 04-05 (qa.md), 04-06 (HEAL-05 gap closure — registry gate wired into step 2) — all complete
 - **Status:** Ready to execute
-- **Progress:** [█████████░] 88%
+- **Progress:** [█████████░] 92%
 
 ## Performance Metrics
 
@@ -69,6 +69,7 @@ Plans complete: 6/6
 | Phase 04 P06 (HEAL-05 gap closure) | 6 | 2 tasks | 2 files |
 | Phase 05 P01 | 6min | 2 tasks | 7 files |
 | Phase 05 P02 | 12min | 2 tasks | 9 files |
+| Phase 05-common-person-ux-polish P04 | 9min | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -122,9 +123,9 @@ To be confirmed in Phase 1:
 
 ## Session Continuity
 
-**Last session:** 2026-05-01T06:57:55.520Z
+**Last session:** 2026-05-01T07:10:12.008Z
 
-**Stopped At:** Completed 05-02-PLAN.md (friendly_error translator + 30-entry dictionary + 5-script wiring; 89 tests pass, 35 skipped, 0 failed)
+**Stopped At:** Completed 05-04-PLAN.md (mode gating in intake_handler + stack_researcher; 8/8 mode_gating tests pass; 97 passed, 29 skipped, 0 failed)
 
 **Where to resume:**
 
