@@ -81,7 +81,8 @@ Requirements for initial release. Each maps to exactly one roadmap phase (see Tr
 **: QA role delegates to `/code-tester` and `/gsd-verify-work` against falsifiable success criteria
 - [x] **ROLE-06
 **: Reviewer role delegates to `/predator` and `/gsd-code-review` before any phase is marked done
-- [ ] **ROLE-07**: Tech Writer role delegates to `/gsd-docs-update` and `/humanizer` for plain-English README and runbook
+- [x] **ROLE-07
+**: Tech Writer role delegates to `/gsd-docs-update` and `/humanizer` for plain-English README and runbook
 - [x] **ROLE-08
 **: Debug-cap delegates to `/gsd-debug` and `/problem-solver` when the failure classifier hits the retry limit on the same failure class
 - [x] **ROLE-09
