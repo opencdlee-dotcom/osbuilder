@@ -511,7 +511,83 @@ def emit_next_command(project_root: Path) -> int:
         _emit("pm", "/gsd-new-project --auto", "ok")
         return 0
 
+    # 3b. Phase 6 — ship step (SHIP-01, SHIP-02, SCL-06)
+    # Fires when all GSD phases are complete: current_phase > gsd_phase_count.
+    # Sequence: runbook_writer (stamp README) → gh_handoff (create private repo + push)
+    #           → production_phase_writer (emit /gsd-add-phase if production_ready=true)
+    # This check runs BEFORE per-step dispatch so a fresh call after phase_step==10
+    # (which bumped current_phase past gsd_phase_count) is intercepted here.
+    try:
+        gsd_phase_count = int(state.get("gsd_phase_count", "0") or "0")
+    except ValueError:
+        gsd_phase_count = 0
+    if gsd_phase_count > 0 and current_phase > gsd_phase_count:
+        project_path = state.get("project_path") or ""
+        if not project_path:
+            sys.stderr.write("OSBuilder: project_path not set in state.md; cannot ship.\n")
+            return 1
+        project_dir = Path(project_path)
+        project_name = project_dir.name
+        if not project_dir.is_dir():
+            sys.stderr.write(
+                f"OSBuilder: project_path does not exist on disk: {project_dir}\n"
+            )
+            return 1
+
+        # 1. Stamp the README (idempotent — uses OSBuilder runbook marker)
+        rb = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "scripts" / "runbook_writer.py"),
+             "write", "--project-name", project_name,
+             "--project-root", str(project_root)],
+            shell=False, capture_output=True, text=True,
+        )
+        if rb.returncode != 0:
+            sys.stderr.write(rb.stderr or "OSBuilder: runbook_writer failed.\n")
+            return 1
+
+        # 2. Ship the private repo (idempotent — checks `git remote get-url origin`)
+        sh = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "scripts" / "gh_handoff.py"),
+             "ship", "--project-name", project_name,
+             "--project-root", str(project_root)],
+            shell=False,
+            # capture_output intentionally omitted — let stderr flow to user
+            # (friendly_error in gh_handoff already formats it)
+        )
+        if sh.returncode != 0:
+            # gh_handoff already wrote friendly stderr; don't double-print
+            return 1
+
+        # 3. Emit production-ready slash commands (zero lines if production_ready != "true")
+        pp = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "scripts" / "production_phase_writer.py"),
+             "emit", "--project-root", str(project_root)],
+            shell=False, capture_output=True, text=True,
+        )
+        # production_phase_writer always exits 0; pass its stdout straight through
+        sys.stdout.write(pp.stdout)
+        return 0
+
     # 4. dispatch by phase_step
+
+    # Phase 6 — refusal gate at architect-role boundary (SCL-05)
+    # Runs at phase_step == 1 (just before /gsd-plan-phase emit). On hit:
+    #   - intake_handler writes last_failure="refused: <kw>" to state.md
+    #   - intake_handler prints refusal copy to stderr
+    #   - we DO NOT advance phase_step; user must rephrase or re-run with --production-ready
+    if phase_step == 1:
+        refusal = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "scripts" / "intake_handler.py"),
+             "check-refuse-list", "--project-root", str(project_root)],
+            shell=False,
+            # capture_output intentionally omitted — let stderr flow to the user
+        )
+        if refusal.returncode == 2:
+            # Refused — do not advance, do not emit /gsd-plan-phase
+            # state.md last_failure was already written by intake_handler
+            return 0
+        # else fall through to the existing PHASE_STEP_COMMANDS[1] emit path
+
     if phase_step == 2:
         # HEAL-05: Registry verify gate — check package against public registry.
         # Delegates to _run_registry_gate which reads stack_choices from state.
