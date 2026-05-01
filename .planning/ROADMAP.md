@@ -110,7 +110,7 @@ Plans:
   6. The friendly-error dictionary documents an explicit expansion path (file location, format, contribution guideline) so future versions can grow the dictionary from real-world failure data without code changes.
 **Plans:** 5 plans
 Plans:
-- [ ] 05-01-PLAN.md — Wave 0: test stubs (44 RED), state_writer ALLOWED_FIELDS extension, gsd_driver step 9→tech-writer + step 10→advance (UX-01..05, ROLE-07, ROLE-09)
+- [x] 05-01-PLAN.md — Wave 0: test stubs (46 RED, 124 collected), state_writer ALLOWED_FIELDS extension (mode/tutor_enabled/humanizer_score/build_log_path), gsd_driver step 9→/gsd-docs-update + phase-advance shifted to step 10 (UX-01..05, ROLE-07, ROLE-09)
 - [ ] 05-02-PLAN.md — friendly_error.py + 30-entry dictionary + expansion README + wiring into 5 scripts (UX-02, UX-05)
 - [ ] 05-03-PLAN.md — narration.py + 7 role briefs + gsd_driver narration wiring (UX-01, UX-04, ROLE-09)
 - [ ] 05-04-PLAN.md — beginner/advanced mode gating in intake_handler + stack_researcher (UX-03)
@@ -192,7 +192,7 @@ Plans:
 | 2. Pre-flight installer | 4/4 | Complete | 2026-04-30 |
 | 3. Intake + Research + Web playbook | 0/5 | Ready to execute (5 plans created) | - |
 | 4. GSD handoff + Verify + Healing | 6/6 | Complete (incl. 04-06 HEAL-05 gap closure) | 2026-04-30 |
-| 5. Common-person UX polish | 0/TBD | Not started | - |
+| 5. Common-person UX polish | 1/5 | Wave 0 RED stubs landed (124 tests collected); Wave 1 next (05-02..05-05) | - |
 | 6. Ship + scalable defaults | 0/TBD | Not started | - |
 | 7. Additional playbooks | 0/TBD | Not started | - |
 | 8. Skill quality / publish-bar | 0/TBD | Not started | - |
