@@ -123,24 +123,57 @@ def test_gitleaks_blocks_real_secret(fake_built_app):
 
 def test_env_example_committed(sd, fake_built_app):
     """SCL-01 (V-09): write_drizzle_files() creates .env.example in project dir."""
-    pytest.skip("Wave 1 target")
+    sd.write_drizzle_files(fake_built_app)
+    assert (fake_built_app / ".env.example").exists(), ".env.example not written by write_drizzle_files()"
 
 
 def test_pick_database(sd):
     """SCL-02 pure function (V-10): _pick_database() returns 'postgres' for web/multi-user-web, 'sqlite' for cli/single-user-cli."""
-    pytest.skip("Wave 1 target")
+    assert sd._pick_database("web", "multi-user-web") == "postgres"
+    assert sd._pick_database("cli", "single-user-cli") == "sqlite"
+    assert sd._pick_database("ai-service", "multi-user-web") == "postgres"
 
 
 def test_db_default_per_playbook(sd, fake_built_app, monkeypatch):
     """SCL-02 file presence (V-11): compose.yaml written for web playbook (postgres:18-alpine, no 'version:' line); skipped for cli playbook."""
-    pytest.skip("Wave 1 target")
+    # Web playbook -> postgres -> compose.yaml must exist
+    sd.write_drizzle_files(fake_built_app, db_choice=sd._pick_database("web", "multi-user-web"))
+    compose = fake_built_app / "compose.yaml"
+    assert compose.exists(), "compose.yaml not written for web playbook"
+    content = compose.read_text(encoding="utf-8")
+    assert "postgres:18-alpine" in content, "compose.yaml missing postgres:18-alpine"
+    import re
+    assert not re.search(r"^version:", content, re.MULTILINE), "compose.yaml must not contain 'version:' key"
+
+    # CLI playbook -> sqlite -> compose.yaml must NOT exist
+    cli_dir = fake_built_app.parent / "fake-cli-app"
+    cli_dir.mkdir()
+    sd.write_drizzle_files(cli_dir, db_choice=sd._pick_database("cli", "single-user-cli"))
+    assert not (cli_dir / "compose.yaml").exists(), "compose.yaml should not be written for cli playbook (sqlite)"
 
 
 def test_docker_artifacts(sd, fake_built_app):
     """SCL-03 (V-12): web scaffold extensions produce multi-stage Dockerfile ('AS builder' + 'AS runtime') and compose.yaml (no ^version: line)."""
-    pytest.skip("Wave 1 target")
+    sd._write_dockerfile(fake_built_app, "node-pnpm")
+    dockerfile = fake_built_app / "Dockerfile"
+    assert dockerfile.exists(), "Dockerfile not written by _write_dockerfile()"
+    content = dockerfile.read_text(encoding="utf-8")
+    assert "FROM node:20-alpine AS builder" in content, "Dockerfile missing 'FROM node:20-alpine AS builder'"
+    assert "AS runtime" in content, "Dockerfile missing 'AS runtime' stage"
 
 
 def test_one_ci_workflow(sd, fake_built_app):
     """SCL-04 (V-13): web scaffold extensions produce EXACTLY one .github/workflows/*.yml with actions/checkout@v6 + pull_request trigger + pnpm/action-setup@v4 before actions/setup-node@v4."""
-    pytest.skip("Wave 1 target")
+    sd._write_ci_workflow(fake_built_app, "node")
+    workflows_dir = fake_built_app / ".github" / "workflows"
+    yml_files = list(workflows_dir.glob("*.yml"))
+    assert len(yml_files) == 1, f"Expected exactly 1 workflow file, found: {[f.name for f in yml_files]}"
+    content = yml_files[0].read_text(encoding="utf-8")
+    assert "actions/checkout@v6" in content, "CI workflow missing actions/checkout@v6"
+    assert "pull_request:" in content, "CI workflow missing pull_request: trigger"
+    lines = content.splitlines()
+    pnpm_line = next((i for i, ln in enumerate(lines) if "pnpm/action-setup@v4" in ln), None)
+    node_line = next((i for i, ln in enumerate(lines) if "actions/setup-node@v4" in ln), None)
+    assert pnpm_line is not None, "pnpm/action-setup@v4 not found in CI workflow"
+    assert node_line is not None, "actions/setup-node@v4 not found in CI workflow"
+    assert pnpm_line < node_line, f"pnpm/action-setup@v4 (line {pnpm_line}) must appear before actions/setup-node@v4 (line {node_line})"
