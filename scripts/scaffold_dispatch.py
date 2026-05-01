@@ -69,6 +69,55 @@ volumes:
   postgres_data:
 """
 
+# Phase 6 — assets directory for Dockerfile + CI workflow templates (SCL-03, SCL-04)
+ASSETS = Path(__file__).resolve().parent.parent / "assets"
+
+
+def _pick_database(playbook: str, app_type: str) -> str:
+    """SCL-02: deterministic Postgres-vs-SQLite choice.
+
+    Web (multi-user) → postgres; CLI (single-user) → sqlite; AI-service → postgres.
+    Pure function: deterministic, testable; no I/O.
+    """
+    pb = (playbook or "").lower()
+    at = (app_type or "").lower()
+    if pb == "web":
+        return "postgres"
+    if pb == "cli":
+        return "sqlite"
+    if pb == "ai-service":
+        return "postgres"
+    # Default by app_type when playbook is unknown
+    if "single-user" in at:
+        return "sqlite"
+    return "postgres"
+
+
+def _write_dockerfile(project_dir: Path, stack_family: str) -> None:
+    """SCL-03: stamp a multi-stage Dockerfile from assets/dockerfiles/<family>.Dockerfile.tmpl.
+
+    stack_family: "node-pnpm" or "python-uv".
+    """
+    src = ASSETS / "dockerfiles" / f"{stack_family}.Dockerfile.tmpl"
+    if not src.exists():
+        return  # silently no-op for unsupported stacks (Phase 7 may add desktop, etc.)
+    content = src.read_text(encoding="utf-8")
+    atomic_write(project_dir / "Dockerfile", content)
+
+
+def _write_ci_workflow(project_dir: Path, stack_family: str) -> None:
+    """SCL-04: stamp EXACTLY ONE GitHub Actions workflow at .github/workflows/ci.yml.
+
+    stack_family: "node" or "python" (matches assets/ci-workflows/<family>.yml.tmpl).
+    """
+    src = ASSETS / "ci-workflows" / f"{stack_family}.yml.tmpl"
+    if not src.exists():
+        return
+    content = src.read_text(encoding="utf-8")
+    target = project_dir / ".github" / "workflows" / "ci.yml"
+    atomic_write(target, content)
+
+
 def _resolve_project_root(arg: str | None) -> Path:
     if arg is None:
         cur = Path.cwd().resolve()
@@ -119,12 +168,17 @@ def ensure_pnpm() -> None:
     )
 
 
-def write_drizzle_files(project_dir: Path) -> None:
-    """Write ONLY 4 Drizzle + Postgres files (SCAF-06): db.ts, drizzle.config.ts, .env.example, compose.yaml."""
+def write_drizzle_files(project_dir: Path, *, db_choice: str = "postgres") -> None:
+    """Write Drizzle + (conditionally) Postgres files post-scaffold (SCAF-06, SCL-02).
+
+    db_choice: "postgres" → also writes compose.yaml. "sqlite" → skips compose.yaml.
+    Default keeps Phase 3 behavior (postgres) so existing test_db_ts_written + test_compose_yaml_written keep passing.
+    """
     atomic_write(project_dir / "src" / "lib" / "db.ts", _DB_TS)
     atomic_write(project_dir / "drizzle.config.ts", _DRIZZLE_CONFIG)
     atomic_write(project_dir / ".env.example", _ENV_EXAMPLE)
-    atomic_write(project_dir / "compose.yaml", _COMPOSE_YAML)
+    if db_choice == "postgres":
+        atomic_write(project_dir / "compose.yaml", _COMPOSE_YAML)
 
 
 def scaffold_web(project_name: str, project_root: Path) -> Path:
@@ -171,7 +225,12 @@ def scaffold_web(project_name: str, project_root: Path) -> Path:
         raise SystemExit(1)
 
     project_dir = project_root / project_name
-    write_drizzle_files(project_dir)
+    # Phase 6 — derive db choice from playbook (web is multi-user by default)
+    db_choice = _pick_database("web", "multi-user-web")
+    write_drizzle_files(project_dir, db_choice=db_choice)
+    # Phase 6 — stamp Dockerfile + CI workflow (SCL-03, SCL-04)
+    _write_dockerfile(project_dir, stack_family="node-pnpm")
+    _write_ci_workflow(project_dir, stack_family="node")
 
     result = subprocess.run(
         ["pnpm", "add", "drizzle-orm", "postgres"],
