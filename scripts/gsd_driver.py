@@ -27,7 +27,7 @@ STATE_WRITER = REPO_ROOT / "scripts" / "state_writer.py"
 REGISTRY_VERIFY = REPO_ROOT / "scripts" / "registry_verify.py"
 
 # Phase step → slash command mapping.
-# Steps 2, 7, 9 are handled in-line (registry gate, VERIFICATION.md, phase advance)
+# Steps 2, 7, and 10 are handled in-line (registry gate, VERIFICATION.md, phase advance)
 # and do NOT emit a slash command directly.
 PHASE_STEP_COMMANDS: dict[int, str] = {
     0: "/gsd-spec-phase",
@@ -39,7 +39,9 @@ PHASE_STEP_COMMANDS: dict[int, str] = {
     6: "/gsd-code-review",
     # 7: write VERIFICATION.md — handled in-line
     8: "/gsd-verify-work",
-    # 9: advance current_phase, reset phase_step to 0 — handled in-line
+    9: "/gsd-docs-update",  # Tech Writer step A: README generation (Phase 5)
+    # humanizer invocation handled in-line after step 9 (Phase 5 Plan 05-05)
+    # 10: advance current_phase, reset phase_step to 0 — handled in-line
 }
 
 _ESCALATION_THRESHOLD = 3
@@ -289,7 +291,7 @@ def emit_next_command(project_root: Path) -> int:
         _bump_field(project_root, "phase_step")
         return 0
 
-    if phase_step == 9:
+    if phase_step == 10:
         # Phase advance: reset phase_step to 0, increment current_phase
         _write_field(project_root, "phase_step", "0")
         _write_field(project_root, "current_phase", str(current_phase + 1))
