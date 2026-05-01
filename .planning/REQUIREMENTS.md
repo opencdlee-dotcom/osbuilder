@@ -131,20 +131,31 @@ Requirements for initial release. Each maps to exactly one roadmap phase (see Tr
 
 ### Ship to private GitHub
 
-- [ ] **SHIP-01**: OSBuilder creates a **private** GitHub repository via `gh repo create --private` after verification passes
-- [ ] **SHIP-02**: OSBuilder generates a README with a clone-and-run runbook that includes: clone command, `cd` into folder, `cp .env.example .env`, install command, run command, verification step
-- [ ] **SHIP-03**: A `.gitignore` template prevents `.env` files, secrets, build artifacts, and platform-specific cruft from being committed
-- [ ] **SHIP-04**: A gitleaks pre-commit hook is installed in the built repo to block secret leakage
-- [ ] **SHIP-05**: `gh` CLI auth state is verified before push; auth-state-drift errors get friendly remediation messages
+- [x] **SHIP-01
+**: OSBuilder creates a **private** GitHub repository via `gh repo create --private` after verification passes
+- [x] **SHIP-02
+**: OSBuilder generates a README with a clone-and-run runbook that includes: clone command, `cd` into folder, `cp .env.example .env`, install command, run command, verification step
+- [x] **SHIP-03
+**: A `.gitignore` template prevents `.env` files, secrets, build artifacts, and platform-specific cruft from being committed
+- [x] **SHIP-04
+**: A gitleaks pre-commit hook is installed in the built repo to block secret leakage
+- [x] **SHIP-05
+**: `gh` CLI auth state is verified before push; auth-state-drift errors get friendly remediation messages
 
 ### Scalable-by-default + production-ready upgrade path
 
-- [ ] **SCL-01**: Default scaffold ships with env-based config (`.env.example` + `.env` in `.gitignore`)
-- [ ] **SCL-02**: Default scaffold uses a real database (Postgres-via-compose for multi-user web apps; SQLite only for single-user CLIs and explicitly chosen modes)
-- [ ] **SCL-03**: Default scaffold ships with a Dockerfile and `compose.yaml` (Docker Compose v2)
-- [ ] **SCL-04**: Default scaffold ships with a single GitHub Actions CI workflow (build + test on PR)
-- [ ] **SCL-05**: OSBuilder **refuses** to add Kubernetes / microservices / service-mesh / Helm in v1 default builds
-- [ ] **SCL-06**: `--production-ready` flag adds these as **named phases** in the roadmap (not default code): observability (logs/metrics/traces), automated migrations, healthchecks, secret manager, Sentry error tracking, rate limiting, backup strategy
+- [x] **SCL-01
+**: Default scaffold ships with env-based config (`.env.example` + `.env` in `.gitignore`)
+- [x] **SCL-02
+**: Default scaffold uses a real database (Postgres-via-compose for multi-user web apps; SQLite only for single-user CLIs and explicitly chosen modes)
+- [x] **SCL-03
+**: Default scaffold ships with a Dockerfile and `compose.yaml` (Docker Compose v2)
+- [x] **SCL-04
+**: Default scaffold ships with a single GitHub Actions CI workflow (build + test on PR)
+- [x] **SCL-05
+**: OSBuilder **refuses** to add Kubernetes / microservices / service-mesh / Helm in v1 default builds
+- [x] **SCL-06
+**: `--production-ready` flag adds these as **named phases** in the roadmap (not default code): observability (logs/metrics/traces), automated migrations, healthchecks, secret manager, Sentry error tracking, rate limiting, backup strategy
 
 ### Skill quality (open-source publish-ready)
 
