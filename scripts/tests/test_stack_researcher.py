@@ -24,25 +24,35 @@ def sr():
         pytest.skip("stack_researcher module not yet created (Wave 1 target)")
 
 
-def test_calls_brainiac(sr, fake_shell, tmp_project_root):
-    """RES-01: research() calls a brainiac subprocess and returns a structured dict."""
-    fake_shell.program(
-        "python3 -m brainiac",
-        returncode=0,
-        stdout=json.dumps({
+def test_calls_brainiac(sr, tmp_project_root, monkeypatch):
+    """RES-01: research() calls _call_brainiac and returns a structured dict.
+
+    Phase 5 UX-03: brainiac is gated by state.md mode field; advanced mode
+    invokes brainiac, beginner mode skips it. We force advanced mode by
+    monkey-patching _mode_from_state to return 'advanced' (avoiding the
+    subprocess.run state-read indirection), then spy on _call_brainiac to
+    confirm it is invoked exactly once.
+    """
+    monkeypatch.setattr(sr, "_mode_from_state", lambda root: "advanced")
+
+    brainiac_calls = []
+
+    def _spy_brainiac(app_type):
+        brainiac_calls.append(app_type)
+        return {
             "framework": {"name": "next.js", "version": "16.2.4", "rationale": "industry default"},
             "orm": {"name": "drizzle-orm", "version": "0.45.2", "rationale": "lightweight"},
-        }),
-    )
+        }
+
+    monkeypatch.setattr(sr, "_call_brainiac", _spy_brainiac)
+
     result = sr.research_stack(app_type="web", project_root=tmp_project_root)
     assert isinstance(result, dict), "research_stack() must return a dict"
     assert "framework" in result, "Result must include 'framework' key"
-    brainiac_calls = [
-        c for c in fake_shell.calls
-        if (isinstance(c[0], list) and any("brainiac" in str(part) for part in c[0]))
-        or (isinstance(c[0], str) and "brainiac" in c[0])
-    ]
-    assert len(brainiac_calls) >= 1, "stack_researcher must invoke a brainiac subprocess (RES-01)"
+    assert len(brainiac_calls) >= 1, (
+        f"stack_researcher must invoke _call_brainiac in advanced mode (RES-01); "
+        f"got {len(brainiac_calls)} calls"
+    )
 
 
 def test_output_is_structured(sr, fake_shell, tmp_project_root):

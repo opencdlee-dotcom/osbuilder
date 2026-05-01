@@ -17,6 +17,7 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -25,6 +26,9 @@ try:
     import friendly_error as _fe
 except ImportError:
     _fe = None  # type: ignore[assignment]
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+STATE_WRITER = REPO_ROOT / "scripts" / "state_writer.py"
 
 _REQUIRED_SECTIONS = ("# OSBuilder Derived Spec", "**Goal:**", "**App type:**", "**Playbook:**")
 _SECRET_PATTERNS = ("api_key", "password", "token", "database_url=postgresql://")
@@ -57,6 +61,22 @@ def _validate_project_name(name: str) -> None:
         raise SystemExit("OSBuilder: project_name must contain only [a-zA-Z0-9_-] characters.")
 
 
+def _mode_from_state(project_root: Path) -> str:
+    """Read mode field from state.md; default 'beginner' on any failure (UX-03)."""
+    state_md = project_root / ".planning" / "osbuilder" / "state.md"
+    if not state_md.exists():
+        return "beginner"
+    try:
+        r = subprocess.run(
+            [sys.executable, str(STATE_WRITER), "read",
+             "--field", "mode", "--project-root", str(project_root)],
+            capture_output=True, text=True, shell=False, check=False,
+        )
+        return r.stdout.strip() or "beginner"
+    except Exception:
+        return "beginner"
+
+
 def atomic_write(path: Path, content: str) -> None:
     """Atomic file write via os.replace (atomic on POSIX + Windows)."""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -78,8 +98,14 @@ def _render_derived_spec(
     features: list | None = None,
     users: list | None = None,
     stack_hints: list | None = None,
+    mode: str = "beginner",
 ) -> str:
-    """Render derived_spec.md content in /gsd-new-project --auto handoff format."""
+    """Render derived_spec.md content in /gsd-new-project --auto handoff format.
+
+    UX-03: stack_hints are only included when mode == 'advanced'. Beginner
+    mode (default) omits the **Stack hints:** line entirely so technology
+    names (Next.js, Drizzle, Postgres, etc.) never surface to the user.
+    """
     features = features or []
     users = users or []
     stack_hints = stack_hints or []
@@ -90,7 +116,7 @@ def _render_derived_spec(
         lines += ["**Core features:**"] + [f"- {f}" for f in features] + [""]
     lines.append(f"**App type:** {app_type}")
     lines.append(f"**Playbook:** references/playbooks/{app_type}.md")
-    if stack_hints:
+    if stack_hints and mode == "advanced":
         lines.append(f"**Stack hints:** {', '.join(stack_hints)}")
     lines += ["", "**Build with:** /gsd-new-project --auto"]
     return "\n".join(lines) + "\n"
@@ -100,11 +126,16 @@ def parse_paragraph(text: str, project_root: Path | None = None) -> Path:
     """IN-01: Parse plain-English paragraph → derived_spec.md.
 
     T-3-03: text is treated as data only — never executed or interpolated.
+    UX-03: mode (beginner/advanced) is read from state.md; beginner mode
+    suppresses stack_hints in the rendered spec.
     Returns the Path of the written derived_spec.md.
     """
     root = _resolve_project_root(str(project_root) if project_root is not None else None)
     dest = _derived_spec_path(root)
-    atomic_write(dest, _render_derived_spec(goal=text.strip(), app_type="web"))
+    _mode = _mode_from_state(root)
+    atomic_write(dest, _render_derived_spec(
+        goal=text.strip(), app_type="web", mode=_mode,
+    ))
     return dest
 
 
@@ -112,16 +143,20 @@ def parse_structured(data: dict, project_root: Path | None = None) -> Path:
     """IN-02: Parse structured dict spec → derived_spec.md.
 
     Keys: goal (required), features, users, app_type, stack_hints (all optional).
+    UX-03: mode (beginner/advanced) is read from state.md; beginner mode
+    suppresses stack_hints in the rendered spec.
     Returns the Path of the written derived_spec.md.
     """
     root = _resolve_project_root(str(project_root) if project_root is not None else None)
     dest = _derived_spec_path(root)
+    _mode = _mode_from_state(root)
     atomic_write(dest, _render_derived_spec(
         goal=str(data.get("goal", "")),
         app_type=str(data.get("app_type", "web")),
         features=list(data.get("features", [])),
         users=list(data.get("users", [])),
         stack_hints=list(data.get("stack_hints", [])),
+        mode=_mode,
     ))
     return dest
 

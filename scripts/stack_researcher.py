@@ -52,6 +52,22 @@ def _resolve_project_root(arg: str | None) -> Path:
     return Path(arg).resolve()
 
 
+def _mode_from_state(project_root: Path) -> str:
+    """Read mode field from state.md; default 'beginner' on any failure (UX-03)."""
+    state_md = project_root / ".planning" / "osbuilder" / "state.md"
+    if not state_md.exists():
+        return "beginner"
+    try:
+        r = subprocess.run(
+            [sys.executable, str(STATE_WRITER), "read",
+             "--field", "mode", "--project-root", str(project_root)],
+            capture_output=True, text=True, shell=False, check=False,
+        )
+        return r.stdout.strip() or "beginner"
+    except Exception:
+        return "beginner"
+
+
 def _read_stack_menu(references_root: Path) -> dict:
     """RES-03 fallback: read stack-menu.md; return hardcoded defaults if absent."""
     p = references_root / "stack-menu.md"
@@ -106,28 +122,40 @@ def research_stack(
     project_root: Path | None = None,
     advanced_overrides: dict | None = None,
 ) -> dict:
-    """Research and return stack_choices; write to state.md. (RES-01..RES-04)"""
+    """Research and return stack_choices; write to state.md. (RES-01..RES-04)
+
+    UX-03: in beginner mode (default), skips _call_brainiac entirely and
+    auto-resolves to references/stack-menu.md defaults. Advanced mode keeps
+    the original brainiac → fallback behavior. The mode field is read from
+    state.md via _mode_from_state.
+    """
     resolved_root = _resolve_project_root(None if project_root is None else str(project_root))
 
-    # RES-01: call brainiac
-    brainiac_result = _call_brainiac(app_type)
+    # UX-03: read mode from state.md — beginner skips brainiac entirely
+    mode = _mode_from_state(resolved_root)
 
-    # RES-03: fallback when brainiac returns empty/inconclusive
-    if not brainiac_result or not isinstance(brainiac_result, dict):
+    if mode == "beginner":
+        # Auto-resolve to stack-menu defaults (RES-03 path; no brainiac call)
         stack_choices = _read_stack_menu(REFERENCES_ROOT)
     else:
-        # Tag each component with its source
-        stack_choices = {}
-        for key, val in brainiac_result.items():
-            if isinstance(val, dict):
-                stack_choices[key] = {**val, "source": "brainiac"}
-            else:
-                stack_choices[key] = val
-        # Fill in any missing required keys from fallback
-        defaults = _read_stack_menu(REFERENCES_ROOT)
-        for key in defaults:
-            if key not in stack_choices:
-                stack_choices[key] = defaults[key]
+        # Advanced mode: original behavior (RES-01 brainiac → RES-03 fallback)
+        brainiac_result = _call_brainiac(app_type)
+
+        if not brainiac_result or not isinstance(brainiac_result, dict):
+            stack_choices = _read_stack_menu(REFERENCES_ROOT)
+        else:
+            # Tag each component with its source
+            stack_choices = {}
+            for key, val in brainiac_result.items():
+                if isinstance(val, dict):
+                    stack_choices[key] = {**val, "source": "brainiac"}
+                else:
+                    stack_choices[key] = val
+            # Fill in any missing required keys from fallback
+            defaults = _read_stack_menu(REFERENCES_ROOT)
+            for key in defaults:
+                if key not in stack_choices:
+                    stack_choices[key] = defaults[key]
 
     # RES-04: apply --advanced overrides (override wins on any conflicting key)
     if advanced_overrides:
