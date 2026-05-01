@@ -33,9 +33,129 @@ STATE_WRITER = REPO_ROOT / "scripts" / "state_writer.py"
 _REQUIRED_SECTIONS = ("# OSBuilder Derived Spec", "**Goal:**", "**App type:**", "**Playbook:**")
 _SECRET_PATTERNS = ("api_key", "password", "token", "database_url=postgresql://")
 
+# Phase 6 — refuse-list (SCL-05): hardcoded keyword tuple sourced from references/refuse-list.md
+# Order: most-specific multi-word first, then single-word
+REFUSE_KEYWORDS = (
+    "service mesh",
+    "service-mesh",
+    "microservices",
+    "microservice",
+    "kubernetes",
+    "k8s",
+    "helm",
+    "istio",
+    "linkerd",
+    "consul",
+)
+
+REFUSE_LIST_MD = REPO_ROOT / "references" / "refuse-list.md"
+
 
 def _derived_spec_path(project_root: Path) -> Path:
     return project_root / ".planning" / "osbuilder" / "derived_spec.md"
+
+
+def _read_state(project_root: Path) -> dict:
+    """Read state.md as JSON dict via state_writer read subcommand (D-05 duplicate)."""
+    state_md = project_root / ".planning" / "osbuilder" / "state.md"
+    if not state_md.exists():
+        return {}
+    result = subprocess.run(
+        [sys.executable, str(STATE_WRITER), "read", "--format", "json",
+         "--project-root", str(project_root)],
+        capture_output=True, text=True, shell=False, check=False,
+    )
+    if result.returncode != 0:
+        return {}
+    try:
+        return json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return {}
+
+
+def _write_state_field(project_root: Path, field: str, value: str) -> None:
+    """Write a single field to state.md via state_writer (D-05 duplicate)."""
+    subprocess.run(
+        [sys.executable, str(STATE_WRITER), "write",
+         "--field", field, "--value", value,
+         "--project-root", str(project_root)],
+        shell=False, check=True,
+    )
+
+
+def _load_refusal_copy(matched_keyword: str) -> str:
+    """Read references/refuse-list.md and return the user-facing refusal copy section.
+
+    Extracts the section under '## Refusal copy' H2 until the next H2.
+    Falls back to a minimal hardcoded message if the file is missing.
+    """
+    if not REFUSE_LIST_MD.exists():
+        return (
+            f"OSBuilder: this build asks for '{matched_keyword}', which is on the v1 default "
+            f"refuse-list (Kubernetes, microservices, service-mesh, Helm). Re-run with "
+            f"--production-ready to add these as named ROADMAP phases instead.\n"
+        )
+    text = REFUSE_LIST_MD.read_text(encoding="utf-8")
+    # Extract the section under "## Refusal copy" until next H2.
+    # Use "\n## Refusal copy" (newline-prefixed) so inline backtick references in
+    # blockquotes (e.g., `## Refusal copy`) are not mistaken for the actual H2 header.
+    marker = "\n## Refusal copy"
+    idx = text.find(marker)
+    if idx < 0:
+        return text  # whole file is fallback
+    after = text[idx + len(marker):]
+    next_h2 = after.find("\n## ")
+    body = after if next_h2 < 0 else after[:next_h2]
+    # Substitute the matched keyword if the copy uses {{keyword}}
+    return body.replace("{{keyword}}", matched_keyword).strip() + "\n"
+
+
+def _matches_refuse_keyword(spec: str) -> "str | None":
+    """Return the first refuse keyword matched in spec with word-boundary semantics, else None.
+
+    For multi-word keywords (containing space or hyphen), use substring check on lowercased text.
+    For single-word keywords, use \\b regex to avoid false positives ('k8sFooBar' must NOT match).
+    """
+    lower = spec.lower()
+    for kw in REFUSE_KEYWORDS:
+        if " " in kw or "-" in kw:
+            # multi-word / hyphenated — substring on lowercased text is fine
+            if kw in lower:
+                return kw
+        else:
+            # single-word — strict word boundary
+            if re.search(r"\b" + re.escape(kw) + r"\b", lower):
+                return kw
+    return None
+
+
+def check_refuse_list(project_root: Path) -> bool:
+    """SCL-05: refusal gate. Returns True if request was refused.
+
+    Reads derived_spec.md and state.md; if state production_ready=='true', short-circuit-False.
+    On hit: writes last_failure='refused: <kw>' via state_writer; prints refusal copy to stderr.
+
+    The refusal does NOT exit non-zero — gsd_driver.py interprets the True return as
+    'do not advance phase_step' while preserving the resume protocol.
+    """
+    # Bypass when production-ready
+    state = _read_state(project_root)
+    if state.get("production_ready", "false") == "true":
+        return False
+
+    spec_path = project_root / ".planning" / "osbuilder" / "derived_spec.md"
+    if not spec_path.exists():
+        return False
+
+    spec = spec_path.read_text(encoding="utf-8")
+    matched = _matches_refuse_keyword(spec)
+    if matched is None:
+        return False
+
+    # Hit — write state field + emit refusal copy
+    _write_state_field(project_root, "last_failure", f"refused: {matched}")
+    sys.stderr.write(_load_refusal_copy(matched))
+    return True
 
 
 def _resolve_project_root(arg: str | None) -> Path:
@@ -198,6 +318,14 @@ def _cmd_validate(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_check_refuse_list(args: argparse.Namespace) -> int:
+    """CLI: returns 0 if no refusal, 2 if refused (so callers can distinguish from real errors)."""
+    project_root = _resolve_project_root(args.project_root)
+    if check_refuse_list(project_root):
+        return 2  # sentinel exit code: "refused — do not advance"
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
@@ -212,6 +340,11 @@ def main(argv: list[str] | None = None) -> int:
     p_validate = sub.add_parser("validate", help="check derived_spec.md format")
     p_validate.add_argument("--project-root", default=None, dest="project_root")
     p_validate.set_defaults(func=_cmd_validate)
+
+    p_refuse = sub.add_parser("check-refuse-list",
+                              help="Check derived_spec.md against refuse-list (SCL-05).")
+    p_refuse.add_argument("--project-root", default=None, dest="project_root")
+    p_refuse.set_defaults(func=_cmd_check_refuse_list)
 
     args = parser.parse_args(argv)
     try:
