@@ -128,7 +128,14 @@ Plans:
   5. Asking OSBuilder to "set up Kubernetes for this app" in default mode produces a refusal with a documented explanation; passing `--production-ready` instead adds K8s/observability/Sentry/migrations/healthchecks/rate-limiting/backup as **named phases in the roadmap**, not as default code in the scaffold.
   6. If `gh auth status` reports drift / expiry before push, the user sees a friendly error with the exact remediation command (`gh auth login --git-protocol https`), not a raw `gh` stack trace.
   7. A multi-user web build receives Postgres-via-compose by default; a single-user CLI build receives SQLite by default — confirmed by reading the generated `compose.yaml` / Python config.
-**Plans:** TBD
+**Plans:** 6 plans
+Plans:
+- [ ] 06-01-PLAN.md — Wave 0 RED stubs (>= 16 stubs across 5 test files); state_writer.py ALLOWED_FIELDS + 4 conftest fixtures; 2 derived_spec fixture .md files (covers all 11 phase reqs at the test-infra level)
+- [ ] 06-02-PLAN.md — Track A: scripts/gh_handoff.py (ship + verify) + 5 friendly-error gh-* dictionary entries + assets/gitignore-templates/{common,node,python}.gitignore + assets/gitleaks/.pre-commit-config.yaml + .gitleaks.toml (SHIP-01, SHIP-03, SHIP-04, SHIP-05)
+- [ ] 06-03-PLAN.md — Track B: scaffold_dispatch.py extension (_pick_database, _write_dockerfile, _write_ci_workflow) + 4 asset templates (Dockerfiles + CI workflows) (SHIP-03, SCL-01, SCL-02, SCL-03, SCL-04)
+- [ ] 06-04-PLAN.md — Track C: scripts/runbook_writer.py + assets/readme-template.md (SHIP-02)
+- [ ] 06-05-PLAN.md — Track D: refusal gate in intake_handler.py + scripts/production_phase_writer.py + references/refuse-list.md (SCL-05, SCL-06)
+- [ ] 06-06-PLAN.md — Wave 2 wiring: SKILL.md + gsd_driver.py refusal hook + ship-step hook (integrates SHIP-01, SHIP-02, SHIP-05, SCL-05, SCL-06)
 
 ### Phase 7: Additional playbooks
 **Goal:** With web validated end-to-end, additively support AI-service (FastAPI), CLI (Typer), desktop (Tauri 2), and hub-platform (Professor-style umbrella) builds — each as its own playbook file, each able to run the full intake → scaffold → verify → ship loop.
