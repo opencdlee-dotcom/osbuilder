@@ -74,6 +74,7 @@ The 10 persisted fields: `goal`, `app_type`, `playbook`, `current_role`, `curren
 │   ├── playbooks/            ← per-app-type recipes (web, ai-service, cli, desktop, hub-platform)
 │   ├── roles/                ← per-role briefs (pm, architect, frontend, backend, devops, qa, reviewer, tech-writer)
 │   ├── preflight/            ← per-OS install matrices (macos, linux, windows)
+│   ├── refuse-list.md        ← Phase 6 SCL-05 — refuse keywords + friendly opt-in copy
 │   └── stack-menu.md         ← fallback stack defaults when web research is inconclusive
 ├── scripts/                  ← Python 3 stdlib helpers (executed, never loaded as context)
 │   ├── state_writer.py       ← state.md checkpoint manager (atomic via os.replace)
@@ -84,8 +85,10 @@ The 10 persisted fields: `goal`, `app_type`, `playbook`, `current_role`, `curren
 │   ├── friendly_error.py     ← translates raw stack traces into "what broke + what to do"
 │   ├── preflight_check.py    ← detects missing prereqs (Node, Python, git, gh, Docker)
 │   ├── registry_verify.py    ← slopsquatting gate (verifies packages exist before install)
-│   └── gh_handoff.py         ← creates private GitHub repo + clone-and-run runbook
-├── assets/                   ← templates without third-party scaffolders (e.g., fastapi-starter/)
+│   ├── gh_handoff.py         ← creates private GitHub repo (Phase 6 SHIP-01..05)
+│   ├── runbook_writer.py     ← stamps clone-and-run README from state.md (Phase 6 SHIP-02)
+│   └── production_phase_writer.py  ← --production-ready named-phase emitter (Phase 6 SCL-06)
+├── assets/                   ← templates: gitignore-templates/, gitleaks/, dockerfiles/, ci-workflows/, readme-template.md
 └── examples/                 ← gallery of 3-5 reference apps OSBuilder has built
 ```
 
