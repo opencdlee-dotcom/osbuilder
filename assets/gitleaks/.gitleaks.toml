@@ -1,0 +1,15 @@
+# OSBuilder default gitleaks config
+# Source: github.com/gitleaks/gitleaks#configuration (verified 2026-05-01)
+
+title = "OSBuilder default gitleaks config"
+
+# Use upstream defaults (no [extend.path] override).
+# Project-specific allowlist — extend with [[allowlist]] entries as false positives surface.
+[allowlist]
+description = "Files that legitimately contain pattern-matching strings"
+paths = [
+    '''(.*?)\.env\.example$''',
+    '''(.*?)\.env\.sample$''',
+    '''README\.md$''',
+    '''docs/.*\.md$''',
+]

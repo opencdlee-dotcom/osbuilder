@@ -1,0 +1,7 @@
+# OSBuilder default — gitleaks pre-commit hook
+# Source: github.com/gitleaks/gitleaks/.pre-commit-hooks.yaml (verified 2026-05-01)
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks

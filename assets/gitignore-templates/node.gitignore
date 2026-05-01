@@ -1,0 +1,13 @@
+# OSBuilder node .gitignore (additive on top of common.gitignore)
+# Source: github.com/github/gitignore/blob/main/Node.gitignore (curated)
+
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+coverage/
+*.tsbuildinfo
+.npm
+.pnpm-store/
+.yarn/
