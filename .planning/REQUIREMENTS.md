@@ -106,10 +106,12 @@ Requirements for initial release. Each maps to exactly one roadmap phase (see Tr
 ### Common-person UX
 
 - [ ] **UX-01**: Tutor mode is ON by default — explains in plain English what just happened at each stage; `--quiet` disables
-- [ ] **UX-02**: Friendly errors via `scripts/friendly_error.py` — never expose raw stack traces, `ENOENT`, `EACCES`, etc.; always translate to "here's what broke and here's what to do"
+- [x] **UX-02
+**: Friendly errors via `scripts/friendly_error.py` — never expose raw stack traces, `ENOENT`, `EACCES`, etc.; always translate to "here's what broke and here's what to do"
 - [ ] **UX-03**: Beginner mode is the default; `--advanced` opt-in flag exposes stack choice, deploy targets, and other technical decisions
 - [ ] **UX-04**: Per-role narration scripts in `references/roles/*.md` produce non-jargon progress messages
-- [ ] **UX-05**: A starter friendly-error dictionary covers the top 30 errors observed in dogfood builds; expansion path is documented for future versions
+- [x] **UX-05
+**: A starter friendly-error dictionary covers the top 30 errors observed in dogfood builds; expansion path is documented for future versions
 
 ### Verify against falsifiable criteria
 
