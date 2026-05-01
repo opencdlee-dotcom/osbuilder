@@ -1,0 +1,324 @@
+# OSBuilder Friendly-Error Dictionary
+# ORDER MATTERS — more specific patterns must come BEFORE generic ones.
+# e.g., 'slopsquat-blocked' (entry 1) before 'npm-404' (entry 2)
+#       'pnpm-not-found' before 'npm-not-found'
+# format_version field is REQUIRED as first record; friendly_error.py rejects anything other than "1.0"
+
+- format_version: "1.0"
+  schema_fields:
+    - id
+    - match_pattern
+    - category
+    - title
+    - what_broke
+    - what_to_do
+    - copy_paste_command
+    - phase_seen
+    - expansion_note
+
+- id: slopsquat-blocked
+  match_pattern: "slopsquatting gate blocked"
+  category: registry
+  title: "OSBuilder blocked a suspicious package"
+  what_broke: "A package name OSBuilder couldn't verify on the public registry was rejected for safety."
+  what_to_do: "Check the package name for typos. If you trust the package, ask OSBuilder to retry with --allow-unverified."
+  copy_paste_command: ~
+  phase_seen: "preflight, 4"
+  expansion_note: "PITFALLS.md P6 — slopsquatting prevention"
+
+- id: npm-404
+  match_pattern: "npm ERR! 404"
+  category: registry
+  title: "That package name isn't on npm"
+  what_broke: "npm returned 404 — the package name does not exist on the public npm registry."
+  what_to_do: "The name is likely a typo or hallucinated. OSBuilder blocked the install for safety."
+  copy_paste_command: ~
+  phase_seen: "2-3"
+  expansion_note: "PITFALLS.md P6"
+
+- id: pypi-404
+  match_pattern: "No matching distribution found"
+  category: registry
+  title: "That Python package isn't on PyPI"
+  what_broke: "pip returned 'No matching distribution found' — the package does not exist on PyPI."
+  what_to_do: "Check the package name spelling. OSBuilder blocked the install to prevent slopsquatting."
+  copy_paste_command: ~
+  phase_seen: "2-3"
+  expansion_note: "PITFALLS.md P6"
+
+- id: pnpm-not-found
+  match_pattern: "pnpm: command not found"
+  category: preflight
+  title: "pnpm isn't installed yet"
+  what_broke: "The 'pnpm' command was not found on PATH."
+  what_to_do: "Install pnpm globally, or let OSBuilder install it via preflight."
+  copy_paste_command: "npm install -g pnpm"
+  phase_seen: "preflight"
+  expansion_note: "Phase 2 preflight dogfood"
+
+- id: npm-not-found
+  match_pattern: "npm: command not found"
+  category: preflight
+  title: "npm isn't installed yet (Node missing)"
+  what_broke: "The 'npm' command was not found, which usually means Node.js is not installed."
+  what_to_do: "Run preflight to install Node.js and npm."
+  copy_paste_command: "python3 scripts/preflight_check.py install"
+  phase_seen: "preflight"
+  expansion_note: "Phase 2 preflight dogfood"
+
+- id: python-not-found
+  match_pattern: "python3: command not found"
+  category: preflight
+  title: "Python isn't installed yet"
+  what_broke: "The 'python3' command was not found on PATH."
+  what_to_do: "Run the bootstrap shim to install Python."
+  copy_paste_command: "bash scripts/bootstrap.sh"
+  phase_seen: "preflight"
+  expansion_note: "PITFALLS.md P13"
+
+- id: node-version-old
+  match_pattern: "node version .* < 20"
+  pattern_type: regex
+  category: preflight
+  title: "Your Node is too old"
+  what_broke: "Node.js version is older than 20, which OSBuilder requires."
+  what_to_do: "Run preflight to upgrade Node.js to a supported version."
+  copy_paste_command: "python3 scripts/preflight_check.py install"
+  phase_seen: "preflight"
+  expansion_note: "Phase 2 preflight dogfood"
+
+- id: gh-not-found
+  match_pattern: "gh: command not found"
+  category: gh-auth
+  title: "The GitHub CLI isn't installed yet"
+  what_broke: "The 'gh' command was not found on PATH."
+  what_to_do: "Run preflight to install the GitHub CLI."
+  copy_paste_command: "python3 scripts/preflight_check.py install"
+  phase_seen: "preflight"
+  expansion_note: "PITFALLS.md P15"
+
+- id: gh-token-conflict
+  match_pattern: "GITHUB_TOKEN.*set.*interrupted"
+  pattern_type: regex
+  category: gh-auth
+  title: "Two GitHub tokens are fighting"
+  what_broke: "The GITHUB_TOKEN environment variable is set and interrupting interactive 'gh auth login'."
+  what_to_do: "Unset the env var, then run gh auth login again."
+  copy_paste_command: "unset GITHUB_TOKEN && gh auth login --git-protocol https"
+  phase_seen: "preflight"
+  expansion_note: "PITFALLS.md P15"
+
+- id: gh-token-expired
+  match_pattern: "HTTP 401"
+  pattern_type: regex
+  category: gh-auth
+  title: "Your GitHub login has expired"
+  what_broke: "GitHub returned HTTP 401 — your authentication token is expired or invalid."
+  what_to_do: "Re-authenticate with the GitHub CLI."
+  copy_paste_command: "gh auth login --git-protocol https"
+  phase_seen: "2-3"
+  expansion_note: "PITFALLS.md P15"
+
+- id: docker-not-installed
+  match_pattern: "docker: command not found"
+  category: docker
+  title: "Docker isn't installed"
+  what_broke: "The 'docker' command was not found on PATH."
+  what_to_do: "Install Docker Desktop or OrbStack, or use --no-docker for SQLite-only mode."
+  copy_paste_command: ~
+  phase_seen: "preflight"
+  expansion_note: "Phase 2 preflight dogfood"
+
+- id: docker-daemon-not-running
+  match_pattern: "Cannot connect to the Docker daemon"
+  category: docker
+  title: "Docker isn't running yet"
+  what_broke: "The Docker daemon is not running. Docker is installed but not started."
+  what_to_do: "Start Docker Desktop (or OrbStack on macOS) and try again."
+  copy_paste_command: ~
+  phase_seen: "2-3"
+  expansion_note: "Standard Docker failure mode"
+
+- id: pg-conn-refused
+  match_pattern: "connection refused.*5432"
+  pattern_type: regex
+  category: docker
+  title: "Postgres isn't running yet"
+  what_broke: "Postgres connection refused on port 5432 — the database container is not running."
+  what_to_do: "Start the Postgres container via docker compose."
+  copy_paste_command: "docker compose up -d postgres"
+  phase_seen: "3"
+  expansion_note: "Standard Postgres-in-Docker failure mode"
+
+- id: pg-auth-fail
+  match_pattern: "password authentication failed"
+  category: docker
+  title: "Postgres password mismatch"
+  what_broke: "Postgres rejected the password — your .env file likely doesn't match compose.yaml."
+  what_to_do: "Copy .env.example to .env so the credentials match the compose file."
+  copy_paste_command: "cp .env.example .env"
+  phase_seen: "3"
+  expansion_note: "Standard Postgres failure mode"
+
+- id: port-in-use
+  match_pattern: "EADDRINUSE"
+  pattern_type: regex
+  category: runtime
+  title: "The port is already taken"
+  what_broke: "Another process is already listening on the port OSBuilder wants to use."
+  what_to_do: "Stop the other thing using port 3000, or pick a different port."
+  copy_paste_command: "lsof -i :3000"
+  phase_seen: "3"
+  expansion_note: "Standard Node/Next.js failure mode"
+
+- id: module-not-found-py
+  match_pattern: "ModuleNotFoundError"
+  category: runtime
+  title: "A Python piece is missing"
+  what_broke: "Python couldn't find a required module."
+  what_to_do: "Install the project dependencies from the project folder."
+  copy_paste_command: "pip install -e ."
+  phase_seen: "3"
+  expansion_note: "Standard Python failure mode"
+
+- id: module-not-found-js
+  match_pattern: "Cannot find module"
+  category: runtime
+  title: "A Node piece is missing"
+  what_broke: "Node couldn't find a required module."
+  what_to_do: "Install the project dependencies from the project folder."
+  copy_paste_command: "pnpm install"
+  phase_seen: "3"
+  expansion_note: "Standard Node failure mode"
+
+- id: next-build-fail
+  match_pattern: "next build failed"
+  category: runtime
+  title: "The Next.js build hit an error"
+  what_broke: "next build exited non-zero. The compile or type-check step failed."
+  what_to_do: "Run pnpm build to see the details, or check the build log."
+  copy_paste_command: "pnpm build"
+  phase_seen: "3"
+  expansion_note: "Standard Next.js failure mode"
+
+- id: tailwind-bad-class
+  match_pattern: "Cannot apply unknown utility class"
+  category: scaffold
+  title: "A Tailwind class name is wrong"
+  what_broke: "Tailwind found a utility class it doesn't recognize."
+  what_to_do: "Edit the file mentioned and fix the class name. Check spelling and Tailwind version compatibility."
+  copy_paste_command: ~
+  phase_seen: "3"
+  expansion_note: "Standard Tailwind failure mode"
+
+- id: eacces-generic
+  match_pattern: "EACCES"
+  category: filesystem
+  title: "I don't have permission to do that"
+  what_broke: "The OS denied permission to read or write a file."
+  what_to_do: "Try running with the right permissions, or pick a folder you own."
+  copy_paste_command: ~
+  phase_seen: "preflight, 2"
+  expansion_note: "PITFALLS.md P12"
+
+- id: path-traversal-rejected
+  match_pattern: "cannot contain '..'"
+  category: filesystem
+  title: "OSBuilder blocked a risky path"
+  what_broke: "A path containing '..' was rejected for safety to prevent path-traversal attacks."
+  what_to_do: "Use absolute paths or paths without '..' segments."
+  copy_paste_command: ~
+  phase_seen: "preflight, 3, 4"
+  expansion_note: "Phase 1-4 SUMMARYs — security validation"
+
+- id: state-md-missing
+  match_pattern: "no state.md at"
+  category: filesystem
+  title: "OSBuilder lost track of where it was"
+  what_broke: "The state.md checkpoint file is missing — OSBuilder can't resume the build."
+  what_to_do: "Initialize state, or restart the build from scratch."
+  copy_paste_command: "python3 scripts/state_writer.py init"
+  phase_seen: "4"
+  expansion_note: "Phase 4 SUMMARY — state machine"
+
+- id: enoent-generic
+  match_pattern: "ENOENT"
+  category: filesystem
+  title: "The file or folder I need isn't there"
+  what_broke: "A file or directory OSBuilder expected was not found."
+  what_to_do: "Check the path; if it should exist, re-run scaffold or check state.md."
+  copy_paste_command: ~
+  phase_seen: "preflight, 2, 3"
+  expansion_note: "PITFALLS.md P12"
+
+- id: humanizer-missing
+  match_pattern: "humanizer.*not found.*~/.claude/skills"
+  pattern_type: regex
+  category: scaffold
+  title: "The humanizer skill isn't installed"
+  what_broke: "The humanizer skill is missing from ~/.claude/skills/."
+  what_to_do: "README will ship without the AI-pattern check. Install humanizer to enable it."
+  copy_paste_command: ~
+  phase_seen: "5"
+  expansion_note: "Phase 5 — tech writer step"
+
+- id: gsd-skill-missing
+  match_pattern: "gsd-.*: command not found"
+  pattern_type: regex
+  category: scaffold
+  title: "A GSD skill is missing"
+  what_broke: "A required GSD slash command was not found in ~/.claude/skills/."
+  what_to_do: "Install the missing GSD skill from the gsd repo."
+  copy_paste_command: ~
+  phase_seen: "4"
+  expansion_note: "PITFALLS.md P9"
+
+- id: network-econnreset
+  match_pattern: "ECONNRESET"
+  category: network
+  title: "Network connection dropped"
+  what_broke: "A network connection was reset mid-transfer."
+  what_to_do: "Wait a moment. OSBuilder will retry automatically (already handled by the retry loop)."
+  copy_paste_command: ~
+  phase_seen: "3, 4"
+  expansion_note: "PITFALLS.md P3 — transient network failures"
+
+- id: network-timeout
+  match_pattern: "ETIMEDOUT"
+  category: network
+  title: "Network is slow"
+  what_broke: "A network operation timed out."
+  what_to_do: "Check your connection. OSBuilder will retry automatically."
+  copy_paste_command: ~
+  phase_seen: "4"
+  expansion_note: "Standard transient network failure"
+
+- id: dns-resolve-fail
+  match_pattern: "EAI_AGAIN"
+  category: network
+  title: "Couldn't reach the internet"
+  what_broke: "DNS resolution failed — OSBuilder cannot reach the network."
+  what_to_do: "Check your internet connection and try again."
+  copy_paste_command: ~
+  phase_seen: "4"
+  expansion_note: "Standard DNS failure mode"
+
+- id: git-not-a-repo
+  match_pattern: "fatal: not a git repository"
+  category: git
+  title: "This isn't a git folder yet"
+  what_broke: "git reported the current folder is not a repository."
+  what_to_do: "Initialize git in the project folder, then try again."
+  copy_paste_command: "git init"
+  phase_seen: "preflight, 3"
+  expansion_note: "PITFALLS.md P15"
+
+- id: git-merge-conflict
+  match_pattern: "Merge conflict in"
+  category: git
+  title: "Two changes disagree"
+  what_broke: "git found a merge conflict in one or more files."
+  what_to_do: "Open the conflicting file, pick which version to keep, then commit the resolution."
+  copy_paste_command: ~
+  phase_seen: "3"
+  expansion_note: "Standard git failure mode"
