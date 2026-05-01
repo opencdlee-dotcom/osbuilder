@@ -87,6 +87,16 @@
   phase_seen: "preflight"
   expansion_note: "Phase 2 preflight dogfood"
 
+- id: gh-not-installed
+  match_pattern: "gh: command not found"
+  category: gh-auth
+  title: "The gh CLI isn't installed"
+  what_broke: "OSBuilder needs the `gh` command-line tool to create your private repo, but it's not on PATH."
+  what_to_do: "Install gh via Homebrew (macOS) or winget (Windows). On Linux, see github.com/cli/cli#installation."
+  copy_paste_command: "brew install gh"
+  phase_seen: "6"
+  expansion_note: "Phase 6 SHIP-01; pairs with gh-auth-drift"
+
 - id: gh-not-found
   match_pattern: "gh: command not found"
   category: gh-auth
@@ -322,3 +332,43 @@
   copy_paste_command: ~
   phase_seen: "3"
   expansion_note: "Standard git failure mode"
+
+- id: gh-auth-drift
+  match_pattern: "You are not logged into any GitHub hosts"
+  category: gh-auth
+  title: "GitHub login expired or never set"
+  what_broke: "Your `gh` CLI is installed but isn't authenticated to a GitHub account."
+  what_to_do: "Log in once with `gh auth login`; OSBuilder will pick up the session automatically."
+  copy_paste_command: "gh auth login --git-protocol https"
+  phase_seen: "6"
+  expansion_note: "Phase 6 SHIP-05; gh stderr fragment verified gh 2.90.0"
+
+- id: gh-name-collision
+  match_pattern: "already exists on this account"
+  category: gh-auth
+  title: "A repo with that name already exists on your GitHub account"
+  what_broke: "OSBuilder tried to create a private repo with the project name, but you already have one with that name."
+  what_to_do: "Either rename the project directory to something unique, or push to the existing repo manually with `git remote add origin <existing-url> && git push -u origin main`."
+  copy_paste_command: ~
+  phase_seen: "6"
+  expansion_note: "Phase 6 SHIP-01 Pitfall 4; HTTP 422 stderr fragment"
+
+- id: gh-network
+  match_pattern: "could not resolve host: api.github.com"
+  category: network
+  title: "Couldn't reach GitHub"
+  what_broke: "OSBuilder couldn't connect to api.github.com to create the repo. This is usually a network/DNS issue, not your code."
+  what_to_do: "Check your internet connection and re-run the build. OSBuilder is idempotent — re-running on an already-scaffolded project is safe."
+  copy_paste_command: ~
+  phase_seen: "6"
+  expansion_note: "Phase 6 SHIP-01 network fail mode"
+
+- id: gh-repo-view-fail
+  match_pattern: "gh repo view returned"
+  category: gh-auth
+  title: "Couldn't read back the repo's visibility"
+  what_broke: "OSBuilder created the repo but `gh repo view` then failed — usually a transient API error."
+  what_to_do: "Wait 30 seconds and re-run the ship step. If it persists, check `gh auth status` is still ok and retry."
+  copy_paste_command: "gh repo view --json visibility,nameWithOwner,sshUrl"
+  phase_seen: "6"
+  expansion_note: "Phase 6 SHIP-01 verify step fallback"
