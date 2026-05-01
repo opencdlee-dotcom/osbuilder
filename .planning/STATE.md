@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 06-03-PLAN.md (scaffold extensions: _pick_database + _write_dockerfile + _write_ci_workflow + 4 asset templates; 137 passed 7 skipped)"
-last_updated: "2026-05-01T22:00:59.850Z"
+stopped_at: "Completed 06-04-PLAN.md (runbook_writer: write_readme + readme-template.md; V-03 GREEN; 138 passed 6 skipped)"
+last_updated: "2026-05-01T22:05:25.143Z"
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 31
-  completed_plans: 28
-  percent: 90
+  completed_plans: 29
+  percent: 94
 ---
 
 # Project State: OSBuilder
@@ -26,14 +26,14 @@ progress:
 ## Current Position
 
 Phase: 06 (ship-to-private-github-scalable-defaults) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Plans complete: 6/6
 
 - **Milestone:** v1 (initial open-source publish-ready release)
 - **Phase:** 6
 - **Plans:** 04-01 (Wave 0 RED stubs), 04-02 (gsd_driver state machine), 04-03 (failure_classifier), 04-04 (registry_verify), 04-05 (qa.md), 04-06 (HEAL-05 gap closure — registry gate wired into step 2) — all complete
 - **Status:** Ready to execute
-- **Progress:** [█████████░] 90%
+- **Progress:** [█████████░] 94%
 
 ## Performance Metrics
 
@@ -75,6 +75,7 @@ Plans complete: 6/6
 | Phase 06 P06-01 | 8min | 2 tasks | 9 files |
 | Phase 06 P06-02 | 9min | 4 tasks | 10 files |
 | Phase 06 P06-03 | 195 | 2 tasks | 6 files |
+| Phase 06 P06-04 | 2 | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -128,9 +129,9 @@ To be confirmed in Phase 1:
 
 ## Session Continuity
 
-**Last session:** 2026-05-01T22:00:59.840Z
+**Last session:** 2026-05-01T22:05:25.133Z
 
-**Stopped At:** Completed 06-03-PLAN.md (scaffold extensions: _pick_database + _write_dockerfile + _write_ci_workflow + 4 asset templates; 137 passed 7 skipped)
+**Stopped At:** Completed 06-04-PLAN.md (runbook_writer: write_readme + readme-template.md; V-03 GREEN; 138 passed 6 skipped)
 
 **Where to resume:**
 
