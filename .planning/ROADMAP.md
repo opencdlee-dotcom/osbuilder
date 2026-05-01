@@ -111,10 +111,10 @@ Plans:
 **Plans:** 5 plans
 Plans:
 - [x] 05-01-PLAN.md — Wave 0: test stubs (46 RED, 124 collected), state_writer ALLOWED_FIELDS extension (mode/tutor_enabled/humanizer_score/build_log_path), gsd_driver step 9→/gsd-docs-update + phase-advance shifted to step 10 (UX-01..05, ROLE-07, ROLE-09)
-- [ ] 05-02-PLAN.md — friendly_error.py + 30-entry dictionary + expansion README + wiring into 5 scripts (UX-02, UX-05)
-- [ ] 05-03-PLAN.md — narration.py + 7 role briefs + gsd_driver narration wiring (UX-01, UX-04, ROLE-09)
+- [x] 05-02-PLAN.md — friendly_error.py + 30-entry dictionary + expansion README + wiring into 5 scripts (UX-02, UX-05)
+- [x] 05-03-PLAN.md — narration.py + 7 role briefs + gsd_driver narration wiring (UX-01, UX-04, ROLE-09)
 - [x] 05-04-PLAN.md — beginner/advanced mode gating: _mode_from_state helper in intake_handler + stack_researcher; _render_derived_spec gates stack_hints behind mode==advanced; research_stack skips brainiac in beginner mode and auto-resolves to stack-menu defaults; 8/8 mode_gating tests GREEN; full suite 97 passed (UX-03)
-- [ ] 05-05-PLAN.md — tech-writer step full implementation: /gsd-docs-update + humanizer integration + fallback (UX-01, ROLE-07)
+- [x] 05-05-PLAN.md — tech-writer step full implementation: /gsd-docs-update + humanizer integration + fallback (UX-01, ROLE-07)
 
 ### Phase 6: Ship to private GitHub + scalable defaults
 **Goal:** Close the build → ship loop. Every successful build ends as a private GitHub repo with a README runbook a stranger can clone-and-run on a fresh machine — with sensible-by-default scaffold shape (env config, real DB, Dockerfile, CI) and explicit refusals of K8s/microservices in v1.

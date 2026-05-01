@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
+status: ready_to_plan
 stopped_at: Completed 05-05-PLAN.md (tech-writer + humanizer pipeline; 6/6 RED stubs GREEN; 127/127 full suite passes)
 last_updated: "2026-05-01T07:31:38.314Z"
 progress:
   total_phases: 8
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 25
   completed_plans: 25
-  percent: 100
+  percent: 75
 ---
 
 # Project State: OSBuilder
@@ -26,13 +26,13 @@ progress:
 ## Current Position
 
 Phase: 05 (common-person-ux-polish) — EXECUTING
-Plan: 5 of 5
+Plan: Not started
 Plans complete: 6/6
 
 - **Milestone:** v1 (initial open-source publish-ready release)
-- **Phase:** 4
+- **Phase:** 6
 - **Plans:** 04-01 (Wave 0 RED stubs), 04-02 (gsd_driver state machine), 04-03 (failure_classifier), 04-04 (registry_verify), 04-05 (qa.md), 04-06 (HEAL-05 gap closure — registry gate wired into step 2) — all complete
-- **Status:** Phase complete — ready for verification
+- **Status:** Ready to plan
 - **Progress:** [██████████] 100%
 
 ## Performance Metrics
