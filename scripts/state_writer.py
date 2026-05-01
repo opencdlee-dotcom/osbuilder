@@ -41,6 +41,11 @@ ALLOWED_FIELDS = set(REQUIRED_FIELDS) | {
     "gsd_phase_count",    # total phases discovered from GSD ROADMAP.md
     "failure_class",      # last classified failure class for resume
     "escalation_log",     # JSON array of escalation steps taken
+    # Phase 5 additions — ALLOWED only, NOT REQUIRED (same pattern as Phase 3/4)
+    "mode",             # "beginner" | "advanced"
+    "tutor_enabled",    # "true" | "false" — set to "false" by --quiet
+    "humanizer_score",  # int (count of critical issues) | "skipped" | "0"
+    "build_log_path",   # absolute path to .planning/osbuilder/build.log
 }
 
 
