@@ -108,8 +108,13 @@ Plans:
   4. By default, the user is never asked to choose between Next.js and SvelteKit, never sees the word "Postgres" before a build starts, and never sees a deploy-target prompt; passing `--advanced` exposes stack choice, deploy targets, and other technical decisions verbatim.
   5. Tech Writer phase produces a README with plain-English copy (verified by running `humanizer` against it for AI-pattern density) that explains the dev-team metaphor and the run command in language a non-developer can follow.
   6. The friendly-error dictionary documents an explicit expansion path (file location, format, contribution guideline) so future versions can grow the dictionary from real-world failure data without code changes.
-**Plans:** TBD
-**UI hint:** yes
+**Plans:** 5 plans
+Plans:
+- [ ] 05-01-PLAN.md — Wave 0: test stubs (44 RED), state_writer ALLOWED_FIELDS extension, gsd_driver step 9→tech-writer + step 10→advance (UX-01..05, ROLE-07, ROLE-09)
+- [ ] 05-02-PLAN.md — friendly_error.py + 30-entry dictionary + expansion README + wiring into 5 scripts (UX-02, UX-05)
+- [ ] 05-03-PLAN.md — narration.py + 7 role briefs + gsd_driver narration wiring (UX-01, UX-04, ROLE-09)
+- [ ] 05-04-PLAN.md — beginner/advanced mode gating in intake_handler + stack_researcher (UX-03)
+- [ ] 05-05-PLAN.md — tech-writer step full implementation: /gsd-docs-update + humanizer integration + fallback (UX-01, ROLE-07)
 
 ### Phase 6: Ship to private GitHub + scalable defaults
 **Goal:** Close the build → ship loop. Every successful build ends as a private GitHub repo with a README runbook a stranger can clone-and-run on a fresh machine — with sensible-by-default scaffold shape (env config, real DB, Dockerfile, CI) and explicit refusals of K8s/microservices in v1.
