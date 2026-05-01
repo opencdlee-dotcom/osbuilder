@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_to_plan
+status: planning
 stopped_at: Completed 05-05-PLAN.md (tech-writer + humanizer pipeline; 6/6 RED stubs GREEN; 127/127 full suite passes)
-last_updated: "2026-05-01T07:31:38.314Z"
+last_updated: "2026-05-01T16:59:18.632Z"
 progress:
   total_phases: 8
-  completed_phases: 6
-  total_plans: 25
+  completed_phases: 5
+  total_plans: 31
   completed_plans: 25
-  percent: 75
+  percent: 81
 ---
 
 # Project State: OSBuilder
@@ -150,6 +150,6 @@ To be confirmed in Phase 1:
 ---
 *State file initialized at roadmap creation. Updated per phase / milestone transition.*
 
-**Planned Phase:** 5 (common-person-ux-polish) — 5 plans — 2026-05-01T06:22:11.032Z
+**Planned Phase:** 6 (Ship to private GitHub + scalable defaults) — 6 plans — 2026-05-01T16:59:18.512Z
 **Plan 01-01 completed:** 2026-04-30T04:24:21Z — commits bedee58 (pyproject+gitattributes), e3758de (test stubs)
 **Plan 04-06 completed:** 2026-04-30T21:31:11Z — commits 7b525e1 (test RED), 298b27c (feat GREEN); HEAL-05 fully satisfied; SC5 ready for re-verification
