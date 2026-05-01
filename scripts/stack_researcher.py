@@ -18,6 +18,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Phase 5: friendly-error translation layer (graceful degrade if module not yet built)
+try:
+    import friendly_error as _fe
+except ImportError:
+    _fe = None  # type: ignore[assignment]
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 STATE_WRITER = REPO_ROOT / "scripts" / "state_writer.py"
 REFERENCES_ROOT = REPO_ROOT / "references"

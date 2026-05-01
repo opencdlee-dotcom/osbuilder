@@ -22,6 +22,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Phase 5: friendly-error translation layer (graceful degrade if module not yet built)
+try:
+    import friendly_error as _fe
+except ImportError:
+    _fe = None  # type: ignore[assignment]
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 STATE_WRITER = REPO_ROOT / "scripts" / "state_writer.py"
 REGISTRY_VERIFY = REPO_ROOT / "scripts" / "registry_verify.py"
@@ -304,9 +310,20 @@ def emit_next_command(project_root: Path) -> int:
         return 0
 
     # Unknown step — print status and advance
-    sys.stderr.write(
-        f"OSBuilder: unknown phase_step={phase_step}; advancing.\n"
-    )
+    _raw = f"unknown phase_step={phase_step}"
+    if _fe is not None:
+        _msg = _fe.translate(_raw, ctx={})
+        sys.stderr.write(
+            f"## {_msg.title}\n{_msg.what_broke}\n\n"
+            f"**What to do:** {_msg.what_to_do}\n"
+        )
+        if _msg.copy_paste:
+            sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        sys.stderr.write("advancing.\n")
+    else:
+        sys.stderr.write(
+            f"OSBuilder: unknown phase_step={phase_step}; advancing.\n"
+        )
     _bump_field(project_root, "phase_step")
     return 1
 
@@ -317,10 +334,20 @@ def _cmd_emit_next(args: argparse.Namespace) -> int:
     project_root = _resolve_project_root(args.project_root)
     state_md = project_root / ".planning" / "osbuilder" / "state.md"
     if not state_md.exists():
-        sys.stderr.write(
-            f"OSBuilder: no state.md at {state_md}. "
-            "Run `state_writer.py init` first.\n"
-        )
+        _raw = f"no state.md at {state_md}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do}\n"
+            )
+            if _msg.copy_paste:
+                sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        else:
+            sys.stderr.write(
+                f"OSBuilder: no state.md at {state_md}. "
+                "Run `state_writer.py init` first.\n"
+            )
         return 1
     return emit_next_command(project_root)
 
@@ -329,15 +356,35 @@ def _cmd_status(args: argparse.Namespace) -> int:
     project_root = _resolve_project_root(args.project_root)
     state_md = project_root / ".planning" / "osbuilder" / "state.md"
     if not state_md.exists():
-        sys.stderr.write(
-            f"OSBuilder: no state.md at {state_md}. "
-            "Run `state_writer.py init` first.\n"
-        )
+        _raw = f"no state.md at {state_md}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do}\n"
+            )
+            if _msg.copy_paste:
+                sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        else:
+            sys.stderr.write(
+                f"OSBuilder: no state.md at {state_md}. "
+                "Run `state_writer.py init` first.\n"
+            )
         return 1
     try:
         state = _read_state(project_root)
     except subprocess.CalledProcessError as exc:
-        sys.stderr.write(f"OSBuilder: failed to read state — {exc}\n")
+        _raw = f"failed to read state — {exc}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do}\n"
+            )
+            if _msg.copy_paste:
+                sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        else:
+            sys.stderr.write(f"OSBuilder: failed to read state — {exc}\n")
         return 1
     print(json.dumps(state, indent=2))
     return 0

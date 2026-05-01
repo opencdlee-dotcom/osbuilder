@@ -32,6 +32,12 @@ import sys
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
 
+# Phase 5: friendly-error translation layer (graceful degrade if module not yet built)
+try:
+    import friendly_error as _fe
+except ImportError:
+    _fe = None  # type: ignore[assignment]
+
 # ---------- module constants ----------
 
 SCHEMA_VERSION = "1"
@@ -474,7 +480,17 @@ def apply(plan: Plan) -> int:
         except (FileNotFoundError, OSError) as e:
             entry["status"] = "failed"
             _write_install_log(log)
-            sys.stderr.write(f"OSBuilder: {action.tool} install failed: {e}\n")
+            _raw = str(e)
+            if _fe is not None:
+                _msg = _fe.translate(_raw, ctx={"tool": action.tool})
+                sys.stderr.write(
+                    f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                    f"**What to do:** {_msg.what_to_do}\n"
+                )
+                if _msg.copy_paste:
+                    sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+            else:
+                sys.stderr.write(f"OSBuilder: {action.tool} install failed: {_raw}\n")
             return rollback()
         # Re-write log to reflect success or failure
         if result.returncode == 0:
@@ -484,10 +500,21 @@ def apply(plan: Plan) -> int:
         else:
             entry["status"] = "failed"
             _write_install_log(log)
-            sys.stderr.write(
-                f"OSBuilder: {action.tool} install exited {result.returncode}; "
-                f"rolling back...\n"
-            )
+            _raw = (result.stderr or "").strip() or f"exit code {result.returncode}"
+            if _fe is not None:
+                _msg = _fe.translate(_raw, ctx={"tool": action.tool})
+                sys.stderr.write(
+                    f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                    f"**What to do:** {_msg.what_to_do}\n"
+                )
+                if _msg.copy_paste:
+                    sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+                sys.stderr.write("rolling back...\n")
+            else:
+                sys.stderr.write(
+                    f"OSBuilder: {action.tool} install exited {result.returncode}; "
+                    f"rolling back...\n"
+                )
             return rollback()
     return 0
 

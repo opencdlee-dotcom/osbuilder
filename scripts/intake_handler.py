@@ -20,6 +20,12 @@ import re
 import sys
 from pathlib import Path
 
+# Phase 5: friendly-error translation layer (graceful degrade if module not yet built)
+try:
+    import friendly_error as _fe
+except ImportError:
+    _fe = None  # type: ignore[assignment]
+
 _REQUIRED_SECTIONS = ("# OSBuilder Derived Spec", "**Goal:**", "**App type:**", "**Playbook:**")
 _SECRET_PATTERNS = ("api_key", "password", "token", "database_url=postgresql://")
 

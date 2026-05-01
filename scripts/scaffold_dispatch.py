@@ -13,6 +13,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Phase 5: friendly-error translation layer (graceful degrade if module not yet built)
+try:
+    import friendly_error as _fe
+except ImportError:
+    _fe = None  # type: ignore[assignment]
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 STATE_WRITER = REPO_ROOT / "scripts" / "state_writer.py"
 
@@ -138,10 +144,30 @@ def scaffold_web(project_name: str, project_root: Path) -> Path:
             capture_output=True, text=True, shell=False,
         )
     except (FileNotFoundError, OSError) as e:
-        sys.stderr.write(f"OSBuilder: scaffold failed — pnpm not found: {e}\n")
+        _raw = f"pnpm: command not found: {e}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={"tool": "pnpm"})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do}\n"
+            )
+            if _msg.copy_paste:
+                sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        else:
+            sys.stderr.write(f"OSBuilder: scaffold failed — pnpm not found: {e}\n")
         raise SystemExit(1)
     except subprocess.CalledProcessError as e:
-        sys.stderr.write(f"OSBuilder: create-next-app exited {e.returncode}\n{e.stderr}\n")
+        _raw = (e.stderr or "").strip() or f"exit {e.returncode}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do}\n"
+            )
+            if _msg.copy_paste:
+                sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        else:
+            sys.stderr.write(f"OSBuilder: create-next-app exited {e.returncode}\n{e.stderr}\n")
         raise SystemExit(1)
 
     project_dir = project_root / project_name
@@ -152,20 +178,40 @@ def scaffold_web(project_name: str, project_root: Path) -> Path:
         cwd=str(project_dir), shell=False, check=False,
     )
     if result.returncode != 0:
-        sys.stderr.write(
-            f"OSBuilder: warning — pnpm add drizzle-orm postgres failed "
-            f"(exit {result.returncode}). Run manually in {project_dir}\n"
-        )
+        _raw = f"pnpm add drizzle-orm postgres failed exit {result.returncode}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={"project_dir": str(project_dir)})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do} Run manually in {project_dir}\n"
+            )
+            if _msg.copy_paste:
+                sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        else:
+            sys.stderr.write(
+                f"OSBuilder: warning — pnpm add drizzle-orm postgres failed "
+                f"(exit {result.returncode}). Run manually in {project_dir}\n"
+            )
 
     result = subprocess.run(
         ["pnpm", "add", "-D", "drizzle-kit"],
         cwd=str(project_dir), shell=False, check=False,
     )
     if result.returncode != 0:
-        sys.stderr.write(
-            f"OSBuilder: warning — pnpm add -D drizzle-kit failed "
-            f"(exit {result.returncode}). Run manually in {project_dir}\n"
-        )
+        _raw = f"pnpm add -D drizzle-kit failed exit {result.returncode}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={"project_dir": str(project_dir)})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do} Run manually in {project_dir}\n"
+            )
+            if _msg.copy_paste:
+                sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        else:
+            sys.stderr.write(
+                f"OSBuilder: warning — pnpm add -D drizzle-kit failed "
+                f"(exit {result.returncode}). Run manually in {project_dir}\n"
+            )
     return project_dir
 
 
