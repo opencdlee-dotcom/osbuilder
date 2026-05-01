@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import importlib
 import re
-import subprocess
 import sys
 from pathlib import Path
 
@@ -179,15 +178,20 @@ def test_capture_subprocess_routes_raw_to_log(nrt, tmp_path, capsys):
 
 
 def test_raw_stderr_to_log(nrt, tmp_path, capsys):
-    """ROLE-09: raw stderr from a child process is logged but not surfaced to user."""
+    """ROLE-09: raw stderr from a child process is logged but not surfaced to user.
+
+    The stderr payload string is intentionally unique ("STDERR-PAYLOAD") so we can
+    distinguish it from the banner action label, which also appears in stdout.
+    """
     log_path = tmp_path / "build.log"
     rc, _, err_lines = nrt.capture_subprocess(
-        [sys.executable, "-c", "import sys; sys.stderr.write('boom')"],
-        role="devops", action="boom", log_path=log_path,
+        [sys.executable, "-c",
+         "import sys; sys.stderr.write('STDERR-PAYLOAD')"],
+        role="devops", action="check", log_path=log_path,
     )
     captured = capsys.readouterr().out
-    assert "boom" not in captured
-    assert "boom" in log_path.read_text(encoding="utf-8")
+    assert "STDERR-PAYLOAD" not in captured
+    assert "STDERR-PAYLOAD" in log_path.read_text(encoding="utf-8")
 
 
 def test_no_python_tracebacks_in_user_output(nrt, tmp_path, capsys):
