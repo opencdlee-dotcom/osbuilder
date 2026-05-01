@@ -28,6 +28,12 @@ try:
 except ImportError:
     _fe = None  # type: ignore[assignment]
 
+# Phase 5: narration layer — role banners + tutor lines (graceful degrade pre-Phase 5)
+try:
+    import narration as _narration
+except ImportError:
+    _narration = None  # type: ignore[assignment]
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 STATE_WRITER = REPO_ROOT / "scripts" / "state_writer.py"
 REGISTRY_VERIFY = REPO_ROOT / "scripts" / "registry_verify.py"
@@ -178,6 +184,75 @@ def _build_escalation_output(state: dict) -> str:
     return "/gsd-debug\n/problem-solver"
 
 
+# ---------- narration helpers (Phase 5 ROLE-09) ----------
+
+def _role_for_step(phase_step: int, state: dict) -> str:
+    """Return the narration role name for the given phase step.
+
+    Maps the GSD phase loop's PHASE_STEP_COMMANDS dispatch into the 8 dev-team roles.
+    For phase_step==3 (the execute step), inspects state.next_action to choose
+    frontend / backend / devops based on plain-English keywords.
+    """
+    if phase_step == 0:
+        return "pm"
+    if phase_step == 1:
+        return "architect"
+    if phase_step == 2:
+        return "devops"
+    if phase_step == 4:
+        return "qa"
+    if phase_step in (5, 6):
+        return "reviewer"
+    if phase_step in (7, 8):
+        return "qa"
+    if phase_step == 9:
+        return "tech-writer"
+    if phase_step == 10:
+        return "pm"
+    # phase_step == 3 (execute) — pick FE / BE / DevOps based on the next_action hint.
+    title = str(state.get("next_action", "")).lower()
+    if any(w in title for w in ("ui", "frontend", "homepage", "screen", "page")):
+        return "frontend"
+    if any(w in title for w in ("api", "backend", "database", "model")):
+        return "backend"
+    return "devops"
+
+
+def _emit(role: str, action: str, status: str, detail: str | None = None) -> None:
+    """Wrapper around narration.emit that no-ops when narration is unavailable."""
+    if _narration is not None:
+        try:
+            _narration.emit(role, action, status, detail)  # type: ignore[arg-type]
+        except Exception:
+            pass  # never let narration failure break a phase emission
+
+
+def _refresh_narration_state(project_root: Path) -> None:
+    """Refresh narration's mode + tutor_enabled flags from state.md."""
+    if _narration is not None:
+        try:
+            _narration._refresh_state(project_root)
+        except Exception:
+            pass
+
+
+def _init_build_log_if_new_build(project_root: Path, phase_step: int) -> None:
+    """Truncate build.log when a new build starts (phase_step == 0).
+
+    Resolves Open Question 6: build.log must not grow across builds.
+    Called once per emit_next_command invocation; only truncates at step 0.
+    """
+    if phase_step != 0:
+        return
+    if _narration is None:
+        return
+    log_path = project_root / ".planning" / "osbuilder" / "build.log"
+    try:
+        _narration._init_build_log(log_path)
+    except Exception:
+        pass  # non-fatal if narration or path unavailable
+
+
 # ---------- public API ----------
 
 def build_install_cmd(package: str, ecosystem: str) -> list[str]:
@@ -221,6 +296,7 @@ def _run_registry_gate(project_root: Path, state: dict) -> int:
     if not raw:
         # No package info yet — gate deferred; advance normally.
         _bump_field(project_root, "phase_step")
+        _emit("devops", "registry-gate", "ok", detail="no package info yet")
         return 0
 
     try:
@@ -228,6 +304,7 @@ def _run_registry_gate(project_root: Path, state: dict) -> int:
     except (json.JSONDecodeError, ValueError):
         # Malformed JSON — skip gate rather than crashing the phase loop.
         _bump_field(project_root, "phase_step")
+        _emit("devops", "registry-gate", "ok", detail="package info unreadable")
         return 0
 
     pkg = choices.get("pkg", "").strip()
@@ -236,6 +313,7 @@ def _run_registry_gate(project_root: Path, state: dict) -> int:
     if not pkg or not eco:
         # Package or ecosystem not resolved yet — skip gate.
         _bump_field(project_root, "phase_step")
+        _emit("devops", "registry-gate", "ok", detail="package not yet resolved")
         return 0
 
     result = subprocess.run(
@@ -253,9 +331,11 @@ def _run_registry_gate(project_root: Path, state: dict) -> int:
             "last_failure",
             f"slopsquatting gate blocked pkg {pkg} on {eco}",
         )
+        _emit("devops", "registry-gate", "fail", detail="package not verified")
         return 1
 
     _bump_field(project_root, "phase_step")
+    _emit("devops", "registry-gate", "ok")
     return 0
 
 
@@ -266,6 +346,9 @@ def emit_next_command(project_root: Path) -> int:
 
     T-04-02-01: all integer field parsing via _safe_int() with default=0.
     T-04-02-05: retry_count is always read from state; cap enforced at >= 3.
+
+    Phase 5 (ROLE-09): Wraps every dispatch with a narration banner. The narration
+    layer reads mode + tutor_enabled from state.md (graceful degrade if unavailable).
     """
     # 1. Always read state first — never initialize counters from Python defaults.
     state = _read_state(project_root)
@@ -274,6 +357,10 @@ def emit_next_command(project_root: Path) -> int:
     phase_step = _safe_int(state.get("phase_step", "0"))
     retry_count = _safe_int(state.get("retry_count", "0"))
 
+    # Phase 5: refresh narration mode/tutor flags + truncate build.log on new build.
+    _refresh_narration_state(project_root)
+    _init_build_log_if_new_build(project_root, phase_step)
+
     # 2. T-04-02-05: check escalation cap before dispatching normal step command.
     if retry_count >= _ESCALATION_THRESHOLD:
         print(_build_escalation_output(state))
@@ -281,35 +368,49 @@ def emit_next_command(project_root: Path) -> int:
 
     # 3. initial state (current_phase=0): emit /gsd-new-project --auto
     if current_phase == 0:
+        _emit("pm", "/gsd-new-project --auto", "start")
         print("/gsd-new-project --auto")
         _bump_field(project_root, "phase_step")
+        _emit("pm", "/gsd-new-project --auto", "ok")
         return 0
 
     # 4. dispatch by phase_step
     if phase_step == 2:
         # HEAL-05: Registry verify gate — check package against public registry.
         # Delegates to _run_registry_gate which reads stack_choices from state.
+        # The "start" banner fires here; ok/fail emits live inside the gate.
+        _emit("devops", "registry-gate", "start")
         return _run_registry_gate(project_root, state)
 
     if phase_step == 7:
         # VER-01: write VERIFICATION.md
+        _emit("qa", "write-VERIFICATION.md", "start")
         _write_verification_md(project_root, current_phase)
         _bump_field(project_root, "phase_step")
+        _emit("qa", "write-VERIFICATION.md", "ok")
         return 0
 
     if phase_step == 10:
         # Phase advance: reset phase_step to 0, increment current_phase
+        _emit("pm", "phase-complete", "start")
         _write_field(project_root, "phase_step", "0")
         _write_field(project_root, "current_phase", str(current_phase + 1))
+        _emit("pm", "phase-complete", "ok")
         return 0
 
     cmd = PHASE_STEP_COMMANDS.get(phase_step)
     if cmd is not None:
+        role = _role_for_step(phase_step, state)
+        _emit(role, cmd, "start")
         print(cmd)
         _bump_field(project_root, "phase_step")
+        _emit(role, cmd, "ok")
         return 0
 
     # Unknown step — print status and advance
+    _emit(_role_for_step(phase_step, state),
+          f"unknown-step-{phase_step}", "fail",
+          detail="advancing")
     _raw = f"unknown phase_step={phase_step}"
     if _fe is not None:
         _msg = _fe.translate(_raw, ctx={})
