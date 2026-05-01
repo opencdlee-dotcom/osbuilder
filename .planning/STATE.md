@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 05-05-PLAN.md (tech-writer + humanizer pipeline; 6/6 RED stubs GREEN; 127/127 full suite passes)
-last_updated: "2026-05-01T16:59:18.632Z"
+status: executing
+stopped_at: "Completed 06-01-PLAN.md (Wave 0 RED stubs: 17 stubs + 5 Phase 6 ALLOWED_FIELDS + 4 conftest fixtures; 144/144 collected, 127 passed 17 skipped)"
+last_updated: "2026-05-01T21:44:17.344Z"
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 31
-  completed_plans: 25
-  percent: 81
+  completed_plans: 26
+  percent: 84
 ---
 
 # Project State: OSBuilder
@@ -21,19 +21,19 @@ progress:
 
 **Core Value:** A non-developer describes what they want, and OSBuilder delivers a working, scalable, version-controlled app — without ever touching a command line manually or learning a framework.
 
-**Current Focus:** Phase 05 — common-person-ux-polish
+**Current Focus:** Phase 06 — ship-to-private-github-scalable-defaults
 
 ## Current Position
 
-Phase: 05 (common-person-ux-polish) — EXECUTING
-Plan: Not started
+Phase: 06 (ship-to-private-github-scalable-defaults) — EXECUTING
+Plan: 2 of 6
 Plans complete: 6/6
 
 - **Milestone:** v1 (initial open-source publish-ready release)
 - **Phase:** 6
 - **Plans:** 04-01 (Wave 0 RED stubs), 04-02 (gsd_driver state machine), 04-03 (failure_classifier), 04-04 (registry_verify), 04-05 (qa.md), 04-06 (HEAL-05 gap closure — registry gate wired into step 2) — all complete
-- **Status:** Ready to plan
-- **Progress:** [██████████] 100%
+- **Status:** Ready to execute
+- **Progress:** [████████░░] 84%
 
 ## Performance Metrics
 
@@ -72,6 +72,7 @@ Plans complete: 6/6
 | Phase 05-common-person-ux-polish P04 | 9min | 1 tasks | 4 files |
 | Phase 05-common-person-ux-polish P03 | 14min | 2 tasks | 12 files |
 | Phase Phase 05 PP05 | 4min | 1 tasks | 3 files |
+| Phase 06 P06-01 | 8min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -125,9 +126,9 @@ To be confirmed in Phase 1:
 
 ## Session Continuity
 
-**Last session:** 2026-05-01T07:31:38.303Z
+**Last session:** 2026-05-01T21:44:17.332Z
 
-**Stopped At:** Completed 05-05-PLAN.md (tech-writer + humanizer pipeline; 6/6 RED stubs GREEN; 127/127 full suite passes)
+**Stopped At:** Completed 06-01-PLAN.md (Wave 0 RED stubs: 17 stubs + 5 Phase 6 ALLOWED_FIELDS + 4 conftest fixtures; 144/144 collected, 127 passed 17 skipped)
 
 **Where to resume:**
 
