@@ -38,9 +38,14 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 STATE_WRITER = REPO_ROOT / "scripts" / "state_writer.py"
 REGISTRY_VERIFY = REPO_ROOT / "scripts" / "registry_verify.py"
 
+# Phase 5 Plan 05-05: humanizer skill location + minimum version (RESEARCH lines 617–623)
+HUMANIZER_SKILL_MD = Path.home() / ".claude" / "skills" / "humanizer" / "SKILL.md"
+MINIMUM_HUMANIZER_VERSION = (2, 0, 0)
+
 # Phase step → slash command mapping.
-# Steps 2, 7, and 10 are handled in-line (registry gate, VERIFICATION.md, phase advance)
-# and do NOT emit a slash command directly.
+# Steps 2, 7, 9, and 10 are handled in-line (registry gate, VERIFICATION.md,
+# tech-writer + humanizer pipeline, phase advance) and do NOT emit a slash
+# command directly through this dict.
 PHASE_STEP_COMMANDS: dict[int, str] = {
     0: "/gsd-spec-phase",
     1: "/gsd-plan-phase",
@@ -51,8 +56,8 @@ PHASE_STEP_COMMANDS: dict[int, str] = {
     6: "/gsd-code-review",
     # 7: write VERIFICATION.md — handled in-line
     8: "/gsd-verify-work",
-    9: "/gsd-docs-update",  # Tech Writer step A: README generation (Phase 5)
-    # humanizer invocation handled in-line after step 9 (Phase 5 Plan 05-05)
+    # 9: tech-writer step — handled in-line via _run_tech_writer_step()
+    #    (sub-state machine: emits /gsd-docs-update then /humanizer @README.md)
     # 10: advance current_phase, reset phase_step to 0 — handled in-line
 }
 
@@ -253,6 +258,138 @@ def _init_build_log_if_new_build(project_root: Path, phase_step: int) -> None:
         pass  # non-fatal if narration or path unavailable
 
 
+# ---------- ROLE-07 tech-writer helpers (Phase 5 Plan 05-05) ----------
+
+def _humanizer_present() -> bool:
+    """Check if humanizer skill >= MINIMUM_HUMANIZER_VERSION is installed.
+
+    Reads ~/.claude/skills/humanizer/SKILL.md frontmatter for `version: x.y.z`.
+    Fail-open: if SKILL.md exists but no version field is parseable, treat as
+    present (the skill exists; version is just unverifiable).
+
+    Returns False only when SKILL.md is missing entirely OR when an explicit
+    parseable version is below the minimum.
+
+    T-05-05 (Tampering — humanizer SKILL.md version field): malformed version
+    parsing falls through to True (fail-open). Worst case: humanizer is invoked
+    on a too-old install and the slash command itself reports the version
+    mismatch. No injection surface — version string is never interpolated into
+    a shell or LLM prompt.
+    """
+    if not HUMANIZER_SKILL_MD.exists():
+        return False
+    try:
+        text = HUMANIZER_SKILL_MD.read_text(encoding="utf-8")
+        in_front = False
+        for line in text.splitlines():
+            if line.strip() == "---":
+                in_front = not in_front
+                continue
+            if in_front and line.strip().startswith("version:"):
+                ver_str = line.split(":", 1)[1].strip().strip('"').strip("'")
+                parts = tuple(int(x) for x in ver_str.split(".")[:3])
+                # Pad to 3 components if shorter (e.g., "2.0" → (2, 0, 0))
+                while len(parts) < 3:
+                    parts = parts + (0,)
+                return parts >= MINIMUM_HUMANIZER_VERSION
+    except Exception:
+        pass
+    return True  # SKILL.md present but version unparseable → fail-open
+
+
+def _run_tech_writer_step(project_root: Path, state: dict) -> int:
+    """ROLE-07: Tech Writer phase step handler (phase_step == 9).
+
+    v1 sub-state machine (two states only — no retry loop per Plan 05-05):
+
+      sub_step="" → emit /gsd-docs-update (with @-reference to readme-context.md
+        which requires the "## How OSBuilder built this" section naming all 8
+        roles) → set tech_writer_sub_step=awaiting-humanizer; do NOT bump phase_step
+        (stays at 9 until humanizer check completes).
+
+      sub_step="awaiting-humanizer":
+        - if humanizer absent → write humanizer_score=skipped, reset sub_step,
+          bump phase_step to 10, emit fallback narration.
+        - else → emit /humanizer @README.md, write humanizer_score=0 optimistically,
+          reset sub_step, bump phase_step to 10. (Humanizer's actual score, if it
+          writes one to state, overrides the optimistic default on the next read.)
+
+    v1 deviation from SPEC (Open Question 1 resolution, RESEARCH Option 3):
+    humanizer runs once only; no auto-retry. If the user wants to re-run, they
+    invoke /humanizer manually. Retry loop deferred to Phase 8 (QUAL-05).
+
+    Threat boundaries (T-05-05-04): readme-context.md content is fully hardcoded
+    here — no user input flows in, so the file is safe to use as a /-command @-ref.
+    """
+    sub_step = state.get("tech_writer_sub_step", "")
+
+    if sub_step == "":
+        # Sub-step A: emit /gsd-docs-update with README section requirement.
+        _emit("tech-writer", "generate-readme", "start")
+
+        # Write the README context/prompt file that /gsd-docs-update reads.
+        # Content is fully hardcoded — no user data interpolated (T-05-05-04).
+        planning_dir = project_root / ".planning" / "osbuilder"
+        planning_dir.mkdir(parents=True, exist_ok=True)
+        readme_context_path = planning_dir / "readme-context.md"
+        readme_context_path.write_text(
+            "# README Generation Context\n"
+            "\n"
+            "The generated README MUST include a section with the exact heading:\n"
+            "\n"
+            "## How OSBuilder built this\n"
+            "\n"
+            "This section must name all 8 dev-team roles in plain English:\n"
+            "PM, Architect, Frontend, Backend, DevOps, QA, Reviewer, Tech Writer.\n"
+            "\n"
+            "Describe each role's contribution in 1–2 sentences a non-developer\n"
+            "can follow. Do not use jargon. Do not name frameworks in this\n"
+            "section — keep it about what each role contributed, not the tools\n"
+            "they used.\n",
+            encoding="utf-8",
+        )
+
+        # Emit the docs-update slash command with the context file as an @-reference.
+        print(f"/gsd-docs-update @{readme_context_path}")
+        _write_field(project_root, "tech_writer_sub_step", "awaiting-humanizer")
+        # Do NOT bump phase_step — stays at 9 until humanizer check completes.
+        return 0
+
+    if sub_step == "awaiting-humanizer":
+        # Sub-step B: /gsd-docs-update has run. Now invoke humanizer (once).
+        if not _humanizer_present():
+            # Fallback: humanizer missing — log skipped score, advance to step 10.
+            _emit(
+                "tech-writer", "check-humanizer", "fail",
+                detail="humanizer skill not found; README ships without AI-pattern check",
+            )
+            _write_field(project_root, "humanizer_score", "skipped")
+            _write_field(project_root, "tech_writer_sub_step", "")
+            _bump_field(project_root, "phase_step")  # 9 → 10
+            return 0
+
+        # Invoke humanizer once (v1 — no retry).
+        _emit("tech-writer", "check-humanizer", "start")
+        print("/humanizer @README.md")
+        # Optimistic default: humanizer_score=0 (pass). If humanizer writes its
+        # own score via state_writer this is overwritten on the next read. The
+        # sub_step resets so the phase-advance runs on the next call.
+        _write_field(project_root, "humanizer_score", "0")
+        _write_field(project_root, "tech_writer_sub_step", "")
+        _bump_field(project_root, "phase_step")  # 9 → 10
+        return 0
+
+    # Unknown sub_step — defensive reset + advance (no crash, no escalation).
+    # Mitigation for T-05-05-02 (Tampering: tech_writer_sub_step value).
+    _emit(
+        "tech-writer", "unknown-sub-step", "fail",
+        detail=f"sub_step={sub_step!r}; resetting and advancing",
+    )
+    _write_field(project_root, "tech_writer_sub_step", "")
+    _bump_field(project_root, "phase_step")
+    return 0
+
+
 # ---------- public API ----------
 
 def build_install_cmd(package: str, ecosystem: str) -> list[str]:
@@ -389,6 +526,12 @@ def emit_next_command(project_root: Path) -> int:
         _bump_field(project_root, "phase_step")
         _emit("qa", "write-VERIFICATION.md", "ok")
         return 0
+
+    if phase_step == 9:
+        # ROLE-07: Tech Writer step — handled in-line via sub-state machine.
+        # Emits /gsd-docs-update on first call, /humanizer @README.md (or
+        # skipped fallback) on second call. See _run_tech_writer_step docstring.
+        return _run_tech_writer_step(project_root, state)
 
     if phase_step == 10:
         # Phase advance: reset phase_step to 0, increment current_phase

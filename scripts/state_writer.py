@@ -46,6 +46,7 @@ ALLOWED_FIELDS = set(REQUIRED_FIELDS) | {
     "tutor_enabled",    # "true" | "false" — set to "false" by --quiet
     "humanizer_score",  # int (count of critical issues) | "skipped" | "0"
     "build_log_path",   # absolute path to .planning/osbuilder/build.log
+    "tech_writer_sub_step",  # "" | "awaiting-humanizer" | "done" — Plan 05-05
 }
 
 
