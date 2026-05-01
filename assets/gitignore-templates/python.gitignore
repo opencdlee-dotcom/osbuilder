@@ -1,0 +1,18 @@
+# OSBuilder python .gitignore (additive on top of common.gitignore)
+# Source: github.com/github/gitignore/blob/main/Python.gitignore (curated)
+
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg
+.tox/
+.coverage
+htmlcov/
