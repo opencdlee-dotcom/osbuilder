@@ -47,6 +47,12 @@ ALLOWED_FIELDS = set(REQUIRED_FIELDS) | {
     "humanizer_score",  # int (count of critical issues) | "skipped" | "0"
     "build_log_path",   # absolute path to .planning/osbuilder/build.log
     "tech_writer_sub_step",  # "" | "awaiting-humanizer" | "done" — Plan 05-05
+    # Phase 6 additions — ALLOWED only, NOT REQUIRED (same pattern as Phase 3/4/5)
+    "repo_visibility",       # "PRIVATE" | "PUBLIC" — set by gh_handoff.py after gh repo view
+    "repo_url",              # SSH URL of created GitHub repo — set by gh_handoff.py
+    "gh_auth_status",        # "ok" | "drift" | "expired" | "unauthenticated" — set by gh_handoff.py preflight
+    "pre_commit_installed",  # "true" | "false" — set true after gh_handoff.py stamps .pre-commit-config.yaml
+    "production_ready",      # "true" | "false" — gates production_phase_writer.py emission
 }
 
 
