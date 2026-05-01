@@ -89,3 +89,41 @@ If `gsd_driver.py` cannot generate 2 valid falsifiable criteria for a phase (bec
 produced no observable user behavior), it must flag this as a scope review rather than generating
 un-falsifiable criteria. Prefer narrowing the criterion to something visible over broadening it to
 something convenient.
+
+---
+
+# Narration Brief
+
+> Sections below are loaded by `scripts/narration.py` at module import.
+> Plain-English banner + tutor copy — no jargon in default-mode sections.
+
+## Banner Templates
+
+start: [QA] {action}...
+ok: [QA] {action} ✓
+fail: [QA] {action} ✗ ({detail})
+
+## Tutor Template (default)
+
+> In plain English: I am the quality checker. I try the app the way a real user would and confirm each promised behavior actually works.
+
+## Per-Step Copy
+
+/code-tester:
+  banner: Trying the app
+  tutor: I am running the app the way a real user would — clicking the buttons, filling in the forms, and seeing what happens.
+
+/gsd-verify-work:
+  banner: Confirming the promises hold up
+  tutor: I am checking each promise from the plan to make sure the actual behavior matches what was supposed to be built.
+
+write-VERIFICATION.md:
+  banner: Writing down how to check the work
+  tutor: I am writing a short note that says exactly what someone should look for to confirm this round of work is good.
+
+## Failure Copy
+
+/code-tester: QA found a problem while trying the app. Details below.
+/gsd-verify-work: QA could not confirm one of the promised behaviors. Details below.
+write-VERIFICATION.md: QA could not finish writing the check-up note. Details below.
+
