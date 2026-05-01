@@ -1,0 +1,19 @@
+# OSBuilder default — Python + uv multi-stage Dockerfile (SCL-03)
+# Source: docs.docker.com/build/building/multi-stage + docs.astral.sh/uv (verified 2026-05-01)
+
+# ---- builder ----
+FROM python:3.13-slim AS builder
+WORKDIR /app
+RUN pip install --no-cache-dir uv
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
+COPY . .
+
+# ---- runtime ----
+FROM python:3.13-slim AS runtime
+WORKDIR /app
+COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder /app /app
+ENV PATH="/app/.venv/bin:${PATH}"
+EXPOSE 8000
+CMD ["python", "-m", "app"]
