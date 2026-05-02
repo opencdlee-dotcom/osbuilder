@@ -75,6 +75,9 @@ ASSETS = Path(__file__).resolve().parent.parent / "assets"
 # Phase 7 — ai-service playbook (07-02) vendored starter location
 _FASTAPI_STARTER = ASSETS / "fastapi-starter"
 
+# Phase 7 — cli playbook (07-03) vendored starter location
+_CLI_STARTER = ASSETS / "cli-starter"
+
 
 def _pick_database(playbook: str, app_type: str) -> str:
     """SCL-02: deterministic Postgres-vs-SQLite choice.
@@ -365,10 +368,87 @@ def scaffold_ai_service(project_name: str, project_root: Path) -> Path:
     return project_dir
 
 
-# Phase 7 — ai-service playbook dispatch
+# === Phase 7 — cli playbook (07-03) ===
+
+def _sanitize_module_name(name: str) -> str:
+    """Hyphens → underscores for Python import path. Script name keeps hyphens.
+
+    The user-facing script name (e.g. `my-cli`) keeps hyphens so `uv run my-cli`
+    works as expected. The Python module dir under it must use underscores
+    (`my_cli/__main__.py`) because hyphens are not valid in Python identifiers.
+    Reused for the SQLite path under `Path.home()` to avoid mixed-form dirs.
+    """
+    return name.replace("-", "_")
+
+
+def scaffold_cli(project_name: str, project_root: Path) -> Path:
+    """SCAF-03: scaffold a Python + Typer + Rich + SQLite CLI project.
+
+    4-step shape (mirrors scaffold_web verbatim per RESEARCH.md §Pattern 1):
+      1. _validate_project_name (security gate — T-07-03-01)
+      2. ensure_uv             (D-20 fallback if preflight skipped)
+      3. subprocess.run uv init --app, then uv add typer
+         (Pitfall 5: rich is hard-deped from typer 0.25.1+; NO `typer[all]`)
+      4. atomic_write of substituted __main__.py.tmpl into
+         project_dir/<sanitized-module>/__main__.py
+    """
+    _validate_project_name(project_name)
+    ensure_uv()
+
+    cmd = ["uv", "init", "--app", project_name]
+    try:
+        subprocess.run(
+            cmd, cwd=str(project_root), check=True,
+            capture_output=True, text=True, shell=False,
+        )
+    except (FileNotFoundError, OSError) as e:
+        _raw = f"uv: command not found: {e}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={"tool": "uv"})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do}\n"
+            )
+            if _msg.copy_paste:
+                sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        else:
+            sys.stderr.write(f"OSBuilder: scaffold failed — uv not found: {e}\n")
+        raise SystemExit(1)
+    except subprocess.CalledProcessError as e:
+        _raw = (e.stderr or "").strip() or f"exit {e.returncode}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do}\n"
+            )
+            if _msg.copy_paste:
+                sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        else:
+            sys.stderr.write(f"OSBuilder: uv init exited {e.returncode}\n{e.stderr}\n")
+        raise SystemExit(1)
+
+    project_dir = project_root / project_name
+    module_name = _sanitize_module_name(project_name)
+    # Substitute the {{project_name}} placeholder and write the main module.
+    tmpl = (_CLI_STARTER / "__main__.py.tmpl").read_text(encoding="utf-8")
+    rendered_main = tmpl.replace("{{project_name}}", project_name)
+    atomic_write(project_dir / module_name / "__main__.py", rendered_main)
+    # Add typer dep — rich is transitive (Pitfall 5: NO `typer[all]`).
+    subprocess.run(
+        ["uv", "add", "typer"],
+        cwd=str(project_dir), shell=False, check=False,
+    )
+    # CLI ships no Dockerfile (single-user local tool per RESEARCH.md §07-03).
+    _write_ci_workflow(project_dir, stack_family="python")
+    return project_dir
+
+
+# Phase 7 — multi-playbook dispatch (extended in 07-03)
 _PLAYBOOK_DISPATCH = {
     "web":        scaffold_web,
     "ai-service": scaffold_ai_service,
+    "cli":        scaffold_cli,
 }
 
 
