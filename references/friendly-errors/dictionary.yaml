@@ -392,3 +392,36 @@
   copy_paste_command: "uv add 'fastapi[standard]'"
   phase_seen: "7"
   expansion_note: "Phase 7 ai-service playbook (Pitfall 2)"
+
+# === Phase 7 — desktop playbook (07-04) ===
+
+- id: cargo-not-installed
+  match_pattern: "cargo: command not found"
+  category: preflight
+  title: "Rust isn't installed yet"
+  what_broke: "OSBuilder needs the Rust toolchain (cargo + rustc) to scaffold desktop apps with Tauri."
+  what_to_do: "Run preflight to auto-install Rust via rustup, or install it manually."
+  copy_paste_command: "python3 scripts/preflight_check.py install"
+  phase_seen: "preflight, 7"
+  expansion_note: "Phase 7 desktop playbook"
+
+- id: tauri-cli-not-installed
+  match_pattern: "tauri: command not found"
+  category: preflight
+  title: "Tauri CLI isn't installed yet in this project"
+  what_broke: "The 'tauri' command is provided by @tauri-apps/cli and lives in the project's node_modules."
+  what_to_do: "Run pnpm install in the project directory to install the local Tauri CLI."
+  copy_paste_command: "pnpm install"
+  phase_seen: "7"
+  expansion_note: "Phase 7 desktop playbook"
+
+- id: create-tauri-app-failed
+  match_pattern: "create-tauri-app.*exit"
+  pattern_type: regex
+  category: scaffold
+  title: "create-tauri-app couldn't finish scaffolding"
+  what_broke: "The Tauri scaffolder exited with an error before it finished. Common causes: pnpm not installed, network problem, or invalid identifier."
+  what_to_do: "Run preflight to ensure pnpm and Rust are installed, then retry."
+  copy_paste_command: "python3 scripts/preflight_check.py install"
+  phase_seen: "7"
+  expansion_note: "Phase 7 desktop playbook"

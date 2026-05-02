@@ -444,11 +444,107 @@ def scaffold_cli(project_name: str, project_root: Path) -> Path:
     return project_dir
 
 
-# Phase 7 — multi-playbook dispatch (extended in 07-03)
+# === Phase 7 — desktop playbook (07-04) ===
+
+_CREATE_TAURI_APP_VERSION = "4.6.2"  # pinned per D-08; verified npm 2026-05-01
+_TAURI_VERSION = "2"
+
+
+def _build_tauri_identifier(name: str) -> str:
+    """Pitfall 7: reverse-DNS identifier required by Tauri bundler.
+
+    Tauri requires `--identifier` in reverse-DNS form (e.g. com.osbuilder.<sanitized>).
+    Sanitization rule: lowercase + remove all non-alphanumeric chars (which strips
+    hyphens, underscores, dots and any other separator). Output is therefore always
+    a valid bundle identifier component.
+
+    Examples:
+      _build_tauri_identifier("my-cool-app") -> "com.osbuilder.mycoolapp"
+      _build_tauri_identifier("My_App-2")    -> "com.osbuilder.myapp2"
+    """
+    sanitized = re.sub(r"[^a-zA-Z0-9]", "", name).lower()
+    return f"com.osbuilder.{sanitized}"
+
+
+def scaffold_desktop(project_name: str, project_root: Path) -> Path:
+    """SCAF-04: scaffold a Tauri 2 (Vite + React + Rust) desktop project (D-07..D-09).
+
+    4-step shape (mirrors scaffold_web verbatim):
+      1. _validate_project_name (security gate — T-07-04-01)
+      2. ensure_pnpm            (Pitfall 1: pnpm forwards --template cleanly;
+                                 npm requires `--` to separate flags)
+      3. subprocess.run pnpm create tauri-app@latest with verbatim 12-element
+         argv (D-07: --manager pnpm --template react-ts --identifier <reverse-dns>
+         --tauri-version 2 -y; verified by npx --yes create-tauri-app --help 2026-05-01)
+      4. _write_ci_workflow with stack_family="tauri" (Rust+Node combined,
+         dtolnay/rust-toolchain action; assets/ci-workflows/tauri.yml.tmpl)
+
+    NO Dockerfile (desktop ships build artifacts, not a container).
+    NO post-scaffold writes — Tauri owns the template per D-08.
+    """
+    _validate_project_name(project_name)
+    ensure_pnpm()  # Pitfall 1 — must run BEFORE create-tauri-app
+
+    identifier = _build_tauri_identifier(project_name)
+    cmd = [
+        "pnpm", "create", "tauri-app@latest", project_name,
+        "--manager", "pnpm",
+        "--template", "react-ts",
+        "--identifier", identifier,
+        "--tauri-version", _TAURI_VERSION,
+        "-y",
+    ]
+    # NOTE: tauri-app@latest pins the spec but resolves to current pnpm registry
+    # state at scaffold time. D-08 accepts this drift; the playbook .md documents
+    # the version pin (4.6.2 as of 2026-05-01). To pin literally, replace the
+    # third argv element with f"tauri-app@{_CREATE_TAURI_APP_VERSION}".
+    try:
+        subprocess.run(
+            cmd, cwd=str(project_root), check=True,
+            capture_output=True, text=True, shell=False,
+        )
+    except (FileNotFoundError, OSError) as e:
+        _raw = f"pnpm: command not found: {e}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={"tool": "pnpm"})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do}\n"
+            )
+            if _msg.copy_paste:
+                sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        else:
+            sys.stderr.write(f"OSBuilder: scaffold failed — pnpm not found: {e}\n")
+        raise SystemExit(1)
+    except subprocess.CalledProcessError as e:
+        _raw = (e.stderr or "").strip() or f"create-tauri-app exit {e.returncode}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do}\n"
+            )
+            if _msg.copy_paste:
+                sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        else:
+            sys.stderr.write(
+                f"OSBuilder: create-tauri-app exited {e.returncode}\n{e.stderr}\n"
+            )
+        raise SystemExit(1)
+
+    project_dir = project_root / project_name
+    # NO Dockerfile (desktop ships build artifacts, not a container).
+    # NO post-scaffold writes (Tauri owns the template per D-08).
+    _write_ci_workflow(project_dir, stack_family="tauri")
+    return project_dir
+
+
+# Phase 7 — multi-playbook dispatch (extended in 07-03, then 07-04)
 _PLAYBOOK_DISPATCH = {
     "web":        scaffold_web,
     "ai-service": scaffold_ai_service,
     "cli":        scaffold_cli,
+    "desktop":    scaffold_desktop,
 }
 
 
