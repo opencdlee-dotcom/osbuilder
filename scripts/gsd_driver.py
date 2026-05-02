@@ -18,6 +18,7 @@ import argparse
 import datetime as _dt
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -298,18 +299,23 @@ def _humanizer_present() -> bool:
     parse_error: str | None = None
     try:
         text = HUMANIZER_SKILL_MD.read_text(encoding="utf-8")
-        in_front = False
-        for line in text.splitlines():
-            if line.strip() == "---":
-                in_front = not in_front
-                continue
-            if in_front and line.strip().startswith("version:"):
-                ver_str = line.split(":", 1)[1].strip().strip('"').strip("'")
-                parts = tuple(int(x) for x in ver_str.split(".")[:3])
-                # Pad to 3 components if shorter (e.g., "2.0" → (2, 0, 0))
-                while len(parts) < 3:
-                    parts = parts + (0,)
-                return parts >= MINIMUM_HUMANIZER_VERSION
+        # IN-08: use a single regex against the YAML frontmatter rather than a
+        # hand-rolled line-by-line parser. The regex handles optional quotes
+        # around the version value and is anchored to the frontmatter block via
+        # `re.MULTILINE` so a stray `version:` later in the document does not
+        # match. Falls back to "no version field found" if absent.
+        ver_match = re.search(
+            r'^version:\s*["\']?([\d.]+)["\']?\s*$',
+            text,
+            re.MULTILINE,
+        )
+        if ver_match is not None:
+            ver_str = ver_match.group(1)
+            parts = tuple(int(x) for x in ver_str.split(".")[:3])
+            # Pad to 3 components if shorter (e.g., "2.0" → (2, 0, 0))
+            while len(parts) < 3:
+                parts = parts + (0,)
+            return parts >= MINIMUM_HUMANIZER_VERSION
     except Exception as exc:
         parse_error = f"{type(exc).__name__}: {exc}"
     _emit(
