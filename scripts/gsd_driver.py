@@ -526,11 +526,23 @@ def emit_next_command(project_root: Path) -> int:
         if not project_path:
             sys.stderr.write("OSBuilder: project_path not set in state.md; cannot ship.\n")
             return 1
-        project_dir = Path(project_path)
+        project_dir = Path(project_path).resolve()
         project_name = project_dir.name
         if not project_dir.is_dir():
             sys.stderr.write(
                 f"OSBuilder: project_path does not exist on disk: {project_dir}\n"
+            )
+            return 1
+        # WR-05: child scripts (runbook_writer, gh_handoff) reconstruct the project
+        # directory as project_root / project_name. If project_path lives outside
+        # project_root that reconstruction silently points at a different (or empty)
+        # directory than scaffold built. Assert containment up front so the failure
+        # mode is loud rather than mysterious.
+        if project_dir.parent.resolve() != project_root.resolve():
+            sys.stderr.write(
+                "OSBuilder: project_path is not a direct child of project_root; "
+                f"refusing to ship.\n  project_path={project_dir}\n  "
+                f"project_root={project_root}\n"
             )
             return 1
 
