@@ -65,15 +65,41 @@ def _read_state(project_root: Path) -> dict:
 
 # ---------- public API ----------
 
+def _existing_roadmap_phases(project_root: Path) -> set[str]:
+    """WR-11: read .planning/ROADMAP.md and return the set of upgrade names already present.
+
+    Looks for upgrades by simple substring match — gsd-add-phase normalises
+    phase titles when it writes ROADMAP.md so an exact regex would be brittle
+    across versions. We only need to skip emission, not parse the roadmap
+    perfectly; if the substring check misses, gsd-add-phase's own idempotency
+    is the backstop.
+    """
+    roadmap = project_root / ".planning" / "ROADMAP.md"
+    if not roadmap.exists():
+        return set()
+    try:
+        text = roadmap.read_text(encoding="utf-8").lower()
+    except OSError:
+        return set()
+    return {name for name in NAMED_UPGRADES if name.lower() in text}
+
+
 def emit(project_root: Path) -> int:
     """SCL-06: emit /gsd-add-phase commands to stdout per state.md production_ready flag.
 
     Returns 0 always — emission is opportunistic; absence is the default.
+
+    WR-11: skip upgrade names already present in .planning/ROADMAP.md so
+    re-running on a project that already added some upgrades does not emit
+    duplicate /gsd-add-phase requests.
     """
     state = _read_state(project_root)
     if state.get("production_ready", "false") != "true":
         return 0
+    already_present = _existing_roadmap_phases(project_root)
     for name in NAMED_UPGRADES:
+        if name in already_present:
+            continue
         print(f"/gsd-add-phase {name}")
     return 0
 
