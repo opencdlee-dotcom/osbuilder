@@ -114,9 +114,9 @@ def test_inference_low_confidence_asks(has_inference):
 
 def test_inference_tied_asks(has_inference):
     """D-02: paragraph that scores similarly on web and cli should be flagged tied/low-confidence."""
-    # "tool" hits cli; "web UI" hits web; "organize" hits cli; "photos" — neutral.
-    # Either dimension wins by < 1.0, OR top score is < 2.0; either way → fallback.
-    text = "I want a tool with a web UI to organize photos"
+    # "website" → web 3; "tool" → cli 1; "organize" → cli 2 → cli=3, web=3 (perfect tie).
+    # _is_low_confidence flips True when (top - 2nd) < 1.0.
+    text = "I want a website tool to organize my bookmarks"
     scores = has_inference._score_playbooks(text)
     assert has_inference._is_low_confidence(scores) is True, (
         f"Tied web-vs-cli spec should be low-confidence; scores={scores}"
