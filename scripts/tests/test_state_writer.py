@@ -175,3 +175,32 @@ def test_path_traversal_rejected(sw, tmp_project_root, writer):
         capture_output=True, text=True,
     )
     assert result.returncode != 0, "`..` in --value MUST be rejected"
+
+
+def test_playbook_canonical_case_round_trip(sw, tmp_project_root, state_md_path, writer):
+    """IN-05: playbook field round-trips its case verbatim — callers must write canonical lowercase.
+
+    runbook_writer._derive_commands does `state.get("playbook").lower()` defensively,
+    but state.md itself does not normalise. This test pins the contract: whatever
+    case is written is what is read back. Producers (intake_handler, scaffold_dispatch)
+    must write canonical lowercase ("web", "cli", "ai-service"). If a future change
+    starts auto-normalising at write time, this test will fail and the contract
+    will need to be revisited intentionally.
+    """
+    writer("init", "--goal", "case test", project_root=tmp_project_root)
+    # Mixed-case input — should round-trip verbatim (no auto-normalisation)
+    writer("write", "--field", "playbook", "--value", "Web",
+           project_root=tmp_project_root)
+    result = writer("read", "--field", "playbook",
+                    project_root=tmp_project_root)
+    assert result.stdout.strip() == "Web", (
+        "playbook field must round-trip verbatim — if state.md normalises case, "
+        "update this test and document the change"
+    )
+
+    # Confirm canonical-lowercase value also round-trips (the contract producers must follow)
+    writer("write", "--field", "playbook", "--value", "web",
+           project_root=tmp_project_root)
+    result = writer("read", "--field", "playbook",
+                    project_root=tmp_project_root)
+    assert result.stdout.strip() == "web"
