@@ -87,25 +87,23 @@
   phase_seen: "preflight"
   expansion_note: "Phase 2 preflight dogfood"
 
+# IN-18: a single entry for `gh: command not found` covering both Phase 6 (ship)
+# and preflight contexts. Previously two entries with the SAME match_pattern
+# existed (`gh-not-installed` for Phase 6 + `gh-not-found` for preflight); the
+# second was unreachable because first-match-wins. Consolidated into one entry
+# with a what-to-do that addresses both audiences. If a future change needs
+# context-specific copy, add a `ctx={"phase": ...}` discriminator in
+# friendly_error.translate() and split this back into two entries with distinct
+# match_patterns.
 - id: gh-not-installed
   match_pattern: "gh: command not found"
   category: gh-auth
-  title: "The gh CLI isn't installed"
-  what_broke: "OSBuilder needs the `gh` command-line tool to create your private repo, but it's not on PATH."
-  what_to_do: "Install gh via Homebrew (macOS) or winget (Windows). On Linux, see github.com/cli/cli#installation."
-  copy_paste_command: "brew install gh"
-  phase_seen: "6"
-  expansion_note: "Phase 6 SHIP-01; pairs with gh-auth-drift"
-
-- id: gh-not-found
-  match_pattern: "gh: command not found"
-  category: gh-auth
-  title: "The GitHub CLI isn't installed yet"
-  what_broke: "The 'gh' command was not found on PATH."
-  what_to_do: "Run preflight to install the GitHub CLI."
-  copy_paste_command: "python3 scripts/preflight_check.py install"
-  phase_seen: "preflight"
-  expansion_note: "PITFALLS.md P15"
+  title: "The GitHub CLI (`gh`) isn't installed"
+  what_broke: "OSBuilder needs the `gh` command-line tool — for example, to create your private repo in Phase 6 — but it's not on PATH."
+  what_to_do: "Install gh: Homebrew on macOS, winget on Windows, or run preflight to set it up automatically. On Linux, see github.com/cli/cli#installation."
+  copy_paste_command: "brew install gh  # or: python3 scripts/preflight_check.py install"
+  phase_seen: "preflight, 6"
+  expansion_note: "Phase 6 SHIP-01; PITFALLS.md P15; pairs with gh-auth-drift"
 
 - id: gh-token-conflict
   match_pattern: "GITHUB_TOKEN.*set.*interrupted"
