@@ -278,6 +278,10 @@ def _humanizer_present() -> bool:
     """
     if not HUMANIZER_SKILL_MD.exists():
         return False
+    # WR-08: capture parse exceptions so the user sees a tutor-line rather than
+    # a silent fail-open. The fail-open behaviour itself is intentional (per
+    # design + T-05-05); we just surface the unverifiable state so it's visible.
+    parse_error: str | None = None
     try:
         text = HUMANIZER_SKILL_MD.read_text(encoding="utf-8")
         in_front = False
@@ -292,8 +296,18 @@ def _humanizer_present() -> bool:
                 while len(parts) < 3:
                     parts = parts + (0,)
                 return parts >= MINIMUM_HUMANIZER_VERSION
-    except Exception:
-        pass
+    except Exception as exc:
+        parse_error = f"{type(exc).__name__}: {exc}"
+    _emit(
+        "tech-writer",
+        "version-check",
+        "fail",
+        detail=(
+            f"could not parse humanizer SKILL.md version "
+            f"({parse_error or 'no version field found'}); "
+            "treating as present (fail-open)"
+        ),
+    )
     return True  # SKILL.md present but version unparseable → fail-open
 
 
