@@ -308,6 +308,14 @@ def _cmd_ship(args: argparse.Namespace) -> int:
     if not project_dir.is_dir():
         _friendly(f"project_dir does not exist: {project_dir}", tool="osbuilder")
         return 1
+    # IN-04: Hard Rule #6 says private-by-default. When the user explicitly
+    # opts into --public, surface a single-line warning to stderr so the
+    # publicly-readable repo creation is never silent.
+    if args.public:
+        sys.stderr.write(
+            "OSBuilder: warning — --public flag set; this will create a "
+            "PUBLICLY-READABLE GitHub repo (private is the default).\n"
+        )
     return ship(project_dir, project_root,
                 private=not args.public,
                 stack_family=args.stack_family)
