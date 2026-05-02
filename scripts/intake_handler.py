@@ -34,7 +34,11 @@ _REQUIRED_SECTIONS = ("# OSBuilder Derived Spec", "**Goal:**", "**App type:**", 
 _SECRET_PATTERNS = ("api_key", "password", "token", "database_url=postgresql://")
 
 # Phase 6 — refuse-list (SCL-05): hardcoded keyword tuple sourced from references/refuse-list.md
-# Order: most-specific multi-word first, then single-word
+# Ordering invariant (WR-04): _matches_refuse_keyword returns the FIRST keyword in this
+# tuple that appears in the spec, not the first one occurring in the spec text. The order
+# below is "most-specific / most-severe first" so that a spec mentioning both `helm` and
+# `kubernetes` reports `kubernetes` (the broader infrastructure flag) rather than `helm`.
+# When adding new keywords, place broader/more-severe terms above narrower ones.
 REFUSE_KEYWORDS = (
     "service mesh",
     "service-mesh",
