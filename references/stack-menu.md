@@ -54,9 +54,20 @@ When a package releases a new major version:
 | Persistence | sqlite3 | stdlib | zero-deps; SC-02's "persists state across runs" |
 | Pkg manager | uv | 0.11.8 | Astral all-in-one |
 
+## desktop playbook defaults
+
+| Component | Package | Version | Rationale |
+|-----------|---------|---------|-----------|
+| Scaffolder | create-tauri-app | 4.6.2 | Tauri team owns template; verified flag set 2026-05-01 |
+| Runtime | tauri | 2.x | `--tauri-version 2` lock; modern API surface |
+| JS dev CLI | @tauri-apps/cli | 2.11.0 | bundled by create-tauri-app |
+| Rust toolchain | rustup-toolchain | stable | preflight installs via D-20 (sh.rustup.rs / Rustlang.Rustup) |
+| Pkg manager | pnpm | 10.33.2 | Pitfall 1: required for clean --template forwarding |
+
 ## See also
 
 - `references/playbooks/web.md` — playbook spec that consumes these defaults
 - `references/playbooks/ai-service.md` — ai-service playbook spec
 - `references/playbooks/cli.md` — cli playbook spec
+- `references/playbooks/desktop.md` — desktop playbook spec
 - `scripts/stack_researcher.py` — implementation that reads this file

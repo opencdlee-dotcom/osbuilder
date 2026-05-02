@@ -321,6 +321,35 @@ _WINGET_INSTALL["uv"] = (
      "--accept-source-agreements", "--accept-package-agreements"],
 )
 
+# Phase 7 — desktop install matrix entries (D-20: Rust toolchain via rustup).
+# Unix: official rustup curl-pipe-sh installer wrapped in `sh -c` so the pipe
+# works under shell=False (mirrors the uv installer pattern above).
+# Windows: winget package ID is the literal "Rustlang.Rustup" (case-sensitive).
+# Pitfall 3: on Windows, after rustup install, run `rustup default stable-msvc`
+# (the gnu default fails the Tauri linker). Documented in references/playbooks/
+# desktop.md; the auto-correction step is best-effort and runs only if cargo
+# was just installed via this matrix.
+_MACOS_INSTALL["cargo"] = (
+    "curl", "rustup (Rust toolchain)",
+    ["sh", "-c",
+     "curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y"],
+)
+_APT_INSTALL["cargo"] = (
+    "curl", "rustup (Rust toolchain)",
+    ["sh", "-c",
+     "curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y"],
+)
+_DNF_INSTALL["cargo"] = (
+    "curl", "rustup (Rust toolchain)",
+    ["sh", "-c",
+     "curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -s -- -y"],
+)
+_WINGET_INSTALL["cargo"] = (
+    "winget", "Rustlang.Rustup",
+    ["winget", "install", "-e", "--id", "Rustlang.Rustup",
+     "--accept-source-agreements", "--accept-package-agreements"],
+)
+
 _UNINSTALL_FORM = {
     "brew":    lambda pkg: ["brew", "uninstall", pkg],
     "brew --cask": lambda pkg: ["brew", "uninstall", "--cask", pkg],
