@@ -7,7 +7,10 @@ requires-python = ">=3.10"
 [tool.pytest.ini_options]
 pythonpath = ["scripts"]
 testpaths = ["scripts/tests"]
-addopts = "-x --tb=short"
+addopts = "-x --tb=short -m 'not slow'"
+markers = [
+    "slow: marks tests as slow (skipped by default; opt-in with -m slow)",
+]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.6"]
