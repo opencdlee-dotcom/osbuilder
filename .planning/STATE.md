@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-01 (intake inference + Electron migration); Wave 1 of phase 7 unblocked
-last_updated: "2026-05-02T08:14:53.050Z"
+stopped_at: Completed 07-02 (ai-service playbook + uv preflight)
+last_updated: "2026-05-02T08:25:23.609Z"
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 37
-  completed_plans: 32
-  percent: 86
+  completed_plans: 33
+  percent: 89
 ---
 
 # Project State: OSBuilder
@@ -26,14 +26,14 @@ progress:
 ## Current Position
 
 Phase: 07 (additional-playbooks) — EXECUTING
-Plan: 1 of 6 — COMPLETE (07-01)
+Plan: 2 of 6 — COMPLETE (07-01)
 Plans complete: 1/6 in Phase 7 (32/37 overall)
 
 - **Milestone:** v1 (initial open-source publish-ready release)
 - **Phase:** 6
 - **Plans:** 04-01 (Wave 0 RED stubs), 04-02 (gsd_driver state machine), 04-03 (failure_classifier), 04-04 (registry_verify), 04-05 (qa.md), 04-06 (HEAL-05 gap closure — registry gate wired into step 2) — all complete
-- **Status:** Executing Phase --phase
-- **Progress:** [█████████░] 86%
+- **Status:** Ready to execute
+- **Progress:** [█████████░] 89%
 
 ## Performance Metrics
 
@@ -79,6 +79,7 @@ Plans complete: 1/6 in Phase 7 (32/37 overall)
 | Phase 06 P06-05 | 253 | 4 tasks | 5 files |
 | Phase 06-ship-to-private-github-scalable-defaults P06-06 | 15 | 2 tasks | 2 files |
 | Phase 07 P01 | 8min | 2 tasks | 5 files |
+| Phase 07 P02 | 12min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,9 @@ Plans complete: 1/6 in Phase 7 (32/37 overall)
 - **Recursion-safe monkeypatch (added 04-06):** When tests intercept `gd.subprocess.run` to selectively mock specific subprocess calls, capture `_real_run = subprocess.run` BEFORE `monkeypatch.setattr(...)`; the patched function must delegate to `_real_run`, never to `subprocess.run` (which is now the patched proxy → infinite recursion). Python module-attribute mutation is global; there is no separate "module-local reference" semantically distinct from the global module attribute.
 - **Argv-token script-path matching (added 04-06):** Test predicates that classify subprocess calls should match by argv token (`c.endswith("script.py")`) not loose `" ".join(cmd)` substring scan — values written through state_writer can legitimately contain tool/script names and would otherwise be misclassified.
 - **Neutral last_failure messaging (added 04-06):** Avoid embedding tool names like "registry_verify" in last_failure values; use threat-class names ("slopsquatting gate") instead. Both keeps test substring matchers honest AND surfaces user-facing language closer to "what threat was prevented" rather than "what tool ran".
+- **Per-playbook scaffold shape (added 07-02):** Every `scaffold_<playbook>` mirrors `scaffold_web`'s 4-step shape verbatim: validate name → ensure_<tool> → subprocess.run scaffold cmd → atomic_write of vendored starter + Dockerfile + CI workflow. `_PLAYBOOK_DISPATCH` dict in `scaffold_dispatch.py` is the multi-playbook routing surface; `_PLAYBOOK_TOOLS` dict in `preflight_check.py` is the lazy install lookup (per-playbook tools NOT in REQUIRED_TOOLS).
+- **D-21 typo correction (added 07-02):** winget package ID for uv is `astral-sh.uv` (lowercase, hyphenated namespace) — RESEARCH.md flagged `Astral.UV` as a typo. Tests assert exact lowercase form AND the absence of the typo string in the joined argv (catches regressions if a future change pastes the wrong ID).
+- **Bracket-token argv preservation (added 07-02):** Tokens like `fastapi[standard]` MUST travel as a SINGLE argv element when `shell=False`. Source-level quoting is meaningless — what matters is whether brackets stay in one string token (correct) vs split across multiple (broken). Pattern applies to any extras-bearing pip/uv/gem invocation.
 
 ### Active Todos
 
@@ -132,9 +136,9 @@ To be confirmed in Phase 1:
 
 ## Session Continuity
 
-**Last session:** 2026-05-02T08:14:52.751Z
+**Last session:** 2026-05-02T08:25:23.598Z
 
-**Stopped At:** Completed 07-01 (intake inference + Electron migration); Wave 1 of phase 7 unblocked
+**Stopped At:** Completed 07-02 (ai-service playbook + uv preflight)
 
 **Where to resume:**
 
