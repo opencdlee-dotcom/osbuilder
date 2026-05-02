@@ -254,6 +254,11 @@ def parse_paragraph(text: str, project_root: Path | None = None) -> Path:
     UX-03: mode (beginner/advanced) is read from state.md; beginner mode
     suppresses stack_hints in the rendered spec.
     Returns the Path of the written derived_spec.md.
+
+    WR-10 / TODO(phase-7): infer app_type from text (cli / ai-service / desktop /
+    hub-platform) once those playbooks land. v1 always sets app_type="web"
+    because only the web playbook is shipped. parse_structured already
+    respects an explicit app_type key when callers know better.
     """
     root = _resolve_project_root(str(project_root) if project_root is not None else None)
     dest = _derived_spec_path(root)
