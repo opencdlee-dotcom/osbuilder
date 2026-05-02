@@ -177,6 +177,43 @@ def test_path_traversal_rejected(sw, tmp_project_root, writer):
     assert result.returncode != 0, "`..` in --value MUST be rejected"
 
 
+def test_value_with_colon_round_trip(sw, tmp_project_root, state_md_path, writer):
+    """IN-17: values containing ':' (e.g. SSH URLs like git@github.com:user/foo.git)
+    must round-trip exactly — `partition(":")` splits on the first colon only.
+
+    `repo_url=git@github.com:user/foo.git` is the canonical case. The parser MUST
+    preserve everything after the first colon, including the `:user/foo.git`
+    portion. A regression that mistakenly splits on every colon (e.g. switches
+    to `split(":")`) corrupts the URL silently and breaks `git clone` in the
+    runbook.
+    """
+    writer("init", "--goal", "colon test", project_root=tmp_project_root)
+    ssh_url = "git@github.com:user/foo.git"
+    writer("write", "--field", "repo_url", "--value", ssh_url,
+           project_root=tmp_project_root)
+    # Read back via --field
+    result = writer("read", "--field", "repo_url",
+                    project_root=tmp_project_root)
+    assert result.stdout.strip() == ssh_url, (
+        f"SSH URL with colon must round-trip verbatim, got: {result.stdout.strip()!r}"
+    )
+    # Read back via --format json
+    json_result = writer("read", "--format", "json",
+                         project_root=tmp_project_root)
+    fields = json.loads(json_result.stdout)
+    assert fields["repo_url"] == ssh_url, (
+        f"JSON read must preserve colon-bearing value, got: {fields['repo_url']!r}"
+    )
+
+    # Also exercise multiple colons (HTTPS variant + port-style values)
+    other = "https://example.com:8080/path"
+    writer("write", "--field", "repo_url", "--value", other,
+           project_root=tmp_project_root)
+    result = writer("read", "--field", "repo_url",
+                    project_root=tmp_project_root)
+    assert result.stdout.strip() == other
+
+
 def test_playbook_canonical_case_round_trip(sw, tmp_project_root, state_md_path, writer):
     """IN-05: playbook field round-trips its case verbatim — callers must write canonical lowercase.
 
