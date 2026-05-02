@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: "Completed 06-06-PLAN.md (ship wiring: refusal gate + ship-step in gsd_driver; SKILL.md updated; 143 passed 1 skipped)"
-last_updated: "2026-05-01T23:17:04.031Z"
+stopped_at: Phase 7 context gathered
+last_updated: "2026-05-02T04:55:10.377Z"
 progress:
   total_phases: 8
   completed_phases: 6
@@ -131,9 +131,9 @@ To be confirmed in Phase 1:
 
 ## Session Continuity
 
-**Last session:** 2026-05-01T23:17:04.019Z
+**Last session:** --stopped-at
 
-**Stopped At:** Completed 06-06-PLAN.md (ship wiring: refusal gate + ship-step in gsd_driver; SKILL.md updated; 143 passed 1 skipped)
+**Stopped At:** Phase 7 context gathered
 
 **Where to resume:**
 
@@ -143,7 +143,7 @@ To be confirmed in Phase 1:
 4. Verify against the 5 falsifiable success criteria in ROADMAP.md Phase 1
 5. Transition to Phase 2 via `/gsd-transition`
 
-**Resume file:** None
+**Resume file:** --resume-file
 
 **Files of record:**
 
