@@ -326,7 +326,10 @@ def _cmd_verify(args: argparse.Namespace) -> int:
     project_dir = project_root / args.project_name
     info = verify(project_dir)
     if not info:
-        sys.stderr.write("OSBuilder: gh repo view failed or returned empty.\n")
+        # IN-09: route through _friendly so failure messaging here matches the
+        # rest of the module (translates known gh stderr fragments + redacts
+        # tokens) rather than emitting a raw stderr line.
+        _friendly("gh repo view failed or returned empty", tool="gh")
         return 1
     print(json.dumps(info))
     return 0
