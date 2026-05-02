@@ -125,3 +125,29 @@ def test_refuse_list_synced(ih):
         f"  In Python only: {sorted(py_keywords - md_keywords)}\n"
         f"  In markdown only: {sorted(md_keywords - py_keywords)}"
     )
+
+
+def test_electron_refused_globally():
+    """SC-03 + D-22: Electron refusal must live in global refuse-list.md, not just web.md.
+
+    Verifies that 07-01's migration of the Electron refusal copy landed in
+    refuse-list.md AND that the Tauri 2 alternative is mentioned. The old
+    web.md scoped line ("Electron (use Tauri 2 via desktop playbook)") must
+    be gone — only a cross-reference pointer remains in web.md.
+    """
+    refuse_list = (REPO_ROOT / "references" / "refuse-list.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Electron" in refuse_list, (
+        "Electron migration target text missing in refuse-list.md (D-22)"
+    )
+    assert "Tauri" in refuse_list, (
+        "Tauri 2 alternative rationale missing in refuse-list.md (SC-03)"
+    )
+    # Web.md should NOT have the old web-scoped Electron line per D-22.
+    web_md = (REPO_ROOT / "references" / "playbooks" / "web.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Electron (use Tauri 2 via desktop playbook)" not in web_md, (
+        "Old web-scoped Electron line should be removed from web.md per D-22"
+    )
