@@ -2,6 +2,10 @@
 # Source: pnpm/action-setup + actions/setup-node + dtolnay/rust-toolchain
 # (verified 2026-05-01). Linux requires libwebkit2gtk-4.1-dev + tauri prereqs.
 # Pitfall 8: cold Cargo fetches can take ~120s; timeout-minutes: 30 gives headroom.
+#
+# NOTE: single-OS CI (ubuntu-latest) is intentional for Phase 7 v1.
+# macOS and Windows Tauri builds require code-signing secrets (D-08).
+# Extend to a matrix build only when signing is configured.
 name: Test on PR
 
 on:
