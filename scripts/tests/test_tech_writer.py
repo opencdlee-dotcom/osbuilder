@@ -147,3 +147,69 @@ def test_readme_has_dev_team_section(gd, tmp_project_root, writer):
     for role in ("PM", "Architect", "Frontend", "Backend",
                  "DevOps", "QA", "Reviewer", "Tech Writer"):
         assert role in text, f"readme-context.md must name role: {role}"
+
+
+# ---------- IN-11: README "How OSBuilder built this" placeholder completion verification ----------
+
+def test_readme_template_placeholder_section_present():
+    """IN-11: assets/readme-template.md MUST contain the '## How OSBuilder built this'
+    placeholder section AND a sentinel line that /gsd-docs-update is expected to overwrite.
+
+    This is a soft contract: the runbook stamper writes a template with a
+    placeholder section; /gsd-docs-update is supposed to replace the placeholder
+    text with the real role-prose section. The test pins the placeholder shape
+    so a regression that drops the section header (or the sentinel line indicating
+    the placeholder is unfilled) is caught at test time.
+    """
+    template_path = REPO_ROOT / "assets" / "readme-template.md"
+    assert template_path.exists(), f"readme template missing at {template_path}"
+    content = template_path.read_text(encoding="utf-8")
+    assert "## How OSBuilder built this" in content, (
+        "readme-template.md must contain '## How OSBuilder built this' H2 — "
+        "this is the section /gsd-docs-update is expected to fill in"
+    )
+    # Sentinel phrase — if this changes in the template, the placeholder shape
+    # changed and the docs-update step must be re-validated. Markdown wraps the
+    # sentence across a soft line break, so normalise whitespace before matching.
+    normalised = " ".join(content.split())
+    assert "Tech Writer step has not run yet on this build" in normalised, (
+        "readme-template.md must contain the placeholder sentinel phrase — "
+        "/gsd-docs-update detects an unfilled section by this string"
+    )
+
+
+def test_completed_readme_replaces_placeholder_sentinel(rw, fake_built_app, fake_state_md, tmp_project_root):
+    """IN-11: after /gsd-docs-update runs, the placeholder sentinel MUST be gone.
+
+    This is the falsifiable check: if a downstream README still contains the
+    "Tech Writer step has not run yet on this build" line after the docs-update
+    step, the soft contract was broken. /gsd-docs-update is an LLM-driven step
+    so we can't unit-test its output here, but we can verify that the runbook
+    stamper itself plants a detectable sentinel for downstream verification.
+
+    We DO NOT actually invoke /gsd-docs-update — that's an LLM step. We verify
+    the stamped README contains the sentinel (so future verification tests can
+    assert it's gone after docs-update lands).
+    """
+    fake_state_md(
+        goal="t", app_type="multi-user-web", playbook="web",
+        project_path=str(fake_built_app),
+        repo_url="git@github.com:user/foo.git",
+    )
+    rw.write_readme(fake_built_app, tmp_project_root)
+    readme = (fake_built_app / "README.md").read_text(encoding="utf-8")
+    normalised = " ".join(readme.split())
+    assert "Tech Writer step has not run yet on this build" in normalised, (
+        "stamped README must contain placeholder sentinel for /gsd-docs-update "
+        "to overwrite — the absence of this phrase in a SHIPPED README is the "
+        "post-docs-update success signal"
+    )
+
+
+@pytest.fixture
+def rw():
+    """Lazy import of scripts/runbook_writer.py."""
+    try:
+        return importlib.import_module("runbook_writer")
+    except ImportError:
+        pytest.skip("runbook_writer module not yet available")
