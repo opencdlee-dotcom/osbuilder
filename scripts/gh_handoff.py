@@ -242,10 +242,19 @@ def ship(project_dir: Path, project_root: Path, *, private: bool = True,
     if visibility not in ("PRIVATE", "PUBLIC"):
         _friendly(f"gh repo view returned unexpected visibility: {visibility!r}", tool="gh")
         return 1
+    # WR-02: validate ssh_url shape before persisting — an empty/malformed value
+    # would break downstream `git clone {{repo_url}}` substitution in the runbook.
+    sanitized_url = ssh_url.strip().replace("\n", " ")
+    if not sanitized_url.startswith(("git@", "https://", "ssh://")):
+        _friendly(
+            f"gh repo view returned unexpected sshUrl: {ssh_url!r}",
+            tool="gh",
+        )
+        return 1
 
     # 6. Persist to state.md (sanitize URL: strip newlines per Pitfall 7)
     _write_state_field(project_root, "repo_visibility", visibility)
-    _write_state_field(project_root, "repo_url", ssh_url.strip().replace("\n", " "))
+    _write_state_field(project_root, "repo_url", sanitized_url)
     return 0
 
 
