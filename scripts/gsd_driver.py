@@ -180,11 +180,16 @@ produces the expected observable outcome.
 
 # ---------- escalation ----------
 
-def _build_escalation_output(state: dict) -> str:
+def _build_escalation_output(state: dict) -> str:  # noqa: ARG001 — reserved
     """ROLE-08: Build escalation sequence string for retry_count >= 3.
 
     Emits /gsd-debug then /problem-solver.
     T-04-02-02: never interpolates raw error strings into emitted slash commands.
+
+    WR-14: `state` is currently unused — the output is constant. The parameter
+    is kept (and silenced via noqa) so future variants of the escalation
+    sequence can branch on retry context (e.g. last_failure category) without
+    a signature change at every caller.
     """
     return "/gsd-debug\n/problem-solver"
 
