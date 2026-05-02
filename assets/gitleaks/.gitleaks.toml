@@ -5,11 +5,13 @@ title = "OSBuilder default gitleaks config"
 
 # Use upstream defaults (no [extend.path] override).
 # Project-specific allowlist — extend with [[allowlist]] entries as false positives surface.
+# IN-12: lazy `(.*?)` is equivalent to `.*` against an end-anchored pattern; use the
+# greedy form because it is faster and reads as the obvious intent.
 [allowlist]
 description = "Files that legitimately contain pattern-matching strings"
 paths = [
-    '''(.*?)\.env\.example$''',
-    '''(.*?)\.env\.sample$''',
+    '''.*\.env\.example$''',
+    '''.*\.env\.sample$''',
     '''README\.md$''',
     '''docs/.*\.md$''',
 ]
