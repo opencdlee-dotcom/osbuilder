@@ -1,11 +1,17 @@
 # OSBuilder default — Node + pnpm CI workflow (SCL-04)
 # Source: pnpm/action-setup README + actions/setup-node (verified 2026-05-01)
 # CRITICAL: pnpm/action-setup MUST precede actions/setup-node so cache: 'pnpm' engages.
+# IN-19: concurrency group cancels in-flight runs when a new commit lands on the
+# same PR ref. Saves CI minutes on rapid rebases without affecting correctness.
 name: Test on PR
 
 on:
   pull_request:
     branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
