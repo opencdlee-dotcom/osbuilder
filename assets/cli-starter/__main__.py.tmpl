@@ -33,13 +33,12 @@ def _init_db() -> sqlite3.Connection:
 @app.command()
 def ping():
     """Write a row to SQLite and read it back — proves persistence works."""
-    conn = _init_db()
-    ts = datetime.now(timezone.utc).isoformat()
-    conn.execute("INSERT INTO pings (ts) VALUES (?)", (ts,))
-    conn.commit()
-    cur = conn.execute("SELECT COUNT(*) FROM pings")
-    count = cur.fetchone()[0]
-    conn.close()
+    with _init_db() as conn:
+        ts = datetime.now(timezone.utc).isoformat()
+        conn.execute("INSERT INTO pings (ts) VALUES (?)", (ts,))
+        conn.commit()
+        cur = conn.execute("SELECT COUNT(*) FROM pings")
+        count = cur.fetchone()[0]
     console.print(f"[green]ping #{count}[/green] at [cyan]{ts}[/cyan]")
     console.print(f"DB: [dim]{DB_PATH}[/dim]")
 
