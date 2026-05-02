@@ -15,7 +15,7 @@
 - [ ] **Phase 4: GSD handoff + Verify loop + Failure classifier** — Quality moat: classified retries, 3-reflection cap, falsifiable verification
 - [ ] **Phase 5: Common-person UX polish** — Tutor mode, friendly errors, dev-team narration that the audience actually understands
 - [ ] **Phase 6: Ship to private GitHub + scalable defaults** — Close the build → ship loop with sensible-by-default scaffold shape
-- [ ] **Phase 7: Additional playbooks** — AI-service, CLI, desktop (Tauri), hub-platform variants
+- [x] **Phase 7: Additional playbooks** — AI-service, CLI, desktop (Tauri), hub-platform variants *(complete 2026-05-02)*
 - [ ] **Phase 8: Skill quality / publish-bar** — Examples gallery, install one-liner, demo video, version-drift validator, `--production-ready` flag
 
 ## Phase Details
@@ -149,12 +149,12 @@ Plans:
   5. Every playbook in this phase passes the same end-to-end clone-and-run verification used in Phase 6 (a stranger clones, runs the documented command, reaches a working app in ≤ 5 minutes).
 **Plans:** 6 plans
 Plans:
-- [ ] 07-01-PLAN.md — Intake routing + 5-way `app_type` inference (`infer_app_type` keyword-bag) + Electron refusal migration to global refuse-list.md (D-01..D-03, D-22; SCAF-02..05 routing prerequisite)
-- [ ] 07-02-PLAN.md — AI-service playbook: `references/playbooks/ai-service.md` + `assets/fastapi-starter/` (Pydantic v2) + `scaffold_ai_service` + uv preflight extension + Dockerfile template (SCAF-02; D-10..D-12, D-20-21)
+- [x] 07-01-PLAN.md — Intake routing + 5-way `app_type` inference (`infer_app_type` keyword-bag) + Electron refusal migration to global refuse-list.md (D-01..D-03, D-22; SCAF-02..05 routing prerequisite)
+- [x] 07-02-PLAN.md — AI-service playbook: `references/playbooks/ai-service.md` + `assets/fastapi-starter/` (Pydantic v2) + `scaffold_ai_service` + uv preflight extension + Dockerfile template (SCAF-02; D-10..D-12, D-20-21)
 - [x] 07-03-PLAN.md — CLI playbook: `references/playbooks/cli.md` + `assets/cli-starter/` (Typer + Rich + SQLite) + `scaffold_cli` + module-name sanitization (SCAF-03; D-13, D-14)
-- [ ] 07-04-PLAN.md — Desktop playbook: `references/playbooks/desktop.md` + `scaffold_desktop` + `_build_tauri_identifier` + cargo preflight + `tauri.yml.tmpl` CI workflow (SCAF-04; D-07..D-09, D-20-21)
-- [ ] 07-05-PLAN.md — Hub-platform playbook: `references/playbooks/hub-platform.md` + `assets/hub-template/` + vendored `professor-snapshot/` + `scaffold_hub` (pure file-stamping) + `_extract_subtools` + state_writer.subtools (SCAF-05; D-04..D-06)
-- [ ] 07-06-PLAN.md — Shared E2E harness: parametrized `test_e2e_playbooks.py` (5-step contract × 4 playbooks) + per-playbook timeout dict (Pitfall 8) + `07-HUMAN-UAT.md` (SCAF-02..05; D-17..D-19)
+- [x] 07-04-PLAN.md — Desktop playbook: `references/playbooks/desktop.md` + `scaffold_desktop` + `_build_tauri_identifier` + cargo preflight + `tauri.yml.tmpl` CI workflow (SCAF-04; D-07..D-09, D-20-21)
+- [x] 07-05-PLAN.md — Hub-platform playbook: `references/playbooks/hub-platform.md` + `assets/hub-template/` + vendored `professor-snapshot/` + `scaffold_hub` (pure file-stamping) + `_extract_subtools` + state_writer.subtools (SCAF-05; D-04..D-06)
+- [x] 07-06-PLAN.md — Shared E2E harness: parametrized `test_e2e_playbooks.py` (5-step contract × 4 playbooks) + per-playbook timeout dict (Pitfall 8) + `07-HUMAN-UAT.md` (SCAF-02..05; D-17..D-19)
 
 ### Phase 8: Skill quality / publish-bar
 **Goal:** OSBuilder is open-source publish-ready — clean install one-liner, dev-team-metaphor README, 60-second demo video, 3-5 example gallery, version-drift validator on first run, and `--production-ready` flag adding observability/migrations/Sentry/etc. as named phases (not default code).
@@ -208,7 +208,7 @@ Plans:
 | 4. GSD handoff + Verify + Healing | 6/6 | Complete (incl. 04-06 HEAL-05 gap closure) | 2026-04-30 |
 | 5. Common-person UX polish | 1/5 | Wave 0 RED stubs landed (124 tests collected); Wave 1 next (05-02..05-05) | - |
 | 6. Ship + scalable defaults | 0/TBD | Not started | - |
-| 7. Additional playbooks | 0/TBD | Not started | - |
+| 7. Additional playbooks | 6/6 | Complete | 2026-05-02 |
 | 8. Skill quality / publish-bar | 0/TBD | Not started | - |
 
 ---
