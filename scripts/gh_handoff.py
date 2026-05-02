@@ -115,7 +115,10 @@ def _compose_gitignore(project_dir: Path, stack_family: str = "node") -> None:
     target = project_dir / ".gitignore"
     if target.exists():
         existing = target.read_text(encoding="utf-8")
-        if _GITIGNORE_MARKER in existing:
+        # WR-06: anchor the idempotency check to the start of the file so a
+        # hand-edited .gitignore that merely mentions the marker text in a
+        # comment does not skip a needed rewrite.
+        if existing.startswith(_GITIGNORE_MARKER):
             return  # already stamped (idempotent)
         composed = composed + "\n# --- existing .gitignore ---\n" + existing
     atomic_write(target, composed)
