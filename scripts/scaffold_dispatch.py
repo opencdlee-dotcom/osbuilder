@@ -287,8 +287,16 @@ def _cmd_scaffold(args: argparse.Namespace) -> int:
                  "--project-root", str(project_root)],
                 shell=False, check=True,
             )
-        except (OSError, subprocess.CalledProcessError):
-            pass  # state.md write failure is non-fatal
+        except (OSError, subprocess.CalledProcessError) as exc:
+            # WR-12: state.md write failure is non-fatal here, but downstream
+            # ship/runbook steps read project_path and will fail confusingly if
+            # it is missing. Surface a stderr warning so the silent persistence
+            # failure is at least visible to the user.
+            sys.stderr.write(
+                "OSBuilder: warning — failed to record project_path in state.md "
+                f"({type(exc).__name__}: {exc}). Downstream ship/runbook steps "
+                "may need --project-path supplied manually.\n"
+            )
 
     print(f"Scaffolded project at: {project_dir}")
     return 0
