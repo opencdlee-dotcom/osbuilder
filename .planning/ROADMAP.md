@@ -147,7 +147,14 @@ Plans:
   3. A user describing "I want a desktop app that runs locally with a tray icon" results in the desktop playbook producing a Tauri 2 project (Vite + React + Rust backend) where `pnpm tauri dev` opens a native window — and OSBuilder explicitly refuses Electron with a documented rationale if the user requests it.
   4. A user describing "build me a hub like Professor Hub for X" results in the hub-platform playbook producing a top-level CLAUDE.md routing table + sub-tool subdirectories that match the structural pattern of `../professor/` (verified by direct comparison: same top-level files, same nesting depth, same routing-table format).
   5. Every playbook in this phase passes the same end-to-end clone-and-run verification used in Phase 6 (a stranger clones, runs the documented command, reaches a working app in ≤ 5 minutes).
-**Plans:** TBD
+**Plans:** 6 plans
+Plans:
+- [ ] 07-01-PLAN.md — Intake routing + 5-way `app_type` inference (`infer_app_type` keyword-bag) + Electron refusal migration to global refuse-list.md (D-01..D-03, D-22; SCAF-02..05 routing prerequisite)
+- [ ] 07-02-PLAN.md — AI-service playbook: `references/playbooks/ai-service.md` + `assets/fastapi-starter/` (Pydantic v2) + `scaffold_ai_service` + uv preflight extension + Dockerfile template (SCAF-02; D-10..D-12, D-20-21)
+- [ ] 07-03-PLAN.md — CLI playbook: `references/playbooks/cli.md` + `assets/cli-starter/` (Typer + Rich + SQLite) + `scaffold_cli` + module-name sanitization (SCAF-03; D-13, D-14)
+- [ ] 07-04-PLAN.md — Desktop playbook: `references/playbooks/desktop.md` + `scaffold_desktop` + `_build_tauri_identifier` + cargo preflight + `tauri.yml.tmpl` CI workflow (SCAF-04; D-07..D-09, D-20-21)
+- [ ] 07-05-PLAN.md — Hub-platform playbook: `references/playbooks/hub-platform.md` + `assets/hub-template/` + vendored `professor-snapshot/` + `scaffold_hub` (pure file-stamping) + `_extract_subtools` + state_writer.subtools (SCAF-05; D-04..D-06)
+- [ ] 07-06-PLAN.md — Shared E2E harness: parametrized `test_e2e_playbooks.py` (5-step contract × 4 playbooks) + per-playbook timeout dict (Pitfall 8) + `07-HUMAN-UAT.md` (SCAF-02..05; D-17..D-19)
 
 ### Phase 8: Skill quality / publish-bar
 **Goal:** OSBuilder is open-source publish-ready — clean install one-liner, dev-team-metaphor README, 60-second demo video, 3-5 example gallery, version-drift validator on first run, and `--production-ready` flag adding observability/migrations/Sentry/etc. as named phases (not default code).
