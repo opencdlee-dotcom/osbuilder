@@ -90,3 +90,38 @@ def test_refusal_copy_mentions_opt_in():
     assert "production-ready" in content.lower(), (
         "references/refuse-list.md must mention 'production-ready' (the opt-in path)"
     )
+
+
+def test_refuse_list_synced(ih):
+    """IN-03: REFUSE_KEYWORDS in intake_handler.py must mirror references/refuse-list.md.
+
+    The keyword tuple in intake_handler is the runtime gate; the markdown file is
+    the human-facing source of truth. They must agree (set-equality, ignoring
+    ordering — the markdown's list is bullets, the Python tuple is severity-sorted).
+    Catches drift where one is updated without the other.
+    """
+    refuse_list_md = REPO_ROOT / "references" / "refuse-list.md"
+    text = refuse_list_md.read_text(encoding="utf-8")
+
+    # Locate the "## Refuse keywords" H2 section and walk until the next H2.
+    import re
+    section_match = re.search(r"(?:^|\n)## Refuse keywords", text)
+    assert section_match is not None, "refuse-list.md missing '## Refuse keywords' H2"
+    after = text[section_match.end():]
+    next_h2 = after.find("\n## ")
+    body = after if next_h2 < 0 else after[:next_h2]
+
+    # Extract bullet items (markdown "- foo" lines).
+    md_keywords = set()
+    for line in body.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("- "):
+            md_keywords.add(stripped[2:].strip().lower())
+
+    py_keywords = {kw.lower() for kw in ih.REFUSE_KEYWORDS}
+
+    assert md_keywords == py_keywords, (
+        "REFUSE_KEYWORDS drift between intake_handler.py and references/refuse-list.md.\n"
+        f"  In Python only: {sorted(py_keywords - md_keywords)}\n"
+        f"  In markdown only: {sorted(md_keywords - py_keywords)}"
+    )
