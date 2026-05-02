@@ -70,6 +70,85 @@ REFUSE_KEYWORDS = (
 REFUSE_LIST_MD = REPO_ROOT / "references" / "refuse-list.md"
 
 
+# Phase 7 — playbook routing (D-01..D-03): weighted keyword-bag inference per playbook.
+# Source-of-truth lives here; tests pin specific weights so changes surface in code review.
+# See references/question-bank.md for the low-confidence fallback question.
+# T-07-01-03: callers should cap paragraph length upstream — _score_playbooks runs
+# ~50 keyword regexes against text.lower() and is O(n*k) on input length.
+PLAYBOOK_KEYWORDS = {
+    "web": {
+        "website": 3, "web app": 3, "browser": 2, "homepage": 3,
+        "landing page": 3, "frontend": 2, "html": 1, "todo app": 2,
+        "blog": 2, "marketplace": 2, "saas": 2,
+    },
+    "ai-service": {
+        "api": 2, "http api": 3, "endpoint": 2, "rest": 2,
+        "summarize": 3, "llm": 3, "openai": 2, "anthropic": 2,
+        "fastapi": 3, "service": 1,
+        "embeddings": 2, "rag": 3, "agent": 2,
+    },
+    "cli": {
+        "cli": 3, "command line": 3, "command-line": 3, "terminal": 2,
+        "script": 2, "tool": 1, "automation": 2, "organize": 2,
+        "batch": 2, "convert": 2, "rename": 2,
+    },
+    "desktop": {
+        "desktop app": 3, "desktop": 2, "tray icon": 3, "system tray": 3,
+        "native window": 3, "windows app": 2, "macos app": 2, "linux app": 2,
+        "tauri": 3,
+        "menu bar": 3, "offline app": 2,
+    },
+    "hub-platform": {
+        "hub": 3, "platform": 2, "umbrella": 3, "workspace": 2,
+        "professor hub": 4, "like professor": 4, "multiple tools": 3,
+        "monorepo": 2, "suite": 2, "router": 1,
+    },
+}
+
+
+def _score_playbooks(text: str) -> "dict[str, float]":
+    """Return {playbook_name: score} given a paragraph. Pure function: no I/O.
+
+    Word-boundary matching mirrors `_matches_refuse_keyword`: multi-word /
+    hyphenated keywords use substring on lowercased text; single-word keywords
+    use \\b regex to avoid false positives.
+    """
+    lower = text.lower()
+    scores: "dict[str, float]" = {pb: 0.0 for pb in PLAYBOOK_KEYWORDS}
+    for pb, kws in PLAYBOOK_KEYWORDS.items():
+        for kw, w in kws.items():
+            if " " in kw or "-" in kw:
+                if kw in lower:
+                    scores[pb] += w
+            else:
+                if re.search(r"\b" + re.escape(kw) + r"\b", lower):
+                    scores[pb] += w
+    return scores
+
+
+def infer_app_type(text: str) -> "tuple[str, float]":
+    """Return (best_playbook, top_score) for a plain-English paragraph (D-01).
+
+    Confidence rules (D-02 — caller wiring decides whether to commit or fall
+    back to the question-bank):
+        - top_score < 2.0  → low confidence; ask question-bank fallback
+        - top_score - 2nd_score < 1.0 → tied; ask question-bank fallback
+    """
+    scores = _score_playbooks(text)
+    best = max(scores, key=lambda k: scores[k])
+    return best, scores[best]
+
+
+def _is_low_confidence(scores: "dict[str, float]") -> bool:
+    """True if no clear winner — caller should ask question-bank fallback (D-02)."""
+    sorted_scores = sorted(scores.values(), reverse=True)
+    if not sorted_scores or sorted_scores[0] < 2.0:
+        return True
+    if len(sorted_scores) >= 2 and (sorted_scores[0] - sorted_scores[1]) < 1.0:
+        return True
+    return False
+
+
 def _derived_spec_path(project_root: Path) -> Path:
     return project_root / ".planning" / "osbuilder" / "derived_spec.md"
 
@@ -260,16 +339,29 @@ def parse_paragraph(text: str, project_root: Path | None = None) -> Path:
     suppresses stack_hints in the rendered spec.
     Returns the Path of the written derived_spec.md.
 
-    WR-10 / TODO(phase-7): infer app_type from text (cli / ai-service / desktop /
-    hub-platform) once those playbooks land. v1 always sets app_type="web"
-    because only the web playbook is shipped. parse_structured already
-    respects an explicit app_type key when callers know better.
+    WR-10 / Phase 7 (D-01..D-03): app_type is inferred via PLAYBOOK_KEYWORDS
+    across all 5 playbooks (web / ai-service / cli / desktop / hub-platform).
+    On low confidence or ties, the caller (orchestrator / SKILL.md) is expected
+    to ask the question-bank "What kind of thing" fallback. Non-interactive
+    callers (this function) default to "web" — same default as the
+    "I don't know, you decide" branch in references/question-bank.md.
+    parse_structured continues to respect an explicit app_type key.
     """
     root = _resolve_project_root(str(project_root) if project_root is not None else None)
     dest = _derived_spec_path(root)
     _mode = _mode_from_state(root)
+    # Phase 7 (D-01..D-03): replace hardcoded "web" with inferred routing.
+    scores = _score_playbooks(text)
+    if _is_low_confidence(scores):
+        # D-02 fallback: ask the question-bank rather than coin-flipping.
+        # The actual interactive prompt is owned by the orchestrator (SKILL.md);
+        # for non-interactive callers, we default to "web" (matches the
+        # "I don't know, you decide" branch in references/question-bank.md).
+        inferred_app_type = "web"
+    else:
+        inferred_app_type = max(scores, key=lambda k: scores[k])
     atomic_write(dest, _render_derived_spec(
-        goal=text.strip(), app_type="web", mode=_mode,
+        goal=text.strip(), app_type=inferred_app_type, mode=_mode,
     ))
     return dest
 

@@ -51,6 +51,8 @@ order, with full context. They do NOT get bolted onto the default scaffold.
 If you didn't mean to ask for this, just rephrase the goal without the word
 **{{keyword}}** and re-run.
 
+**Electron (refused; use Tauri 2 instead).** OSBuilder builds desktop apps with Tauri 2, not Electron. Tauri produces ~10MB binaries (Electron is ~150MB) and uses ~50% less RAM. Tauri uses the system WebView (WebKit on macOS, WebView2 on Windows, webkit2gtk on Linux) plus a Rust runtime — Electron bundles a full Chromium per app. If you specifically need Electron-only APIs, that is out of scope for v1; the desktop playbook (`references/playbooks/desktop.md`) covers everything else.
+
 ## See also
 
 - `scripts/intake_handler.py` — the gate (search for `check_refuse_list`)

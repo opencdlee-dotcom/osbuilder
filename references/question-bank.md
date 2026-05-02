@@ -53,6 +53,17 @@
 - Open to anyone who finds it → note in spec: public access; consider rate limiting
 - I don't know, you decide → PRIVATE (safer default; easier to open up than to lock down)
 
+## Q: What kind of thing
+
+"Sounds like there are a few different shapes this could take. Is it more of a website, an HTTP API, a command-line tool, a desktop app, or a hub/workspace that ties multiple tools together?"
+
+- A website with pages people visit in a browser → note in spec: app_type=web; web playbook
+- An HTTP API service (data in, data out, no UI) → note in spec: app_type=ai-service; FastAPI playbook
+- A command-line tool I run in a terminal → note in spec: app_type=cli; Typer playbook
+- A desktop app with its own window → note in spec: app_type=desktop; Tauri 2 playbook (Electron is refused — see refuse-list.md)
+- A workspace/hub that holds multiple related tools → note in spec: app_type=hub-platform; routing-table playbook
+- I don't know, you decide → A website (the broadest reach + safest default)
+
 ## Plain-English substitutes
 
 When writing or editing questions, use plain-English alternatives instead of technical terms.

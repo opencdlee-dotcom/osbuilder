@@ -53,7 +53,7 @@ In v1 default builds, OSBuilder refuses:
 
 - Kubernetes / Helm / service mesh
 - Microservices architecture
-- Electron (use Tauri 2 via desktop playbook)
+- Electron — see references/refuse-list.md (now a global refusal, was previously web-only)
 - Auto-deploy without explicit consent
 - Public GitHub repos by default (use `--public` to override)
 
