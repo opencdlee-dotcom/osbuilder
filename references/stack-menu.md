@@ -36,7 +36,17 @@ When a package releases a new major version:
 3. Update RESEARCH.md Standard Stack section to match
 4. Run `python3 -m pytest scripts/tests/ -x` to confirm no test regressions
 
+## ai-service playbook defaults
+
+| Component | Package | Version | Rationale |
+|-----------|---------|---------|-----------|
+| Framework | fastapi | 0.136.1 | tiangolo canonical; `[standard]` extra ships fastapi-cli runner |
+| Models | pydantic | 2.13.3 | v2 BaseModel + Field; transitive via fastapi[standard] |
+| Server | uvicorn | 0.46.0 | ASGI; transitive via fastapi[standard] |
+| Pkg manager | uv | 0.11.8 | Astral all-in-one (init + add + sync + run) |
+
 ## See also
 
 - `references/playbooks/web.md` — playbook spec that consumes these defaults
+- `references/playbooks/ai-service.md` — ai-service playbook spec
 - `scripts/stack_researcher.py` — implementation that reads this file

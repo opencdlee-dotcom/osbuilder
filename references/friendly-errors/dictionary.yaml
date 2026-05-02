@@ -370,3 +370,25 @@
   copy_paste_command: "gh repo view --json visibility,nameWithOwner,sshUrl"
   phase_seen: "6"
   expansion_note: "Phase 6 SHIP-01 verify step fallback"
+
+# === Phase 7 — ai-service playbook (07-02) ===
+
+- id: uv-not-installed
+  match_pattern: "uv: command not found"
+  category: preflight
+  title: "uv (Python package manager) isn't installed yet"
+  what_broke: "OSBuilder needs the 'uv' command to scaffold Python projects (FastAPI / CLI playbooks)."
+  what_to_do: "Run preflight to auto-install uv, or install it manually."
+  copy_paste_command: "python3 scripts/preflight_check.py install"
+  phase_seen: "preflight, 7"
+  expansion_note: "Phase 7 ai-service + cli playbooks"
+
+- id: fastapi-cli-missing
+  match_pattern: "Error: No module named 'fastapi.cli'"
+  category: scaffold
+  title: "fastapi dev command isn't available"
+  what_broke: "The fastapi CLI runner needs the 'standard' extra: fastapi[standard]."
+  what_to_do: "Re-add fastapi with the standard extra in your project's pyproject.toml."
+  copy_paste_command: "uv add 'fastapi[standard]'"
+  phase_seen: "7"
+  expansion_note: "Phase 7 ai-service playbook (Pitfall 2)"
