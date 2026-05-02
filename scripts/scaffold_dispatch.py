@@ -72,6 +72,9 @@ volumes:
 # Phase 6 — assets directory for Dockerfile + CI workflow templates (SCL-03, SCL-04)
 ASSETS = Path(__file__).resolve().parent.parent / "assets"
 
+# Phase 7 — ai-service playbook (07-02) vendored starter location
+_FASTAPI_STARTER = ASSETS / "fastapi-starter"
+
 
 def _pick_database(playbook: str, app_type: str) -> str:
     """SCL-02: deterministic Postgres-vs-SQLite choice.
@@ -164,6 +167,31 @@ def ensure_pnpm() -> None:
         return
     subprocess.run(
         ["npm", "install", "-g", f"pnpm@{_PNPM_VERSION}"],
+        shell=False, check=True,
+    )
+
+
+# === Phase 7 — ai-service playbook (07-02) ===
+
+def ensure_uv() -> None:
+    """Install uv via official installer if absent (D-20 fallback safety net).
+
+    Preflight is the primary install path; this is a per-scaffold guard for
+    environments where the user skipped preflight. Mirrors ensure_pnpm shape.
+    """
+    if shutil.which("uv") is not None:
+        return
+    # Use the curl-pipe-sh installer on Unix; on Windows, raise a SystemExit
+    # pointing at preflight (winget needs admin/UAC and is not safe from a
+    # scaffold call). T-07-02-06 mitigation.
+    if os.name == "nt":
+        sys.stderr.write(
+            "OSBuilder: uv is not installed. Run preflight first:\n"
+            "  python3 scripts/preflight_check.py install\n"
+        )
+        raise SystemExit(1)
+    subprocess.run(
+        ["sh", "-c", "curl -LsSf https://astral.sh/uv/install.sh | sh"],
         shell=False, check=True,
     )
 
@@ -274,9 +302,80 @@ def scaffold_web(project_name: str, project_root: Path) -> Path:
     return project_dir
 
 
+def scaffold_ai_service(project_name: str, project_root: Path) -> Path:
+    """SCAF-02: scaffold a FastAPI + uv + Pydantic v2 ai-service project.
+
+    4-step shape (mirrors scaffold_web verbatim per RESEARCH.md §Pattern 1):
+      1. _validate_project_name (security gate — T-07-02-01)
+      2. ensure_uv             (D-20 fallback if preflight skipped)
+      3. subprocess.run uv init --app, then uv add 'fastapi[standard]'
+      4. atomic_write of starter main.py + Dockerfile + CI workflow
+    """
+    _validate_project_name(project_name)
+    ensure_uv()
+
+    cmd = ["uv", "init", "--app", project_name]
+    try:
+        subprocess.run(
+            cmd, cwd=str(project_root), check=True,
+            capture_output=True, text=True, shell=False,
+        )
+    except (FileNotFoundError, OSError) as e:
+        _raw = f"uv: command not found: {e}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={"tool": "uv"})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do}\n"
+            )
+            if _msg.copy_paste:
+                sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        else:
+            sys.stderr.write(f"OSBuilder: scaffold failed — uv not found: {e}\n")
+        raise SystemExit(1)
+    except subprocess.CalledProcessError as e:
+        _raw = (e.stderr or "").strip() or f"exit {e.returncode}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do}\n"
+            )
+            if _msg.copy_paste:
+                sys.stderr.write(f"\n  {_msg.copy_paste}\n")
+        else:
+            sys.stderr.write(f"OSBuilder: uv init exited {e.returncode}\n{e.stderr}\n")
+        raise SystemExit(1)
+
+    project_dir = project_root / project_name
+    # Post-scaffold: copy vendored starter main.py
+    atomic_write(
+        project_dir / "main.py",
+        (_FASTAPI_STARTER / "main.py").read_text(encoding="utf-8"),
+    )
+    # Add fastapi[standard] — single-string element preserves the brackets
+    # as one argv token (Pitfall 2 — quoting is meaningless when shell=False).
+    subprocess.run(
+        ["uv", "add", "fastapi[standard]"],
+        cwd=str(project_dir), shell=False, check=False,
+    )
+    # Phase 6 — stamp Dockerfile + CI workflow (SCL-03, SCL-04, SHIP-03)
+    _write_dockerfile(project_dir, stack_family="python-uv")
+    _write_ci_workflow(project_dir, stack_family="python")
+    return project_dir
+
+
+# Phase 7 — ai-service playbook dispatch
+_PLAYBOOK_DISPATCH = {
+    "web":        scaffold_web,
+    "ai-service": scaffold_ai_service,
+}
+
+
 def _cmd_scaffold(args: argparse.Namespace) -> int:
     project_root = _resolve_project_root(args.project_root)
-    project_dir = scaffold_web(args.project_name, project_root)
+    scaffold_fn = _PLAYBOOK_DISPATCH.get(args.playbook, scaffold_web)
+    project_dir = scaffold_fn(args.project_name, project_root)
 
     state_md = project_root / ".planning" / "osbuilder" / "state.md"
     if state_md.exists():

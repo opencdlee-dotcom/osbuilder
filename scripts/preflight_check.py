@@ -288,6 +288,39 @@ _WINGET_INSTALL = {
     "gh":      ("winget", "GitHub.cli",         ["winget", "install", "-e", "--id", "GitHub.cli", "--accept-source-agreements", "--accept-package-agreements"]),
     "docker":  ("winget", "Docker.DockerDesktop", ["winget", "install", "-e", "--id", "Docker.DockerDesktop", "--accept-source-agreements", "--accept-package-agreements"]),
 }
+# === Phase 7 — per-playbook tool requirements (lazy install, D-20) ===
+# uv is NOT in REQUIRED_TOOLS — it is only triggered when a Python-stack
+# playbook is selected. _PLAYBOOK_TOOLS is the lookup the orchestrator uses
+# to extend the install plan dynamically.
+_PLAYBOOK_TOOLS = {
+    "ai-service":   ("uv",),
+    "cli":          ("uv",),
+    "desktop":      ("uv", "cargo"),  # cargo added in 07-04
+    "hub-platform": (),
+}
+
+# Phase 7 — ai-service install matrix entries (D-20, D-21).
+# winget ID is "astral-sh.uv" (lowercase, hyphenated namespace) — RESEARCH.md
+# corrects the D-21 typo (an old PascalCase spelling); tests assert the
+# exact lowercase form below.
+_MACOS_INSTALL["uv"] = (
+    "curl", "uv (Astral installer)",
+    ["sh", "-c", "curl -LsSf https://astral.sh/uv/install.sh | sh"],
+)
+_APT_INSTALL["uv"] = (
+    "curl", "uv (Astral installer)",
+    ["sh", "-c", "curl -LsSf https://astral.sh/uv/install.sh | sh"],
+)
+_DNF_INSTALL["uv"] = (
+    "curl", "uv (Astral installer)",
+    ["sh", "-c", "curl -LsSf https://astral.sh/uv/install.sh | sh"],
+)
+_WINGET_INSTALL["uv"] = (
+    "winget", "astral-sh.uv",
+    ["winget", "install", "-e", "--id", "astral-sh.uv",
+     "--accept-source-agreements", "--accept-package-agreements"],
+)
+
 _UNINSTALL_FORM = {
     "brew":    lambda pkg: ["brew", "uninstall", pkg],
     "brew --cask": lambda pkg: ["brew", "uninstall", "--cask", pkg],

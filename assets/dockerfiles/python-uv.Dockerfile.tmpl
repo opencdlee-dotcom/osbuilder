@@ -1,27 +1,22 @@
-# OSBuilder default — Python + uv multi-stage Dockerfile (SCL-03)
-# Source: docs.docker.com/build/building/multi-stage + docs.astral.sh/uv (verified 2026-05-01)
+# OSBuilder Python+uv Dockerfile (SCL-03; Phase 7 ai-service playbook)
+# Source: https://docs.astral.sh/uv/guides/integration/docker/ (verified 2026-05-01)
+# Source: https://docs.docker.com/build/building/multi-stage/ (verified 2026-05-01)
 #
-# IN-10 / TODO(phase-7): the CMD below assumes a top-level `app` package
-# (i.e. `python -m app` resolves). v1 only wires the node-pnpm path so this
-# template is dormant — but when Phase 7 adds the cli / ai-service playbooks,
-# CMD must be parameterised per playbook (e.g. `python -m mycli` for cli,
-# `uv run fastapi dev app.main:app` for ai-service). Until then, hand-edit
-# this file in any project that uses it.
+# This template currently targets the ai-service playbook (FastAPI runner).
+# When Phase 7 adds the cli playbook (07-03), CMD must be parameterised per
+# playbook (e.g. `python -m mycli` for cli, `fastapi run main.py` for ai-service).
+# For now: scaffold_ai_service stamps this verbatim; cli playbook will fork
+# its own template (assets/dockerfiles/python-uv-cli.Dockerfile.tmpl) per IN-10.
 
-# ---- builder ----
-FROM python:3.13-slim AS builder
+FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS builder
 WORKDIR /app
-RUN pip install --no-cache-dir uv
-COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-dev
-COPY . .
+COPY pyproject.toml uv.lock* ./
+RUN uv sync --frozen --no-install-project --no-dev
 
-# ---- runtime ----
-FROM python:3.13-slim AS runtime
+FROM python:3.13-slim-bookworm
 WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
-COPY --from=builder /app /app
-ENV PATH="/app/.venv/bin:${PATH}"
+COPY . /app
+ENV PATH="/app/.venv/bin:$PATH"
 EXPOSE 8000
-# IN-10: parameterise this CMD per playbook in Phase 7 (cli vs ai-service).
-CMD ["python", "-m", "app"]
+CMD ["fastapi", "run", "main.py", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,8 @@
+# Snippet appended by scaffold_ai_service after `uv init --app` runs.
+# The full pyproject.toml is written by uv; this just documents the deps OSBuilder adds.
+# (Reference only — scaffold_ai_service runs `uv add 'fastapi[standard]'` rather
+#  than splicing this snippet into the generated pyproject.toml.)
+[project]
+dependencies = [
+    "fastapi[standard]>=0.136.1",
+]
