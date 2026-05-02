@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-02 (ai-service playbook + uv preflight)
-last_updated: "2026-05-02T08:25:23.609Z"
+stopped_at: Completed 07-03 (cli playbook + scaffold_cli + Pitfall 5 contracts)
+last_updated: "2026-05-02T08:32:51.606Z"
 progress:
   total_phases: 8
   completed_phases: 6
   total_plans: 37
-  completed_plans: 33
-  percent: 89
+  completed_plans: 34
+  percent: 92
 ---
 
 # Project State: OSBuilder
@@ -26,14 +26,14 @@ progress:
 ## Current Position
 
 Phase: 07 (additional-playbooks) — EXECUTING
-Plan: 2 of 6 — COMPLETE (07-01)
+Plan: 3 of 6 — COMPLETE (07-01)
 Plans complete: 1/6 in Phase 7 (32/37 overall)
 
 - **Milestone:** v1 (initial open-source publish-ready release)
 - **Phase:** 6
 - **Plans:** 04-01 (Wave 0 RED stubs), 04-02 (gsd_driver state machine), 04-03 (failure_classifier), 04-04 (registry_verify), 04-05 (qa.md), 04-06 (HEAL-05 gap closure — registry gate wired into step 2) — all complete
 - **Status:** Ready to execute
-- **Progress:** [█████████░] 89%
+- **Progress:** [█████████░] 92%
 
 ## Performance Metrics
 
@@ -80,6 +80,7 @@ Plans complete: 1/6 in Phase 7 (32/37 overall)
 | Phase 06-ship-to-private-github-scalable-defaults P06-06 | 15 | 2 tasks | 2 files |
 | Phase 07 P01 | 8min | 2 tasks | 5 files |
 | Phase 07 P02 | 12min | 2 tasks | 9 files |
+| Phase Phase 07 PP03 | 4min | 2 tasks tasks | 5 files files |
 
 ## Accumulated Context
 
@@ -103,6 +104,10 @@ Plans complete: 1/6 in Phase 7 (32/37 overall)
 - **Per-playbook scaffold shape (added 07-02):** Every `scaffold_<playbook>` mirrors `scaffold_web`'s 4-step shape verbatim: validate name → ensure_<tool> → subprocess.run scaffold cmd → atomic_write of vendored starter + Dockerfile + CI workflow. `_PLAYBOOK_DISPATCH` dict in `scaffold_dispatch.py` is the multi-playbook routing surface; `_PLAYBOOK_TOOLS` dict in `preflight_check.py` is the lazy install lookup (per-playbook tools NOT in REQUIRED_TOOLS).
 - **D-21 typo correction (added 07-02):** winget package ID for uv is `astral-sh.uv` (lowercase, hyphenated namespace) — RESEARCH.md flagged `Astral.UV` as a typo. Tests assert exact lowercase form AND the absence of the typo string in the joined argv (catches regressions if a future change pastes the wrong ID).
 - **Bracket-token argv preservation (added 07-02):** Tokens like `fastapi[standard]` MUST travel as a SINGLE argv element when `shell=False`. Source-level quoting is meaningless — what matters is whether brackets stay in one string token (correct) vs split across multiple (broken). Pattern applies to any extras-bearing pip/uv/gem invocation.
+- **D-13/D-14 implementation (added 07-03):** `scaffold_cli` uses `uv add typer` (NO `[all]` extras); rich is hard-deped from typer 0.25.1+ (Pitfall 5). Tests assert the literal `typer[all]` is absent both from `pyproject.snippet.toml` AND from every subprocess argv emitted by `scaffold_cli` — catches regressions if a future change re-introduces the legacy bundled-extras spelling.
+- **Module-name sanitization rule (added 07-03):** `_sanitize_module_name` is a pure `str.replace("-", "_")`. The user-facing script name keeps hyphens (`uv run my-cli` works); the Python module dir uses underscores (`my_cli/__main__.py` is a valid identifier). The `_validate_project_name` regex restricts the input alphabet to `[a-zA-Z0-9_-]`, so sanitization output is always safe — collisions like `my--cli` → `my__cli` produce a still-valid identifier.
+- **CLI playbook ships NO Dockerfile (added 07-03):** Single-user local tool per RESEARCH.md §07-03 refuse list. `scaffold_cli` only stamps the python CI workflow (no `_write_dockerfile` call). Departure from `scaffold_web`/`scaffold_ai_service` which both stamp Dockerfiles. Future playbooks should follow the refuse-list signal: if Docker isn't a fit for the deployment target, skip the Dockerfile call rather than stamping a placeholder.
+- **Comment-string negative-assertion trap (reaffirmed 07-03; first seen 07-02 with `Astral.UV`):** When a test asserts `literal_X` is absent from a file, comments inside that file MUST NOT embed `literal_X` to discourage its use — the assertion trips on the comment. Use rephrasing ("legacy bundled-extras spelling" instead of "typer[all]") to convey intent without embedding the trigger string. Pattern applies to any "do NOT use X" comment near a test that scans for X.
 
 ### Active Todos
 
@@ -136,9 +141,9 @@ To be confirmed in Phase 1:
 
 ## Session Continuity
 
-**Last session:** 2026-05-02T08:25:23.598Z
+**Last session:** 2026-05-02T08:32:48.279Z
 
-**Stopped At:** Completed 07-02 (ai-service playbook + uv preflight)
+**Stopped At:** Completed 07-03 (cli playbook + scaffold_cli + Pitfall 5 contracts)
 
 **Where to resume:**
 
@@ -165,3 +170,4 @@ To be confirmed in Phase 1:
 **Plan 01-01 completed:** 2026-04-30T04:24:21Z — commits bedee58 (pyproject+gitattributes), e3758de (test stubs)
 **Plan 04-06 completed:** 2026-04-30T21:31:11Z — commits 7b525e1 (test RED), 298b27c (feat GREEN); HEAL-05 fully satisfied; SC5 ready for re-verification
 **Plan 07-01 completed:** 2026-05-02T08:13:01Z — commits 2722929 (test RED 9 stubs), 1c8de86 (feat GREEN: PLAYBOOK_KEYWORDS + infer_app_type + _score_playbooks + _is_low_confidence; parse_paragraph wired; Electron migrated to refuse-list.md; question-bank gains "## Q: What kind of thing"); 9/9 inference tests green, 157/157 total. Wave 2 (07-02..07-05) unblocked. Decisions D-01, D-02, D-03, D-22 implemented. Requirements SCAF-02..SCAF-05 marked complete.
+**Plan 07-03 completed:** 2026-05-02T08:30:53Z — commits 1728b16 (test RED 5 stubs), 9b5d6a5 (feat GREEN: scaffold_cli + _sanitize_module_name + _PLAYBOOK_DISPATCH "cli" entry; assets/cli-starter/{__main__.py.tmpl, pyproject.snippet.toml}; references/playbooks/cli.md 56 lines; stack-menu.md cli playbook defaults). 5/5 plan tests green, 171/171 total (was 166; +5). D-13/D-14 implemented. Pitfall 5 contracts verified via pyproject snippet check + subprocess argv assertion. Requirement SCAF-03 marked complete.
