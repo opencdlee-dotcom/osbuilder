@@ -390,6 +390,15 @@ def _run_tech_writer_step(project_root: Path, state: dict) -> int:
         # Invoke humanizer once (v1 — no retry).
         _emit("tech-writer", "check-humanizer", "start")
         print("/humanizer @README.md")
+        # IN-02: surface the optimistic-write caveat to any reader who inspects
+        # state.md between this write and humanizer's actual score write.
+        _emit(
+            "tech-writer", "check-humanizer", "ok",
+            detail=(
+                "humanizer_score=0 written optimistically; humanizer's own score "
+                "(if any) overrides on the next state read. Plan 05-05 deviation."
+            ),
+        )
         # Optimistic default: humanizer_score=0 (pass). If humanizer writes its
         # own score via state_writer this is overwritten on the next read. The
         # sub_step resets so the phase-advance runs on the next call.
