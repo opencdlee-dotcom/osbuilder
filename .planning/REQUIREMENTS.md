@@ -60,10 +60,14 @@ Requirements for initial release. Each maps to exactly one roadmap phase (see Tr
 
 - [x] **SCAF-01
 **: OSBuilder maintains `references/playbooks/web.md` covering create-next-app + Drizzle + Postgres-via-compose + Tailwind 4 + pnpm
-- [ ] **SCAF-02**: OSBuilder maintains `references/playbooks/ai-service.md` covering FastAPI + uv + Pydantic v2 (with OSBuilder-supplied template `assets/fastapi-starter/` since no `create-fastapi-app` exists)
-- [ ] **SCAF-03**: OSBuilder maintains `references/playbooks/cli.md` covering Python + Typer + Rich + SQLite for single-user CLIs
-- [ ] **SCAF-04**: OSBuilder maintains `references/playbooks/desktop.md` covering Tauri 2 (refuses Electron in v1)
-- [ ] **SCAF-05**: OSBuilder maintains `references/playbooks/hub-platform.md` for Professor-Hub-style umbrella workspaces (top-level CLAUDE.md routing table + sub-tool subdirectories)
+- [x] **SCAF-02
+**: OSBuilder maintains `references/playbooks/ai-service.md` covering FastAPI + uv + Pydantic v2 (with OSBuilder-supplied template `assets/fastapi-starter/` since no `create-fastapi-app` exists)
+- [x] **SCAF-03
+**: OSBuilder maintains `references/playbooks/cli.md` covering Python + Typer + Rich + SQLite for single-user CLIs
+- [x] **SCAF-04
+**: OSBuilder maintains `references/playbooks/desktop.md` covering Tauri 2 (refuses Electron in v1)
+- [x] **SCAF-05
+**: OSBuilder maintains `references/playbooks/hub-platform.md` for Professor-Hub-style umbrella workspaces (top-level CLAUDE.md routing table + sub-tool subdirectories)
 - [x] **SCAF-06
 **: `scripts/scaffold_dispatch.py` invokes the right deterministic scaffolder for the chosen playbook — OSBuilder never hand-writes `package.json`, `tsconfig.json`, `pyproject.toml`, etc., when a scaffolder exists
 
