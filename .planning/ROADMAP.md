@@ -147,7 +147,7 @@ Plans:
   3. A user describing "I want a desktop app that runs locally with a tray icon" results in the desktop playbook producing a Tauri 2 project (Vite + React + Rust backend) where `pnpm tauri dev` opens a native window — and OSBuilder explicitly refuses Electron with a documented rationale if the user requests it.
   4. A user describing "build me a hub like Professor Hub for X" results in the hub-platform playbook producing a top-level CLAUDE.md routing table + sub-tool subdirectories that match the structural pattern of `../professor/` (verified by direct comparison: same top-level files, same nesting depth, same routing-table format).
   5. Every playbook in this phase passes the same end-to-end clone-and-run verification used in Phase 6 (a stranger clones, runs the documented command, reaches a working app in ≤ 5 minutes).
-**Plans:** 6 plans
+**Plans:** 6/6 plans complete
 Plans:
 - [x] 07-01-PLAN.md — Intake routing + 5-way `app_type` inference (`infer_app_type` keyword-bag) + Electron refusal migration to global refuse-list.md (D-01..D-03, D-22; SCAF-02..05 routing prerequisite)
 - [x] 07-02-PLAN.md — AI-service playbook: `references/playbooks/ai-service.md` + `assets/fastapi-starter/` (Pydantic v2) + `scaffold_ai_service` + uv preflight extension + Dockerfile template (SCAF-02; D-10..D-12, D-20-21)
