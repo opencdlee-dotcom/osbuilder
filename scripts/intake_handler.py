@@ -101,13 +101,14 @@ def _load_refusal_copy(matched_keyword: str) -> str:
         )
     text = REFUSE_LIST_MD.read_text(encoding="utf-8")
     # Extract the section under "## Refusal copy" until next H2.
-    # Use "\n## Refusal copy" (newline-prefixed) so inline backtick references in
-    # blockquotes (e.g., `## Refusal copy`) are not mistaken for the actual H2 header.
-    marker = "\n## Refusal copy"
-    idx = text.find(marker)
-    if idx < 0:
+    # WR-09: match either start-of-file or a preceding newline so the H2 is found
+    # even if it appears as the very first line. Inline backtick references in
+    # blockquotes (e.g., `## Refusal copy`) are still excluded because they are
+    # not at column 0.
+    match = re.search(r"(?:^|\n)## Refusal copy", text)
+    if match is None:
         return text  # whole file is fallback
-    after = text[idx + len(marker):]
+    after = text[match.end():]
     next_h2 = after.find("\n## ")
     body = after if next_h2 < 0 else after[:next_h2]
     # Substitute the matched keyword if the copy uses {{keyword}}
