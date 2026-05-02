@@ -87,6 +87,12 @@ def _derive_commands(state: dict) -> dict[str, str]:
 
     Defaults to Next.js + pnpm for the web playbook (Phase 3 only ships web).
     Phase 7 may extend with cli / ai-service / desktop / hub-platform.
+
+    WR-13: refuse to write a runbook for an unknown playbook rather than
+    falling back to "see README" placeholders. The previous fallback produced
+    a Quick Start that runs without errors but does nothing useful, and the
+    "{{" canary did not catch it. Raising SystemExit here surfaces the
+    misconfiguration before README.md is written.
     """
     playbook = (state.get("playbook") or "web").lower()
     if playbook == "web":
@@ -110,13 +116,11 @@ def _derive_commands(state: dict) -> dict[str, str]:
             "test_command": "uv run pytest",
             "stack_summary": "FastAPI + uv + Pydantic v2",
         }
-    # Generic fallback
-    return {
-        "install_command": "see README",
-        "run_command": "see README",
-        "test_command": "see README",
-        "stack_summary": "see README",
-    }
+    raise SystemExit(
+        f"OSBuilder: runbook_writer does not know playbook={playbook!r}. "
+        "Add a branch to _derive_commands or set state.playbook to a known "
+        "value (web, cli, ai-service)."
+    )
 
 
 # ---------- public API ----------
