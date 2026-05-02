@@ -539,19 +539,89 @@ def scaffold_desktop(project_name: str, project_root: Path) -> Path:
     return project_dir
 
 
-# Phase 7 — multi-playbook dispatch (extended in 07-03, then 07-04)
+# === Phase 7 — hub-platform playbook (07-05) ===
+_HUB_TEMPLATE = ASSETS / "hub-template"
+
+
+def scaffold_hub(project_name: str, project_root: Path, *, subtools: "list[str]") -> Path:
+    """SCAF-05: scaffold a hub-platform workspace (D-04..D-06; Pattern 4 — pure file-stamping).
+
+    Differs from scaffold_web/_ai_service/_cli/_desktop:
+    - NO subprocess (no external scaffolder exists for hub workspaces)
+    - NO Dockerfile (hub is a workspace, not an app)
+    - NO CI workflow (hub is a workspace, not an app)
+    - NO _pick_database (hub doesn't ship a DB)
+    - YES validates every subtool name (subtools go on disk too — T-07-05-01)
+    """
+    _validate_project_name(project_name)
+    if not subtools:
+        sys.stderr.write(
+            "OSBuilder: hub-platform scaffold requires at least one sub-tool name.\n"
+            "Re-run intake or pass --subtool flags.\n"
+        )
+        raise SystemExit(1)
+    for sub in subtools:
+        _validate_project_name(sub)
+
+    project_dir = project_root / project_name
+    # mkdir(exist_ok=False) makes second-call behavior explicit (RESEARCH.md line 535).
+    project_dir.mkdir(parents=True, exist_ok=False)
+
+    # Top-level CLAUDE.md — substitute {{routing_table}} with N rows.
+    template = (_HUB_TEMPLATE / "CLAUDE.md.tmpl").read_text(encoding="utf-8")
+    rows = "\n".join(
+        f"| `{s}/` | TODO — describe {s} | n/a |" for s in subtools
+    )
+    rendered = template.replace("{{routing_table}}", rows).replace(
+        "{{project_name}}", project_name
+    )
+    atomic_write(project_dir / "CLAUDE.md", rendered)
+
+    # Per-subtool placeholder dirs + CLAUDE.md.
+    sub_template = (_HUB_TEMPLATE / "subtool-CLAUDE.md.tmpl").read_text(encoding="utf-8")
+    for s in subtools:
+        atomic_write(
+            project_dir / s / "CLAUDE.md",
+            sub_template.replace("{{subtool}}", s),
+        )
+    return project_dir
+
+
+# Phase 7 — multi-playbook dispatch (extended in 07-03, then 07-04, then 07-05)
 _PLAYBOOK_DISPATCH = {
-    "web":        scaffold_web,
-    "ai-service": scaffold_ai_service,
-    "cli":        scaffold_cli,
-    "desktop":    scaffold_desktop,
+    "web":          scaffold_web,
+    "ai-service":   scaffold_ai_service,
+    "cli":          scaffold_cli,
+    "desktop":      scaffold_desktop,
+    "hub-platform": scaffold_hub,
 }
 
 
 def _cmd_scaffold(args: argparse.Namespace) -> int:
     project_root = _resolve_project_root(args.project_root)
     scaffold_fn = _PLAYBOOK_DISPATCH.get(args.playbook, scaffold_web)
-    project_dir = scaffold_fn(args.project_name, project_root)
+    # Phase 7 (07-05): hub-platform takes a subtools kwarg; other playbooks
+    # use the standard (project_name, project_root) signature.
+    if args.playbook == "hub-platform":
+        subtools = list(getattr(args, "subtool", None) or [])
+        if not subtools:
+            # Fallback: read subtools from state.md (comma-separated string).
+            state_md = project_root / ".planning" / "osbuilder" / "state.md"
+            if state_md.exists():
+                try:
+                    r = subprocess.run(
+                        [sys.executable, str(STATE_WRITER), "read",
+                         "--field", "subtools", "--project-root", str(project_root)],
+                        capture_output=True, text=True, shell=False, check=False,
+                    )
+                    raw = (r.stdout or "").strip()
+                    if raw:
+                        subtools = [s.strip() for s in raw.split(",") if s.strip()]
+                except (OSError, subprocess.CalledProcessError):
+                    pass
+        project_dir = scaffold_fn(args.project_name, project_root, subtools=subtools)
+    else:
+        project_dir = scaffold_fn(args.project_name, project_root)
 
     state_md = project_root / ".planning" / "osbuilder" / "state.md"
     if state_md.exists():
@@ -590,6 +660,13 @@ def main(argv: list[str] | None = None) -> int:
     p_scaffold.add_argument("--project-name", required=True, dest="project_name")
     p_scaffold.add_argument("--project-root", default=None, dest="project_root")
     p_scaffold.add_argument("--playbook", default="web")
+    # Phase 7 (07-05): hub-platform sub-tool list. Multi-value (nargs="+") for
+    # non-interactive driver invocations. When omitted, _cmd_scaffold falls back
+    # to reading the comma-separated `subtools` field from state.md.
+    p_scaffold.add_argument(
+        "--subtool", action="append", default=[],
+        help="(hub-platform only) sub-tool name; pass multiple times for multiple subtools",
+    )
     p_scaffold.set_defaults(func=_cmd_scaffold)
 
     args = parser.parse_args(argv)

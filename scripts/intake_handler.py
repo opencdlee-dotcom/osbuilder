@@ -149,6 +149,55 @@ def _is_low_confidence(scores: "dict[str, float]") -> bool:
     return False
 
 
+# Phase 7 (07-05) — hub-platform sub-tool extraction (D-06).
+# Pattern: "build me a hub for X, Y, and Z" or "hub like ... for X and Y".
+# Strategy: capture everything after "for " up to end-of-string OR a clausal
+# break (period, semicolon, " that ", " with the ", " so that "). Single
+# " and " is NOT a clausal break — it's the most common subtool separator
+# (X and Y), so the splitter handles it AFTER capture.
+# T-07-05-04: bounded quantifier + per-result 40-char cap + regex sanitization
+# means worst-case input still terminates and can never produce a path-traversing
+# subtool name.
+_SUBTOOL_PATTERN = re.compile(
+    r"\bfor\s+(.+?)(?:[.;]|\s+that\s+(?:does|can|will)|\s+with\s+the\s+|\s+so\s+that\s+|$)",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def _extract_subtools(text: str) -> "list[str]":
+    """Parse 'hub for X and Y and Z' → ['X', 'Y', 'Z'] (D-06).
+
+    Returns [] if no clear list parseable; caller should ask the question-bank
+    fallback per RESEARCH.md Open Q5.
+
+    Each result is regex-sanitized to `[a-zA-Z0-9_-]` (T-07-05-01 defense in
+    depth — `_validate_project_name` is the security gate, this just prevents
+    obviously-bad input from reaching it).
+    """
+    m = _SUBTOOL_PATTERN.search(text)
+    if not m:
+        return []
+    raw = m.group(1)
+    # Split on " and " (with word boundaries) or commas. Comma takes precedence
+    # so "a, b, and c" → ["a", "b", "and c"] → drop the leading "and " in cleanup.
+    parts = re.split(r",|\s+and\s+", raw, flags=re.IGNORECASE)
+    result: "list[str]" = []
+    for p in parts:
+        cleaned = p.strip().rstrip(".").strip()
+        # Drop a leading "and " left over from "a, b, and c" pattern
+        cleaned = re.sub(r"^and\s+", "", cleaned, flags=re.IGNORECASE).strip()
+        if not cleaned or len(cleaned) > 40:  # sanity cap (T-07-05-04)
+            continue
+        # Sanitize for use as directory names — collapse anything outside
+        # [a-zA-Z0-9_-] to a single hyphen, then strip leading/trailing
+        # hyphens. The output is guaranteed to satisfy
+        # _validate_project_name's regex (or be empty, in which case we drop it).
+        sanitized = re.sub(r"[^a-zA-Z0-9_-]+", "-", cleaned).strip("-")
+        if sanitized:
+            result.append(sanitized)
+    return result
+
+
 def _derived_spec_path(project_root: Path) -> Path:
     return project_root / ".planning" / "osbuilder" / "derived_spec.md"
 
