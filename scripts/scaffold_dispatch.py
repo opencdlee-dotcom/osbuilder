@@ -358,10 +358,24 @@ def scaffold_ai_service(project_name: str, project_root: Path) -> Path:
     )
     # Add fastapi[standard] — single-string element preserves the brackets
     # as one argv token (Pitfall 2 — quoting is meaningless when shell=False).
-    subprocess.run(
+    result = subprocess.run(
         ["uv", "add", "fastapi[standard]"],
         cwd=str(project_dir), shell=False, check=False,
+        capture_output=True, text=True,
     )
+    if result.returncode != 0:
+        _raw = (result.stderr or "").strip() or f"uv add fastapi[standard] exit {result.returncode}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={"tool": "uv"})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do} Run manually in {project_dir}\n"
+            )
+        else:
+            sys.stderr.write(
+                f"OSBuilder: warning — uv add fastapi[standard] failed "
+                f"(exit {result.returncode}). Run manually in {project_dir}\n"
+            )
     # Phase 6 — stamp Dockerfile + CI workflow (SCL-03, SCL-04, SHIP-03)
     _write_dockerfile(project_dir, stack_family="python-uv")
     _write_ci_workflow(project_dir, stack_family="python")
@@ -435,10 +449,24 @@ def scaffold_cli(project_name: str, project_root: Path) -> Path:
     rendered_main = tmpl.replace("{{project_name}}", project_name)
     atomic_write(project_dir / module_name / "__main__.py", rendered_main)
     # Add typer dep — rich is transitive (Pitfall 5: NO `typer[all]`).
-    subprocess.run(
+    result = subprocess.run(
         ["uv", "add", "typer"],
         cwd=str(project_dir), shell=False, check=False,
+        capture_output=True, text=True,
     )
+    if result.returncode != 0:
+        _raw = (result.stderr or "").strip() or f"uv add typer exit {result.returncode}"
+        if _fe is not None:
+            _msg = _fe.translate(_raw, ctx={"tool": "uv"})
+            sys.stderr.write(
+                f"## {_msg.title}\n{_msg.what_broke}\n\n"
+                f"**What to do:** {_msg.what_to_do} Run manually in {project_dir}\n"
+            )
+        else:
+            sys.stderr.write(
+                f"OSBuilder: warning — uv add typer failed "
+                f"(exit {result.returncode}). Run manually in {project_dir}\n"
+            )
     # CLI ships no Dockerfile (single-user local tool per RESEARCH.md §07-03).
     _write_ci_workflow(project_dir, stack_family="python")
     return project_dir
