@@ -98,6 +98,11 @@ def test_gitleaks_blocks_real_secret(fake_built_app):
         f"pre-commit install failed: {install_result.stderr}"
 
     # Create a file with a fake secret (not allowlisted)
+    # IN-13: this is a SYNTHETIC Stripe-shaped test value (not a real secret).
+    # If OSBuilder ever dogfoods its own gitleaks hook (assets/gitleaks/.gitleaks.toml),
+    # add `scripts/tests/.*\.py$` to its allowlist so this fixture does not block
+    # commits to the OSBuilder repo. Currently OSBuilder has no top-level gitleaks
+    # config — the hook only ships into scaffolded projects.
     secret_file = fake_built_app / "secrets.txt"
     secret_file.write_text("STRIPE_KEY=sk_test_abcdefghijklmnop1234567890\n", encoding="utf-8")
 
