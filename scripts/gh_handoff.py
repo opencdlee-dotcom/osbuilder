@@ -214,12 +214,15 @@ def ship(project_dir: Path, project_root: Path, *, private: bool = True,
     )
     if remote.returncode != 0:  # no origin → create
         visibility_flag = "--private" if private else "--public"
+        # WR-07: pin cwd for defensive symmetry with surrounding git invocations,
+        # so the call is robust if `gh repo create --source` semantics change.
         create = subprocess.run(
             ["gh", "repo", "create",
              f"--source={project_dir}",
              "--remote=origin",
              "--push",
              visibility_flag],
+            cwd=str(project_dir),
             shell=False, capture_output=True, text=True,
         )
         if create.returncode != 0:
