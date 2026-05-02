@@ -230,6 +230,25 @@ def ship(project_dir: Path, project_root: Path, *, private: bool = True,
             _friendly(raw, tool="gh")
             return 1
 
+    # 4b. IN-01: detect post-`--push` divergence. `gh repo create --push` may create
+    # the remote but fail to push (network drop, hook reject) and still exit 0 in
+    # some edge cases. Run `git log origin/main..HEAD` after — non-empty output
+    # means local has commits that did not reach the remote.
+    diverge = subprocess.run(
+        ["git", "log", "origin/main..HEAD", "--oneline"],
+        cwd=str(project_dir),
+        shell=False, capture_output=True, text=True,
+    )
+    # returncode 0 with non-empty stdout → local ahead of remote (push divergence).
+    # returncode != 0 → origin/main ref absent (e.g. fresh repo before push); skip.
+    if diverge.returncode == 0 and diverge.stdout.strip():
+        _friendly(
+            "local main has commits not present on origin/main — "
+            f"push may have partially failed:\n{diverge.stdout.strip()}",
+            tool="git",
+        )
+        return 1
+
     # 5. Verify visibility
     view = subprocess.run(
         ["gh", "repo", "view", "--json", "visibility,nameWithOwner,sshUrl"],
