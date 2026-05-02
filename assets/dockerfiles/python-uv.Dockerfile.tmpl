@@ -1,5 +1,12 @@
 # OSBuilder default — Python + uv multi-stage Dockerfile (SCL-03)
 # Source: docs.docker.com/build/building/multi-stage + docs.astral.sh/uv (verified 2026-05-01)
+#
+# IN-10 / TODO(phase-7): the CMD below assumes a top-level `app` package
+# (i.e. `python -m app` resolves). v1 only wires the node-pnpm path so this
+# template is dormant — but when Phase 7 adds the cli / ai-service playbooks,
+# CMD must be parameterised per playbook (e.g. `python -m mycli` for cli,
+# `uv run fastapi dev app.main:app` for ai-service). Until then, hand-edit
+# this file in any project that uses it.
 
 # ---- builder ----
 FROM python:3.13-slim AS builder
@@ -16,4 +23,5 @@ COPY --from=builder /app/.venv /app/.venv
 COPY --from=builder /app /app
 ENV PATH="/app/.venv/bin:${PATH}"
 EXPOSE 8000
+# IN-10: parameterise this CMD per playbook in Phase 7 (cli vs ai-service).
 CMD ["python", "-m", "app"]
