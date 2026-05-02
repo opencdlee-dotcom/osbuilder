@@ -151,7 +151,7 @@ Plans:
 Plans:
 - [ ] 07-01-PLAN.md — Intake routing + 5-way `app_type` inference (`infer_app_type` keyword-bag) + Electron refusal migration to global refuse-list.md (D-01..D-03, D-22; SCAF-02..05 routing prerequisite)
 - [ ] 07-02-PLAN.md — AI-service playbook: `references/playbooks/ai-service.md` + `assets/fastapi-starter/` (Pydantic v2) + `scaffold_ai_service` + uv preflight extension + Dockerfile template (SCAF-02; D-10..D-12, D-20-21)
-- [ ] 07-03-PLAN.md — CLI playbook: `references/playbooks/cli.md` + `assets/cli-starter/` (Typer + Rich + SQLite) + `scaffold_cli` + module-name sanitization (SCAF-03; D-13, D-14)
+- [x] 07-03-PLAN.md — CLI playbook: `references/playbooks/cli.md` + `assets/cli-starter/` (Typer + Rich + SQLite) + `scaffold_cli` + module-name sanitization (SCAF-03; D-13, D-14)
 - [ ] 07-04-PLAN.md — Desktop playbook: `references/playbooks/desktop.md` + `scaffold_desktop` + `_build_tauri_identifier` + cargo preflight + `tauri.yml.tmpl` CI workflow (SCAF-04; D-07..D-09, D-20-21)
 - [ ] 07-05-PLAN.md — Hub-platform playbook: `references/playbooks/hub-platform.md` + `assets/hub-template/` + vendored `professor-snapshot/` + `scaffold_hub` (pure file-stamping) + `_extract_subtools` + state_writer.subtools (SCAF-05; D-04..D-06)
 - [ ] 07-06-PLAN.md — Shared E2E harness: parametrized `test_e2e_playbooks.py` (5-step contract × 4 playbooks) + per-playbook timeout dict (Pitfall 8) + `07-HUMAN-UAT.md` (SCAF-02..05; D-17..D-19)
