@@ -164,10 +164,14 @@ def write_readme(project_dir: Path, project_root: Path) -> Path:
     for key, value in subs.items():
         composed = composed.replace(key, value)
 
-    # Sanity: refuse to write a README with leftover placeholders
-    if "{{" in composed:
+    # Sanity: refuse to write a README with leftover OSBuilder placeholders.
+    # WR-03: only check the known-placeholder set so a user goal that legitimately
+    # contains "{{" (e.g. Jinja-like example syntax) does not trip the canary.
+    leftover = [key for key in subs if key in composed]
+    if leftover:
         raise SystemExit(
-            "OSBuilder: readme template has unsubstituted placeholders. "
+            "OSBuilder: readme template has unsubstituted placeholders: "
+            f"{', '.join(sorted(leftover))}. "
             "Update _derive_commands or assets/readme-template.md."
         )
 
