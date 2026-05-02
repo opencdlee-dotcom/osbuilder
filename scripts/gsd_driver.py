@@ -619,7 +619,19 @@ def emit_next_command(project_root: Path) -> int:
              "emit", "--project-root", str(project_root)],
             shell=False, capture_output=True, text=True,
         )
-        # production_phase_writer always exits 0; pass its stdout straight through
+        # IN-14: production_phase_writer.emit() is documented to always exit 0
+        # (see scripts/production_phase_writer.py docstring). Assert the contract
+        # rather than blindly trusting it: if a future change makes pp fail (e.g.
+        # ROADMAP read raises), surface the stderr instead of swallowing it.
+        if pp.returncode != 0:
+            sys.stderr.write(pp.stderr or "")
+            sys.stderr.write(
+                "OSBuilder: production_phase_writer exited non-zero "
+                f"(returncode={pp.returncode}); contract violation. "
+                "Ship pipeline succeeded but post-ship phase emission failed.\n"
+            )
+            sys.stdout.write(pp.stdout)
+            return 1
         sys.stdout.write(pp.stdout)
         return 0
 
