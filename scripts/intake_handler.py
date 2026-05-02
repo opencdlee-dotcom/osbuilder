@@ -176,16 +176,6 @@ def _resolve_project_root(arg: str | None) -> Path:
     return Path(arg).resolve()
 
 
-def _validate_project_name(name: str) -> None:
-    """V5 input + T-3-01: reject path traversal and shell-unsafe chars in project_name."""
-    if not name:
-        raise SystemExit("OSBuilder: project_name cannot be empty.")
-    if ".." in name:
-        raise SystemExit("OSBuilder: project_name cannot contain '..' (path traversal).")
-    if not re.match(r"^[a-zA-Z0-9_-]+$", name):
-        raise SystemExit("OSBuilder: project_name must contain only [a-zA-Z0-9_-] characters.")
-
-
 def _mode_from_state(project_root: Path) -> str:
     """Read mode field from state.md; default 'beginner' on any failure (UX-03)."""
     state_md = project_root / ".planning" / "osbuilder" / "state.md"
