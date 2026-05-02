@@ -238,7 +238,13 @@ def _emit(role: str, action: str, status: str, detail: str | None = None) -> Non
 
 
 def _refresh_narration_state(project_root: Path) -> None:
-    """Refresh narration's mode + tutor_enabled flags from state.md."""
+    """Refresh narration's mode + tutor_enabled flags from state.md.
+
+    IN-07: `_narration._refresh_state` is named with a leading underscore but is
+    documented in narration.py's module docstring as part of the public surface
+    (Phase 5 ROLE-09). Treat it as a stable contract — if narration ever renames
+    or removes it, this caller and `_init_build_log_if_new_build` below break.
+    """
     if _narration is not None:
         try:
             _narration._refresh_state(project_root)
@@ -251,6 +257,9 @@ def _init_build_log_if_new_build(project_root: Path, phase_step: int) -> None:
 
     Resolves Open Question 6: build.log must not grow across builds.
     Called once per emit_next_command invocation; only truncates at step 0.
+
+    IN-07: depends on `_narration._init_build_log` — see `_refresh_narration_state`
+    above for the public-contract note covering both calls.
     """
     if phase_step != 0:
         return
