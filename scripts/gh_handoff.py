@@ -27,8 +27,12 @@ GITLEAKS_REV = "v8.30.1"  # locked decision D-09; pinned via assets/gitleaks/.pr
 # OSBuilder default markers for idempotency (do not change without bumping all stamping helpers)
 _GITIGNORE_MARKER = "# OSBuilder default"
 
-# Token-redaction pattern (T-06-02-03: prevent accidental gh token disclosure in stderr)
-_TOKEN_RE = re.compile(r"gh[ps]_[A-Za-z0-9_]{20,}")
+# Token-redaction pattern (T-06-02-03: prevent accidental gh token disclosure in stderr).
+# Covers classic PATs (ghp_), server-to-server (ghs_), OAuth (gho_), user-to-server (ghu_),
+# refresh tokens (ghr_) and fine-grained PATs (github_pat_*).
+_TOKEN_RE = re.compile(
+    r"(?:gh[opsur]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{22,})"
+)
 
 
 # ---------- helpers (verbatim duplicates per project policy D-05) ----------
