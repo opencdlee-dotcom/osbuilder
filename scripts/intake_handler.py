@@ -160,7 +160,7 @@ def _is_low_confidence(scores: "dict[str, float]") -> bool:
 # subtool name.
 _SUBTOOL_PATTERN = re.compile(
     r"\bfor\s+(.+?)(?:[.;]|\s+that\s+(?:does|can|will)|\s+with\s+the\s+|\s+so\s+that\s+|$)",
-    re.IGNORECASE | re.DOTALL,
+    re.IGNORECASE,
 )
 
 
@@ -174,7 +174,7 @@ def _extract_subtools(text: str) -> "list[str]":
     depth — `_validate_project_name` is the security gate, this just prevents
     obviously-bad input from reaching it).
     """
-    m = _SUBTOOL_PATTERN.search(text)
+    m = _SUBTOOL_PATTERN.search(text[:500])  # bound input (T-07-05-04; mirrors _score_playbooks)
     if not m:
         return []
     raw = m.group(1)
