@@ -45,8 +45,18 @@ When a package releases a new major version:
 | Server | uvicorn | 0.46.0 | ASGI; transitive via fastapi[standard] |
 | Pkg manager | uv | 0.11.8 | Astral all-in-one (init + add + sync + run) |
 
+## cli playbook defaults
+
+| Component | Package | Version | Rationale |
+|-----------|---------|---------|-----------|
+| CLI framework | typer | 0.25.1 | type-hint ergonomics; rich help free; D-13 locked |
+| Terminal styling | rich | 15.0.0 | hard-dep of typer ≥0.25; auto-installed |
+| Persistence | sqlite3 | stdlib | zero-deps; SC-02's "persists state across runs" |
+| Pkg manager | uv | 0.11.8 | Astral all-in-one |
+
 ## See also
 
 - `references/playbooks/web.md` — playbook spec that consumes these defaults
 - `references/playbooks/ai-service.md` — ai-service playbook spec
+- `references/playbooks/cli.md` — cli playbook spec
 - `scripts/stack_researcher.py` — implementation that reads this file

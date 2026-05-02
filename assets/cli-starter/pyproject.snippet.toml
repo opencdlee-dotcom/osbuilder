@@ -1,0 +1,14 @@
+# Snippet appended by scaffold_cli after `uv init --app` runs.
+# The {{project_name}} and {{project_name_module}} placeholders are
+# substituted by scaffold_cli at write time.
+#
+# Pitfall 5: plain `typer` is correct here — since typer 0.25.1, rich is
+# a hard dep (>=13.8.0) and the legacy bundled-extras spelling has been
+# deprecated/redundant.
+[project.scripts]
+"{{project_name}}" = "{{project_name_module}}.__main__:app"
+
+[project]
+dependencies = [
+    "typer>=0.25.1",
+]

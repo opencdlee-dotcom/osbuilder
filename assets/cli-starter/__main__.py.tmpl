@@ -1,0 +1,48 @@
+"""OSBuilder CLI starter — replace {{project_name}} with the user's app name."""
+from __future__ import annotations
+import sqlite3
+from pathlib import Path
+from datetime import datetime, timezone
+
+import typer
+from rich.console import Console
+
+APP_NAME = "{{project_name}}"
+DB_PATH = Path.home() / f".{APP_NAME}" / "state.db"
+
+app = typer.Typer(
+    name=APP_NAME,
+    help="OSBuilder CLI starter — type --help for commands.",
+    no_args_is_help=True,
+    rich_markup_mode="rich",
+)
+console = Console()
+
+
+def _init_db() -> sqlite3.Connection:
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS pings ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        "ts TEXT NOT NULL)"
+    )
+    return conn
+
+
+@app.command()
+def ping():
+    """Write a row to SQLite and read it back — proves persistence works."""
+    conn = _init_db()
+    ts = datetime.now(timezone.utc).isoformat()
+    conn.execute("INSERT INTO pings (ts) VALUES (?)", (ts,))
+    conn.commit()
+    cur = conn.execute("SELECT COUNT(*) FROM pings")
+    count = cur.fetchone()[0]
+    conn.close()
+    console.print(f"[green]ping #{count}[/green] at [cyan]{ts}[/cyan]")
+    console.print(f"DB: [dim]{DB_PATH}[/dim]")
+
+
+if __name__ == "__main__":
+    app()
