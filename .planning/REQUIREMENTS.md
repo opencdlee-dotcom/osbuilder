@@ -244,10 +244,10 @@ Each v1 requirement maps to exactly one phase. See ROADMAP.md for full phase def
 | RES-03 | Phase 3 | Pending |
 | RES-04 | Phase 3 | Pending |
 | SCAF-01 | Phase 3 | Pending |
-| SCAF-02 | Phase 7 | Pending |
-| SCAF-03 | Phase 7 | Pending |
-| SCAF-04 | Phase 7 | Pending |
-| SCAF-05 | Phase 7 | Pending |
+| SCAF-02 | Phase 7 | Complete |
+| SCAF-03 | Phase 7 | Complete |
+| SCAF-04 | Phase 7 | Complete |
+| SCAF-05 | Phase 7 | Complete |
 | SCAF-06 | Phase 3 | Pending |
 | ROLE-01 | Phase 4 | Pending |
 | ROLE-02 | Phase 4 | Pending |
