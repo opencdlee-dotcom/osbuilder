@@ -64,10 +64,18 @@ When a package releases a new major version:
 | Rust toolchain | rustup-toolchain | stable | preflight installs via D-20 (sh.rustup.rs / Rustlang.Rustup) |
 | Pkg manager | pnpm | 10.33.2 | Pitfall 1: required for clean --template forwarding |
 
+## hub-platform playbook defaults
+
+| Component | Package | Version | Rationale |
+|-----------|---------|---------|-----------|
+| Routing format | CLAUDE.md table | n/a | Top-level routing-table mirrors `../professor/` per D-05 |
+| Per-subtool format | CLAUDE.md placeholder | n/a | One per sub-tool dir; user fills in via re-invocation |
+
 ## See also
 
 - `references/playbooks/web.md` — playbook spec that consumes these defaults
 - `references/playbooks/ai-service.md` — ai-service playbook spec
 - `references/playbooks/cli.md` — cli playbook spec
 - `references/playbooks/desktop.md` — desktop playbook spec
+- `references/playbooks/hub-platform.md` — hub-platform playbook spec
 - `scripts/stack_researcher.py` — implementation that reads this file

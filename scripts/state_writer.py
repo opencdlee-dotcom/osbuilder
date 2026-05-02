@@ -53,6 +53,8 @@ ALLOWED_FIELDS = set(REQUIRED_FIELDS) | {
     "gh_auth_status",        # "ok" | "drift" | "expired" | "unauthenticated" — set by gh_handoff.py preflight
     "pre_commit_installed",  # "true" | "false" — set true after gh_handoff.py stamps .pre-commit-config.yaml
     "production_ready",      # "true" | "false" — gates production_phase_writer.py emission
+    # Phase 7 (07-05): subtools — comma-separated list for hub-platform builds (additive, not required).
+    "subtools",
 }
 
 
