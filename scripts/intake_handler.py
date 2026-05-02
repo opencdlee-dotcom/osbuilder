@@ -31,7 +31,22 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 STATE_WRITER = REPO_ROOT / "scripts" / "state_writer.py"
 
 _REQUIRED_SECTIONS = ("# OSBuilder Derived Spec", "**Goal:**", "**App type:**", "**Playbook:**")
-_SECRET_PATTERNS = ("api_key", "password", "token", "database_url=postgresql://")
+# IN-16: defense-in-depth secret-shape detection. gitleaks at commit time is the
+# real backstop (see assets/gitleaks/.gitleaks.toml + Phase 6 SHIP-04). This
+# list catches obvious paste-mistakes in the user's plain-English spec BEFORE
+# it reaches state.md or any subprocess. Keep entries lower-case — comparison
+# is case-insensitive in _cmd_validate.
+_SECRET_PATTERNS = (
+    "api_key",
+    "password",
+    "token",
+    "database_url=postgresql://",
+    # AI service token prefixes — common paste-from-dashboard shapes
+    "openai_api_key",
+    "anthropic_api_key",
+    "sk-",       # OpenAI / Anthropic / Stripe key prefix
+    "bearer ",   # Authorization header paste — trailing space disambiguates from words like "bearer-token"
+)
 
 # Phase 6 — refuse-list (SCL-05): hardcoded keyword tuple sourced from references/refuse-list.md
 # Ordering invariant (WR-04): _matches_refuse_keyword returns the FIRST keyword in this
