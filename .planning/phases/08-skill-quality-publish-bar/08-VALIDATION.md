@@ -72,6 +72,7 @@ created: 2026-05-02
 | Clean-machine `curl … \| sh` end-to-end install | QUAL-02 SC-2 | Cannot automate without locked public-repo URL and a fresh VM/container; relies on real network + real GitHub | Spin up a fresh container or VM, run the documented one-liner, verify `~/.claude/skills/osbuilder/` exists, run `/osbuilder` and confirm it loads |
 | 60-second demo video recording captures end-to-end paragraph→app flow | QUAL-03 SC-3 | Recording is a manual artifact; quality is judged by humans | Record asciinema/GIF following 08-HUMAN-UAT.md script; verify <60s, no secrets visible, asset committed under `assets/demo/` |
 | Example gallery apps were actually built by OSBuilder | QUAL-04 SC-4 | Each example must reflect a real OSBuilder run with real GitHub repo URL | Run OSBuilder on each example's intake brief, capture screenshots, link the produced repo URL |
+| Real screenshots land in `examples/<name>/screenshots/` | QUAL-04 SC-4 | Phase 6 (ship) + Phase 7 (real builds) must complete before real screenshot capture is meaningful; 08-08 ships only `.gitkeep` placeholders | Tracked by 08-HUMAN-UAT.md row 4. The Wave 0 `test_has_screenshots` stub (08-01) skip-guards on empty `screenshots/` directories and surfaces the gap automatically once real PNGs/JPGs are committed (asserts ≥ 1 image when the directory has anything beyond `.gitkeep`) |
 
 ---
 

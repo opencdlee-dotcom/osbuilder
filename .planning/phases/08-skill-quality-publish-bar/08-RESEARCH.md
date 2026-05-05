@@ -534,37 +534,43 @@ def record_check_complete() -> None:
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Public repo URL for the install one-liner**
    - What we know: Repo currently has no remote. install.sh is repo-local-only.
    - What's unclear: GitHub owner / repo name OSBuilder will publish under.
    - Recommendation: Discuss-phase locks the URL. Suggest `<github-username>/osbuilder` or `osbuilder-skill/osbuilder` (org).
+   - **RESOLVED:** Locked at the 08-01 Task 0 URL gate (checkpoint:decision). User selects option-personal/option-org/option-defer; chosen URL written to `08-URL-LOCK.md` and substituted by 08-04 (CI badge), 08-06 (README), and 08-HUMAN-UAT.md. (see 08-01)
 
 2. **GIF vs asciinema cast for the demo (60s)**
    - What we know: GitHub strips `<script>`; GIFs auto-play; asciinema is higher quality but requires click-through.
    - What's unclear: User's preference for "good enough auto-play" vs "high quality with click-through."
    - Recommendation: Both — GIF in README body + asciinema link in caption. Cost is one extra recording session.
+   - **RESOLVED:** Both — GIF embedded in README + asciinema `.cast` linked alongside, per recommendation. Demo assets land at `assets/demo/osbuilder-demo.{gif,cast}` (see 08-07).
 
 3. **Sub-skill version-missing policy**
    - What we know: gsd and predator have no `version:` field. Composition rule says fix sub-skills, not OSBuilder.
    - What's unclear: Should QUAL-05 BLOCK on missing version OR WARN and continue?
    - Recommendation: WARN. Document in `references/version-policy.md`. File issues upstream against gsd & predator to add `version:` blocks.
+   - **RESOLVED:** WARN (not BLOCK) — `check_skill_versions.py` returns rc 0 with stderr warning when `version:` is absent on an installed sub-skill. Documented in `references/version-policy.md` 4-row behavior table (see 08-04).
 
 4. **Examples gallery: 3 vs 5**
    - What we know: ROADMAP says "≥ 3 (target 5)." Phase 6 (ship) is 0/6 — no shippable build yet from the OSBuilder loop.
    - What's unclear: Whether to block Phase 8 on having 5 real examples (sequential dependency on Phase 6 + Phase 7) or ship 3 with TODO for 4-5.
    - Recommendation: 3 minimum to pass; document path to 5 in `examples/README.md`. Each must use a different playbook.
+   - **RESOLVED:** 3 examples minimum (web / cli / ai-service — three distinct playbooks per Pitfall 5). Path to 5 (desktop, hub-platform) documented in `examples/README.md` and gated on Phase 6 + 7 real builds via 08-HUMAN-UAT.md row 4 (see 08-08).
 
 5. **Custom `requires:` namespace decision**
    - What we know: `requires:` is non-standard in Anthropic frontmatter spec.
    - What's unclear: Risk-aversion preference: short-and-clear (`requires:`) vs forward-compatible (`osbuilder-requires:`).
    - Recommendation: Short-and-clear. Document in `references/version-policy.md`. Migrate later if needed.
+   - **RESOLVED:** `requires:` (short-and-clear). Documented as an OSBuilder-local convention in `references/version-policy.md` with migration note for the (low-risk) future case where Anthropic standardizes a conflicting `requires:` semantics (see 08-02 + references/version-policy.md).
 
 6. **First-session marker location**
    - What we know: Two viable spots: `~/.osbuilder/last_check.txt` (per-user) vs `<project-root>/.planning/osbuilder/version_check.txt` (per-project).
    - What's unclear: Which best matches "first invocation each session."
    - Recommendation: Per-user (`~/.osbuilder/last_check.txt`); document the location.
+   - **RESOLVED:** Per-user-global at `~/.osbuilder/last_check.txt`. Documented in `check_skill_versions.py` docstring + README troubleshooting section (`rm -f ~/.osbuilder/last_check.txt` to force a re-check) (see 08-04).
 
 ---
 
