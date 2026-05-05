@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 08-04 (QUAL-05 sub-skill version-drift validator: scripts/check_skill_versions.py 216 lines pure stdlib; 4 RED stubs flipped GREEN; pytest 200/10 — +4 net passes vs 196 baseline; real-world dry-run case-b — gsd & predator warn no version, others pass silently, exit 0). Next up Wave 3 continuation 08-05 (CI workflow)."
-last_updated: "2026-05-05T07:03:26.734Z"
+stopped_at: "Completed 08-05 (QUAL-01 CI surface: .github/workflows/ci.yml 33 lines, 2 jobs lint-skill-md → test with needs:, all actions pinned @v6 — 3 Wave 0 stubs RED→GREEN; pytest 203/7 vs 200/10 baseline). Next up Wave 4 08-06 (README)."
+last_updated: "2026-05-05T07:07:43.263Z"
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 45
-  completed_plans: 43
-  percent: 96
+  completed_plans: 44
+  percent: 98
 ---
 
 # Project State: OSBuilder
@@ -26,14 +26,14 @@ progress:
 ## Current Position
 
 Phase: 08 (skill-quality-publish-bar) — EXECUTING
-Plan: 3 of 8
+Plan: 4 of 8
 Plans complete: 1/6 in Phase 7 (32/37 overall)
 
 - **Milestone:** v1 (initial open-source publish-ready release)
 - **Phase:** 8
 - **Plans:** 04-01 (Wave 0 RED stubs), 04-02 (gsd_driver state machine), 04-03 (failure_classifier), 04-04 (registry_verify), 04-05 (qa.md), 04-06 (HEAL-05 gap closure — registry gate wired into step 2) — all complete
 - **Status:** Ready to execute
-- **Progress:** [██████████] 96%
+- **Progress:** [██████████] 98%
 
 ## Performance Metrics
 
@@ -89,6 +89,7 @@ Plans complete: 1/6 in Phase 7 (32/37 overall)
 | Phase 08-skill-quality-publish-bar P03 | 2min | 1 tasks | 1 files |
 | Phase 08 P07 | 10min | 1 tasks | 2 files |
 | Phase 08-skill-quality-publish-bar P08-04 | 12min | 1 tasks | 1 files |
+| Phase 08-skill-quality-publish-bar P08-05 | 2min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -149,9 +150,9 @@ To be confirmed in Phase 1:
 
 ## Session Continuity
 
-**Last session:** 2026-05-05T07:03:11.949Z
+**Last session:** 2026-05-05T07:07:43.251Z
 
-**Stopped At:** Completed 08-04 (QUAL-05 sub-skill version-drift validator: scripts/check_skill_versions.py 216 lines pure stdlib; 4 RED stubs flipped GREEN; pytest 200/10 — +4 net passes vs 196 baseline; real-world dry-run case-b — gsd & predator warn no version, others pass silently, exit 0). Next up Wave 3 continuation 08-05 (CI workflow).
+**Stopped At:** Completed 08-05 (QUAL-01 CI surface: .github/workflows/ci.yml 33 lines, 2 jobs lint-skill-md → test with needs:, all actions pinned @v6 — 3 Wave 0 stubs RED→GREEN; pytest 203/7 vs 200/10 baseline). Next up Wave 4 08-06 (README).
 
 **Where to resume:**
 
