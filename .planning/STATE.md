@@ -92,6 +92,31 @@ Plans complete: 1/6 in Phase 7 (32/37 overall)
 | Phase 08-skill-quality-publish-bar P08-05 | 2min | 1 tasks | 1 files |
 | Phase 08-skill-quality-publish-bar P08-06 | 3min | 1 tasks | 1 files |
 
+## Deferred Items
+
+Items acknowledged and deferred at v1.0 milestone close on 2026-05-05:
+
+| Category | Phase | File | Status | Notes |
+|----------|-------|------|--------|-------|
+| uat_gap | 02 | 02-HUMAN-UAT.md | partial | 2 pending: fresh-Mac install timing (SC-6); Windows --no-docker flow (SC-5) |
+| uat_gap | 03 | 03-HUMAN-UAT.md | partial | 2 pending: pnpm install && pnpm dev boots localhost:3000 (SC-5); 60s E2E timing (SC-7) |
+| uat_gap | 05 | 05-HUMAN-UAT.md | partial | 5 pending: live build narration; top-30 errors live test; README humanizer; --advanced flag UX; dictionary expansion path |
+| uat_gap | 07 | 07-HUMAN-UAT.md | pending | 6 stranger-clone tests across 4 playbooks + Electron refusal UX + /summarize smoke |
+| uat_gap | 08 | 08-HUMAN-UAT.md | pending | 5 publish-bar checks: clean-machine install one-liner, demo honesty, README readability, examples-really-built, version-drift validator UX |
+| verification_gap | 02 | 02-VERIFICATION.md | human_needed | 12/13 truths VERIFIED; SC-6 deferred to manual-only smoke |
+| verification_gap | 03 | 03-VERIFICATION.md | human_needed | 9/11 truths VERIFIED; 2 require live pnpm execution |
+| verification_gap | 05 | 05-VERIFICATION.md | human_needed | 6/6 must-haves VERIFIED; 5 UX-judgment items live-build-only |
+| verification_gap | 06 | 06-VERIFICATION.md | human_needed | 4/7 fully VERIFIED + 3 require live gh auth + stranger-clone UAT |
+| verification_gap | 07 | 07-VERIFICATION.md | human_needed | 5/5 must-haves VERIFIED (automated); 6 stranger-clone rows pending |
+| verification_gap | 08 | 08-VERIFICATION.md | phase-verified-with-waiver | 5/5 SC PASS + 3 documented waivers (demo binary, real screenshots, NOT_PUBLISHED URLs) + 5 HUMAN-UAT rows |
+
+**Why deferred at close:** All 11 items are by-design manual-UAT and live-machine UX judgments for an open-source publish-bar milestone. Every phase passes its automated verification surface; the residual items require fresh hardware, live `gh` auth, real Claude Code sessions, or human comprehension judgments that cannot be automated. Phase 8 already carries `phase-verified-with-waiver` status with 3 explicit waivers in 08-VERIFICATION.md frontmatter.
+
+**Unblock paths:**
+- Demo binary (assets/demo/osbuilder-demo.gif): re-record per `assets/demo/RECORDING-CHECKLIST.md`; flips `test_demo_asset_present` SKIP→PASS automatically.
+- Live ship/auth UAT (Phases 02, 03, 05, 06, 07, 08): execute `<phase>-HUMAN-UAT.md` row-by-row on real hardware; flip status fields when each row passes.
+- Real example screenshots + repo URLs: gated on real OSBuilder builds shipping to private GitHub; replace `NOT_PUBLISHED` placeholders as those builds happen.
+
 ## Accumulated Context
 
 ### Key Decisions Locked In (from PROJECT.md + research + execution)
