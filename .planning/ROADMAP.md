@@ -167,7 +167,16 @@ Plans:
   4. `examples/` contains at least 3 (target: 5) reference apps OSBuilder built — each with screenshots, before/after spec, and the GitHub URL of the resulting private repo (or a public mirror for the gallery).
   5. On first invocation each session, `scripts/check_skill_versions.py` reads the `requires:` block from SKILL.md frontmatter and reports a friendly error with the exact upgrade command if any of GSD / brainiac / predator / code-tester / problem-solver are below their declared minimum compatible version — and refuses to proceed until the user upgrades.
   6. Passing `--production-ready` to a default web build adds the documented named phases (observability via OpenTelemetry, automated migrations via Drizzle Kit, healthcheck endpoints, secret manager integration, Sentry error tracking, rate limiting, backup strategy) to the ROADMAP — and produces no additional code in the default scaffold when the flag is absent.
-**Plans:** TBD
+**Plans:** 8 plans
+Plans:
+- [x] 08-01-PLAN.md — Wave 0 RED test stubs (5 new test files, 20 stubs collected) + 08-HUMAN-UAT.md scaffold + 08-URL-LOCK.md (option-personal: cdlee/osbuilder) (covers all of QUAL-01..05 at the test-infra level) — completed 2026-05-04, commits 2a67b4e + d5ab1cf + 2267e4a
+- [ ] 08-02-PLAN.md — SKILL.md frontmatter `requires:` block + references/version-policy.md (QUAL-05 prerequisite)
+- [ ] 08-03-PLAN.md — scripts/check_skill_md_length.py standalone CI lint script (QUAL-01)
+- [ ] 08-04-PLAN.md — scripts/check_skill_versions.py first-session validator + ~/.osbuilder/last_check.txt marker (QUAL-05)
+- [ ] 08-05-PLAN.md — .github/workflows/ci.yml (lint-skill-md + test jobs, pinned @v6 actions) (QUAL-01 CI surface)
+- [ ] 08-06-PLAN.md — README.md (install one-liner + dev-team metaphor + demo embed + --production-ready doc) (QUAL-02, QUAL-03, SC-6 verification)
+- [ ] 08-07-PLAN.md — assets/demo/ + RECORDING-CHECKLIST.md + [HUMAN] 60-second GIF/asciinema recording (QUAL-03 demo asset)
+- [ ] 08-08-PLAN.md — examples/README.md gallery index + 3 example sub-directories (web/cli/ai-service) with SPEC.md + repo-url.txt placeholders (QUAL-04)
 
 ## Phase Ordering Rationale
 
