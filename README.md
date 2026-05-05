@@ -12,7 +12,7 @@ anti-feature) and delivers a working, version-controlled app.
 ## Quick Install (one-liner)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/cdlee/osbuilder/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/opencdlee-dotcom/osbuilder/main/install.sh | sh
 ```
 
 Replaces nothing existing on your machine. Drops `~/.claude/skills/osbuilder/`
@@ -23,7 +23,7 @@ in place and you're ready to run `/osbuilder` in any Claude Code session.
 For users whose security policy disallows `curl ... | sh`:
 
 ```bash
-git clone https://github.com/cdlee/osbuilder.git ~/osbuilder-src
+git clone https://github.com/opencdlee-dotcom/osbuilder.git ~/osbuilder-src
 cd ~/osbuilder-src && ./install.sh
 ```
 
