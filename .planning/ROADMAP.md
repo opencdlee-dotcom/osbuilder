@@ -176,7 +176,7 @@ Plans:
 - [ ] 08-05-PLAN.md — .github/workflows/ci.yml (lint-skill-md + test jobs, pinned @v6 actions) (QUAL-01 CI surface)
 - [ ] 08-06-PLAN.md — README.md (install one-liner + dev-team metaphor + demo embed + --production-ready doc) (QUAL-02, QUAL-03, SC-6 verification)
 - [x] 08-07-PLAN.md — assets/demo/ + RECORDING-CHECKLIST.md + [HUMAN] 60-second GIF/asciinema recording (QUAL-03 demo asset) — completed-with-deferral 2026-05-05, commit 2f3ef1d (Task 1: scaffold + 87-line checklist landed). Task 2 (actual recording) DEFERRED per user choice; broken-link-in-README accepted as documented interim state; `test_demo_asset_present` continues to SKIP via file-existence skip-guard; 08-HUMAN-UAT.md row 2 stays `pending`. Re-record by following `assets/demo/RECORDING-CHECKLIST.md`.
-- [ ] 08-08-PLAN.md — examples/README.md gallery index + 3 example sub-directories (web/cli/ai-service) with SPEC.md + repo-url.txt placeholders (QUAL-04)
+- [x] 08-08-PLAN.md — examples/README.md gallery index + 3 example sub-directories (web/cli/ai-service) with SPEC.md + repo-url.txt placeholders (QUAL-04) — completed 2026-05-04 (commits c263d9a + c7109ab)
 
 ## Phase Ordering Rationale
 

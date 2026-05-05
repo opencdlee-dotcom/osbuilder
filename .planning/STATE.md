@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 08-07 (assets/demo/ scaffold + 87-line RECORDING-CHECKLIST.md; Task 2 demo recording DEFERRED per user choice — broken-link-in-README accepted as documented interim state; pytest 192 passed/18 skipped — matches baseline)
-last_updated: "2026-05-05T02:57:28.176Z"
+stopped_at: Completed 08-08 (examples/ gallery — 3 reference apps web/cli/ai-service with SPEC.md + repo-url.txt placeholders + 71-line gallery README; pytest 196 passed/14 skipped — +4 RED→GREEN flips, no regressions). Wave 2 of Phase 8 complete. Next up Wave 3 (08-04 version-drift validator + 08-05 CI workflow).
+last_updated: "2026-05-05T03:25:00.000Z"
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 45
-  completed_plans: 41
-  percent: 91
+  completed_plans: 42
+  percent: 93
 ---
 
 # Project State: OSBuilder
