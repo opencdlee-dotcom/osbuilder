@@ -167,7 +167,8 @@ Requirements for initial release. Each maps to exactly one roadmap phase (see Tr
 - [ ] **QUAL-02**: A clean `install.sh` one-liner installs OSBuilder for someone who's never used Claude Code skills
 - [ ] **QUAL-03**: README explains the dev-team metaphor and links to a 60-second demo video
 - [ ] **QUAL-04**: An `examples/` gallery contains 3-5 reference apps OSBuilder built (validation + onboarding)
-- [ ] **QUAL-05**: First-run skill-version-drift validator (`scripts/check_skill_versions.py`) checks that GSD, brainiac, predator, code-tester, and other delegated skills meet minimum compatible versions
+- [x] **QUAL-05
+**: First-run skill-version-drift validator (`scripts/check_skill_versions.py`) checks that GSD, brainiac, predator, code-tester, and other delegated skills meet minimum compatible versions
 
 ## v2 Requirements
 

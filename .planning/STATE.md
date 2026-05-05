@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 08-08 (examples/ gallery — 3 reference apps web/cli/ai-service with SPEC.md + repo-url.txt placeholders + 71-line gallery README; pytest 196 passed/14 skipped — +4 RED→GREEN flips, no regressions). Wave 2 of Phase 8 complete. Next up Wave 3 (08-04 version-drift validator + 08-05 CI workflow).
-last_updated: "2026-05-05T03:25:00.000Z"
+stopped_at: "Completed 08-04 (QUAL-05 sub-skill version-drift validator: scripts/check_skill_versions.py 216 lines pure stdlib; 4 RED stubs flipped GREEN; pytest 200/10 — +4 net passes vs 196 baseline; real-world dry-run case-b — gsd & predator warn no version, others pass silently, exit 0). Next up Wave 3 continuation 08-05 (CI workflow)."
+last_updated: "2026-05-05T07:03:26.734Z"
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 45
-  completed_plans: 42
-  percent: 93
+  completed_plans: 43
+  percent: 96
 ---
 
 # Project State: OSBuilder
@@ -26,14 +26,14 @@ progress:
 ## Current Position
 
 Phase: 08 (skill-quality-publish-bar) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Plans complete: 1/6 in Phase 7 (32/37 overall)
 
 - **Milestone:** v1 (initial open-source publish-ready release)
 - **Phase:** 8
 - **Plans:** 04-01 (Wave 0 RED stubs), 04-02 (gsd_driver state machine), 04-03 (failure_classifier), 04-04 (registry_verify), 04-05 (qa.md), 04-06 (HEAL-05 gap closure — registry gate wired into step 2) — all complete
 - **Status:** Ready to execute
-- **Progress:** [█████████░] 91%
+- **Progress:** [██████████] 96%
 
 ## Performance Metrics
 
@@ -88,6 +88,7 @@ Plans complete: 1/6 in Phase 7 (32/37 overall)
 | Phase 08-skill-quality-publish-bar P02 | 3min | 2 tasks | 2 files |
 | Phase 08-skill-quality-publish-bar P03 | 2min | 1 tasks | 1 files |
 | Phase 08 P07 | 10min | 1 tasks | 2 files |
+| Phase 08-skill-quality-publish-bar P08-04 | 12min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -148,9 +149,9 @@ To be confirmed in Phase 1:
 
 ## Session Continuity
 
-**Last session:** 2026-05-05T02:57:12.958Z
+**Last session:** 2026-05-05T07:03:11.949Z
 
-**Stopped At:** Completed 08-07 (assets/demo/ scaffold + 87-line RECORDING-CHECKLIST.md; Task 2 demo recording DEFERRED per user choice — broken-link-in-README accepted as documented interim state; pytest 192 passed/18 skipped — matches baseline)
+**Stopped At:** Completed 08-04 (QUAL-05 sub-skill version-drift validator: scripts/check_skill_versions.py 216 lines pure stdlib; 4 RED stubs flipped GREEN; pytest 200/10 — +4 net passes vs 196 baseline; real-world dry-run case-b — gsd & predator warn no version, others pass silently, exit 0). Next up Wave 3 continuation 08-05 (CI workflow).
 
 **Where to resume:**
 
@@ -160,7 +161,7 @@ To be confirmed in Phase 1:
 4. Verify against the 5 falsifiable success criteria in ROADMAP.md Phase 1
 5. Transition to Phase 2 via `/gsd-transition`
 
-**Resume file:** Demo recording deferred
+**Resume file:** None
 
 **Files of record:**
 
