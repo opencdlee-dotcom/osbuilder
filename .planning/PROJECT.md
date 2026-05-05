@@ -14,59 +14,24 @@ If anything else fails, this single promise must hold: *describe → working app
 
 ### Validated
 
-- [x] User can describe an app in plain English (paragraph or structured spec) and get a `derived_spec.md` handoff document — Validated in Phase 3 (IN-01, IN-02): `parse_paragraph()` and `parse_structured()` both write the `/gsd-new-project --auto` format
-- [x] OSBuilder web-researches the right modern stack for the described app — Validated in Phase 3 (RES-01..RES-04): `stack_researcher.py` calls brainiac subprocess, returns structured JSON per component with fallback to `stack-menu.md` defaults and `--advanced` override support
-- [x] OSBuilder always starts from a deterministic scaffolder — Validated in Phase 3 (SCAF-01, SCAF-06): `scaffold_web()` runs `pnpm create next-app@latest` with pinned flags; never hand-writes `package.json`
-- [x] All questioning uses plain-English, outcome-framed options — Validated in Phase 3 (IN-03): `question-bank.md` passes jargon gate (no "responsive", "ORM", "framework", etc.)
-- [x] Every question has an "I don't know, you decide" option — Validated in Phase 3 (IN-04): all 6 question sections in `question-bank.md` include this option
+- [x] User can describe an app in plain English (paragraph or structured spec) and get a `derived_spec.md` handoff document — v1.0 (IN-01, IN-02): `parse_paragraph()` and `parse_structured()` both write the `/gsd-new-project --auto` format
+- [x] OSBuilder web-researches the right modern stack for the described app — v1.0 (RES-01..RES-04): `stack_researcher.py` calls brainiac subprocess, returns structured JSON per component with fallback to `stack-menu.md` defaults and `--advanced` override support
+- [x] OSBuilder always starts from a deterministic scaffolder — v1.0 (SCAF-01..SCAF-06): `scaffold_web/ai_service/cli/desktop/hub` all run vendored or upstream scaffolders; never hand-write `package.json`
+- [x] All questioning uses plain-English, outcome-framed options — v1.0 (IN-03): `question-bank.md` passes jargon gate
+- [x] Every question has an "I don't know, you decide" option — v1.0 (IN-04): all 6 question sections include this option
+- [x] OSBuilder is installed as a Claude Code skill at `~/.claude/skills/osbuilder/` with valid YAML frontmatter — v1.0 (FOUND-01..05): SKILL.md 136/200 lines; 4-directory layout; bootstrap.sh + bootstrap.ps1; state_writer 10-field checkpoint
+- [x] Pre-flight installer detects missing prerequisites and offers auto-install with single confirmation, works on macOS/Linux/Windows — v1.0 (PRE-01..07): 595-line `preflight_check.py` with transactional rollback, version-manager refusal, `--no-docker` mode
+- [x] OSBuilder hands off to GSD's spec → plan → execute → verify loop with classified failure handling capped at 3 reflections — v1.0 (ROLE-01..09, HEAL-01..07, VER-01..04): 678-line `gsd_driver.py`; 4-class failure taxonomy; slopsquatting gate
+- [x] OSBuilder runs a virtual studio with 8 named roles narrating progress — v1.0 (UX-01..05, ROLE-07, ROLE-09): 8 role briefs drive `[ROLE]` banner + `> In plain English` tutor lines; beginner mode hides tech jargon by default
+- [x] Friendly errors with concrete next steps — never raw stack traces — v1.0 (UX-02, UX-05): 30-entry dictionary with `format_version: "1.0"` gate; 5 scripts wire `_fe.translate`
+- [x] OSBuilder pushes the result to a private GitHub repo with a clone-and-run README runbook — v1.0 (SHIP-01..05): `gh repo create --private`; `runbook_writer.py` substitutes from template; gitleaks pre-commit hook v8.30.1
+- [x] Default scaffold ships env config + real DB + Dockerfile + single CI workflow; refuses K8s/microservices/Helm in v1 — v1.0 (SCL-01..06): `compose.yaml` Postgres for multi-user web; SQLite for CLI; refuse-list with word-boundary regex; `--production-ready` adds 7 named upgrades
+- [x] 4 playbooks (web, ai-service, cli, desktop) + hub-platform — v1.0 (SCAF-02..05): per-playbook scaffold mirrors `scaffold_web` shape; Electron globally refused
+- [x] SKILL.md ≤ 200 lines, install one-liner, README dev-team metaphor, examples gallery, version-drift validator — v1.0 (QUAL-01..05): all 5 satisfied; demo binary deferred (waiver in 08-VERIFICATION.md)
 
 ### Active
 
-#### Core build pipeline
-
-- [ ] User can describe an app by pointing at a reference app like `professor/` and OSBuilder takes it from there
-- [ ] OSBuilder web-researches the right modern stack for the described app (no fixed default — Next.js for web, FastAPI for AI services, Tauri for desktop, etc.) ← _research validated; full GSD handoff pending Phase 4_
-- [ ] OSBuilder hands off to GSD's spec → plan → execute → verify loop for actual implementation (does not reimplement what GSD already does)
-- [ ] OSBuilder produces a working local app the user can run with one documented command after clone
-- [ ] OSBuilder pushes the result to a **private GitHub repo** with a clone-and-run runbook in the README
-- [ ] OSBuilder generates an explicit clone-on-another-machine flow that just works (env templates, install scripts, friendly preflight checks)
-
-#### Whole-dev-team orchestration
-
-- [ ] OSBuilder runs a virtual studio with named roles (PM, Architect, Frontend, Backend, DevOps, QA, Reviewer, Tech Writer), each backed by an existing skill or dedicated phase
-- [ ] User-facing progress is narrated at the dev-team level ("PM is gathering requirements... ✓ / Frontend dev is building the homepage..."), not raw command output
-- [ ] Every phase has a code reviewer pass (`/predator`, `/gsd-code-review`) before being marked done
-- [ ] Every phase has a QA pass (`/code-tester`, `/gsd-verify-work`) with falsifiable success criteria — not "tests pass"
-
-#### Common-person UX
-
-- [ ] All questioning uses plain-English, outcome-framed options (e.g., "Should it work on phones too?" — never "responsive design?")
-- [ ] Every question has a "I don't know, you decide" option that picks the right default
-- [ ] Beginner mode is the default; `--advanced` opt-in flag exposes stack choice, deploy targets, and other technical decisions
-- [ ] **Tutor mode is ON by default** — explains in plain English what just happened at each stage; `--quiet` disables
-- [ ] Friendly errors with concrete next steps — never expose raw stack traces; always translate to "here's what broke and how to fix it"
-- [ ] **Pre-flight installer**: detects missing prerequisites (Node, Python, git, `gh` CLI, Docker) and offers auto-install with a single confirmation prompt; works on macOS, Linux, Windows
-
-#### Self-healing build loop
-
-- [ ] OSBuilder classifies failures before retrying (transient / context-overflow / tool-failure / validation-failure) — no naive retry loops
-- [ ] Hard cap of 3 reflections per failure (Aider's documented limit); beyond that, escalate to the user with a structured handoff (state, last error, what was tried)
-- [ ] When stuck, OSBuilder delegates to `/gsd:debug` and `/problem-solver` before giving up
-- [ ] OSBuilder maintains a `state.md` checkpoint (~15 lines: goal / phase / plans done / last failure) so a `/clear`'d or context-compacted session can resume mid-build
-
-#### Scalable-by-default + production-ready upgrade path
-
-- [ ] Default scaffold ships with: env-based config (`.env.example` + `.gitignore`'d `.env`), real database (Postgres-via-compose for multi-user web apps; SQLite only for single-user CLIs), Dockerfile, single GitHub Actions CI workflow
-- [ ] **Refuses** to add Kubernetes / microservices / service-mesh / Helm in v1 unless the spec explicitly requires multi-region or multi-team — these are textbook premature-complexity traps
-- [ ] `--production-ready` flag adds observability (logs/metrics/traces), automated migrations, healthchecks, secret manager, error tracking (Sentry), rate limiting, and backup strategy as **named phases** in the roadmap, not as default code
-
-#### Skill quality (open-source publish-ready)
-
-- [ ] SKILL.md ≤ 200 lines (progressive disclosure to `references/` for playbooks and deep details)
-- [ ] Includes a clean install flow (`/osbuilder install` or one-liner) suitable for someone who's never used Claude Code skills before
-- [ ] Has a generic-enough UX that someone other than Charlie can use it productively without reading source
-- [ ] Ships with a README that explains the dev-team metaphor and links to a 60-second demo video
-- [ ] Has a small example gallery (3–5 reference apps OSBuilder has built) under `examples/`
+(empty — next milestone requirements live in `.planning/REQUIREMENTS.md` after `/gsd-new-milestone`)
 
 ### Out of Scope
 
@@ -97,6 +62,14 @@ If anything else fails, this single promise must hold: *describe → working app
 **Quality bar (the explicit aspiration):**
 *Lovable's polish + Aider's git discipline + GSD's spec rigor + create-t3-app's deterministic scaffold,* wired as an orchestrator skill that delegates rather than reimplements.
 
+**Current state (post-v1.0):**
+
+- Codebase: 124 deliverable files; 10,704 LOC pure-stdlib Python (incl. tests); 1,609 LOC reference Markdown.
+- Tech stack: Python 3.13 helpers + Markdown SKILL.md/references + bash/PowerShell bootstrap shims.
+- Test surface: 207 passed / 3 skipped (3 skips intentional and documented).
+- Sub-skill minimums declared in SKILL.md `requires:` block: gsd ≥ 1.0.0, brainiac ≥ 6.0.0, predator ≥ 1.0.0, code-tester ≥ 3.1.0, problem-solver ≥ 3.0.0.
+- Publish status: skill is publish-ready as a static install (`install.sh` one-liner from a GitHub repo). The 60-second demo recording is deferred per user choice; RECORDING-CHECKLIST.md is the unblock path. Live UAT across 5 phases is by-design pending and tracked in STATE.md `## Deferred Items`.
+
 ## Constraints
 
 - **Form**: Claude Code skill at `~/.claude/skills/osbuilder/` — never a standalone CLI or web app. — Decided in initial questioning; the orchestration leverage only works inside Claude Code.
@@ -113,17 +86,19 @@ If anything else fails, this single promise must hold: *describe → working app
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Build OSBuilder as a Claude Code skill (not CLI, not web app) | Standalone CLI would have to re-implement Claude's reasoning to do "anything end-to-end"; skill leverages existing toolbelt + skills ecosystem | — Pending |
-| Always start from deterministic scaffolder (create-next-app etc.) when one exists; never hand-write boilerplate | Bolt.new / vibe-coding mode burns 10M+ tokens generating package.json from scratch and produces messy code; deterministic scaffolders are free, reproducible, idiomatic | Validated in Phase 3 (SCAF-01, SCAF-06): `pnpm create next-app@latest` with pinned flags |
-| Orchestrator pattern over monolith — delegate to existing skills (gsd, brainiac, predator, code-tester, problem-solver, gsd:debug) | Anthropic's official skill guidance + 211M-line study shows duplication is the failure mode; composition is the way out | — Pending |
-| Research per build (not fixed stack) | User explicit choice; matches modern best practice that picks Next.js/FastAPI/Tauri based on what's being built | Validated in Phase 3 (RES-01..RES-04): brainiac subprocess + fallback menu |
-| Auto-fix mode default with 3-reflection cap, then escalate with structured handoff | Matches Aider's empirically-validated limit; production self-healing pattern requires failure classification before retry | — Pending |
-| Tutor mode ON by default, `--quiet` opt-out | Audience is "common person"; explanation builds trust and teaches; power users can disable | — Pending |
-| Auto-install prerequisites with single confirmation prompt | "Common person" can't be expected to know how to install Node/Docker/gh; confirmation keeps trust without blocking flow | — Pending |
-| Whole-dev-team metaphor for progress narration (PM, Architect, Frontend, Backend, DevOps, QA, Reviewer, Tech Writer) | Non-technical users intuitively understand "QA found a bug" better than "test failed retrying"; also makes phase ownership explicit | — Pending |
-| Deliverable = working local app + private GitHub repo (NOT auto-deploy to cloud) | User explicit choice; deploy targets are opinionated and risky; private GitHub is the safe v1 anchor | — Pending |
-| Refuse K8s/microservices/service-mesh in v1 default builds | Premature-complexity traps; opt-in via `--production-ready` flag as named phases | — Pending |
-| `state.md` checkpoint (~15 lines) updated per phase for compaction survival | Auto-compaction fires at ~98% of context; long builds need resume; matches Anthropic's recommended pattern | — Pending |
+| Build OSBuilder as a Claude Code skill (not CLI, not web app) | Standalone CLI would have to re-implement Claude's reasoning to do "anything end-to-end"; skill leverages existing toolbelt + skills ecosystem | ✓ Good — v1.0: skill at `~/.claude/skills/osbuilder/`; SKILL.md 136/200 lines; install one-liner working |
+| Always start from deterministic scaffolder when one exists; never hand-write boilerplate | Bolt.new / vibe-coding mode burns 10M+ tokens generating package.json from scratch; deterministic scaffolders are free, reproducible, idiomatic | ✓ Good — v1.0 (SCAF-01..06): web/ai-service/cli/desktop/hub all use vendored or upstream scaffolders |
+| Orchestrator pattern over monolith — delegate to existing skills | Anthropic's official skill guidance + 211M-line study shows duplication is the failure mode; composition is the way out | ✓ Good — v1.0: gsd_driver delegates 7 slash commands per phase (spec/plan/execute/code-tester/verify-work/predator/code-review); no functionality duplicated |
+| Research per build (not fixed stack) | Matches modern best practice that picks Next.js/FastAPI/Tauri based on what's being built | ✓ Good — v1.0 (RES-01..04): brainiac subprocess + stack-menu.md fallback; advanced overrides logged to state.md |
+| Auto-fix mode default with 3-reflection cap, then escalate with structured handoff | Matches Aider's empirically-validated limit; production self-healing pattern requires failure classification before retry | ✓ Good — v1.0 (HEAL-01..07): 4-class failure_classifier; 1s→4s→16s exponential backoff; escalation to /gsd-debug then /problem-solver after 3rd retry |
+| Tutor mode ON by default, `--quiet` opt-out | Audience is "common person"; explanation builds trust and teaches; power users can disable | ✓ Good — v1.0 (UX-01): `_TUTOR_ENABLED=True` default; `> In plain English: ...` after every successful step in beginner mode |
+| Auto-install prerequisites with single confirmation prompt | "Common person" can't be expected to install Node/Docker/gh; confirmation keeps trust without blocking flow | ✓ Good — v1.0 (PRE-01..07): single dry-run preview + single y/n confirmation; transactional rollback on any failure |
+| Whole-dev-team metaphor for progress narration (8 named roles) | Non-technical users intuitively understand "QA found a bug" better than "test failed retrying"; makes phase ownership explicit | ✓ Good — v1.0 (UX-04, ROLE-09): 8 role briefs drive `[ROLE]` banners; jargon-grep test enforces zero hits for forbidden tech tokens at runtime |
+| Deliverable = working local app + private GitHub repo (NOT auto-deploy to cloud) | Deploy targets are opinionated and risky; private GitHub is the safe v1 anchor | ✓ Good — v1.0 (SHIP-01): `gh repo create --private` verified; auto-deploy explicitly out of scope |
+| Refuse K8s/microservices/service-mesh in v1 default builds | Premature-complexity traps; opt-in via `--production-ready` flag as named phases | ✓ Good — v1.0 (SCL-05, SCL-06): word-boundary regex catches "kubernetes" but not "k8sFooBar"; `--production-ready` emits 7 `/gsd-add-phase` lines verbatim |
+| `state.md` checkpoint (~15 lines) updated per phase for compaction survival | Auto-compaction fires at ~98% of context; long builds need resume; matches Anthropic's recommended pattern | ✓ Good — v1.0 (FOUND-05): 10-field schema; atomic os.replace writes; ALLOWED_FIELDS extended cleanly across 5 phases without breaking REQUIRED_FIELDS |
+| Single-threaded execution; dev-team metaphor is narration only, never parallel agents | DeepMind Dec 2025 documented 41-86.7% multi-agent failure rates; orchestrator-with-playbooks beats actor-based competition | ✓ Good — v1.0 enforced throughout; `gsd_driver` has zero `asyncio`/`threading` for orchestration; `narration.capture_subprocess` is the only thread use (stream capture, not concurrent agents) |
+| Pure-stdlib Python 3.13 for helper scripts (no third-party deps) | Cross-platform; bash fails Windows; Node has chicken-and-egg with preflight; minimizes user install friction | ✓ Good — v1.0: every script (preflight_check, state_writer, friendly_error, narration, gsd_driver, scaffold_dispatch, intake_handler, stack_researcher, gh_handoff, runbook_writer, registry_verify, failure_classifier, production_phase_writer, check_skill_md_length, check_skill_versions) is pure stdlib |
 
 ## Evolution
 
@@ -143,4 +118,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-30 — Phase 3 complete: intake → stack research → scaffold loop validated*
+*Last updated: 2026-05-05 after v1.0 milestone shipped (Publish-Ready)*
