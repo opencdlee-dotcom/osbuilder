@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 08-01 (Wave 0 RED stubs + URL-lock + HUMAN-UAT scaffold; 20/18 stubs collected; pytest 189 passed/21 skipped GREEN)
-last_updated: "2026-05-04T18:00:00.000Z"
+stopped_at: Completed 08-02 (SKILL.md requires: block + references/version-policy.md; SKILL.md 130->136 lines; pytest 189 passed/21 skipped GREEN; QUAL-05 prerequisite satisfied)
+last_updated: "2026-05-04T18:30:00.000Z"
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 45
-  completed_plans: 38
-  percent: 84
+  completed_plans: 39
+  percent: 87
 ---
 
 # Project State: OSBuilder
@@ -85,6 +85,7 @@ Plans complete: 1/6 in Phase 7 (32/37 overall)
 | Phase 07-additional-playbooks P05 | 7min | 2 tasks | 15 files |
 | Phase 07 P06 | 2min | 2 tasks | 3 files |
 | Phase 08-skill-quality-publish-bar P01 | 10min | 3 tasks | 7 files |
+| Phase 08-skill-quality-publish-bar P02 | 3min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -175,3 +176,4 @@ To be confirmed in Phase 1:
 **Plan 04-06 completed:** 2026-04-30T21:31:11Z — commits 7b525e1 (test RED), 298b27c (feat GREEN); HEAL-05 fully satisfied; SC5 ready for re-verification
 **Plan 07-01 completed:** 2026-05-02T08:13:01Z — commits 2722929 (test RED 9 stubs), 1c8de86 (feat GREEN: PLAYBOOK_KEYWORDS + infer_app_type + _score_playbooks + _is_low_confidence; parse_paragraph wired; Electron migrated to refuse-list.md; question-bank gains "## Q: What kind of thing"); 9/9 inference tests green, 157/157 total. Wave 2 (07-02..07-05) unblocked. Decisions D-01, D-02, D-03, D-22 implemented. Requirements SCAF-02..SCAF-05 marked complete.
 **Plan 07-03 completed:** 2026-05-02T08:30:53Z — commits 1728b16 (test RED 5 stubs), 9b5d6a5 (feat GREEN: scaffold_cli + _sanitize_module_name + _PLAYBOOK_DISPATCH "cli" entry; assets/cli-starter/{__main__.py.tmpl, pyproject.snippet.toml}; references/playbooks/cli.md 56 lines; stack-menu.md cli playbook defaults). 5/5 plan tests green, 171/171 total (was 166; +5). D-13/D-14 implemented. Pitfall 5 contracts verified via pyproject snippet check + subprocess argv assertion. Requirement SCAF-03 marked complete.
+**Plan 08-02 completed:** 2026-05-04T18:30:00Z — commits 7f18a3c (feat: requires: block in SKILL.md frontmatter), 9d3c3e7 (docs: references/version-policy.md). SKILL.md 130->136 lines (still <= 200). 5 sub-skill minimums pinned (gsd 1.0.0, brainiac 6.0.0, predator 1.0.0, code-tester 3.1.0, problem-solver 3.0.0). version-policy.md 78 lines documents OSBuilder-local convention with 4-row behavior table + Anthropic-future-proofing disclaimer. test_skill_md.py 3/3 GREEN; full suite 189 passed/21 skipped (no regression). QUAL-05 prerequisite satisfied; 08-03 (validator script) unblocked.
