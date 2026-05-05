@@ -13,8 +13,8 @@ updated:
 ## Tests
 
 ### 1. Install one-liner end-to-end on a fresh container (QUAL-02 SC-2)
-expected: `curl -fsSL https://raw.githubusercontent.com/cdlee/osbuilder/main/install.sh | sh` on a clean Docker `ubuntu:latest` lands `~/.claude/skills/osbuilder/SKILL.md` and `/osbuilder` succeeds in a Claude Code session that has never installed an OSBuilder skill before.
-test: `docker run --rm -it ubuntu:latest bash -c 'apt-get update && apt-get install -y curl python3 && curl -fsSL https://raw.githubusercontent.com/cdlee/osbuilder/main/install.sh | sh && cat ~/.claude/skills/osbuilder/SKILL.md | head -5'`
+expected: `curl -fsSL https://raw.githubusercontent.com/opencdlee-dotcom/osbuilder/main/install.sh | sh` on a clean Docker `ubuntu:latest` lands `~/.claude/skills/osbuilder/SKILL.md` and `/osbuilder` succeeds in a Claude Code session that has never installed an OSBuilder skill before.
+test: `docker run --rm -it ubuntu:latest bash -c 'apt-get update && apt-get install -y curl python3 && curl -fsSL https://raw.githubusercontent.com/opencdlee-dotcom/osbuilder/main/install.sh | sh && cat ~/.claude/skills/osbuilder/SKILL.md | head -5'`
 why_human: Requires the published public-repo URL to be live + a fresh container with no prior Claude Code skill state. Cannot automate without provisioning a clean VM.
 result: <pending>
 
