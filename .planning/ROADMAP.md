@@ -170,7 +170,7 @@ Plans:
 **Plans:** 8 plans
 Plans:
 - [x] 08-01-PLAN.md — Wave 0 RED test stubs (5 new test files, 20 stubs collected) + 08-HUMAN-UAT.md scaffold + 08-URL-LOCK.md (option-personal: cdlee/osbuilder) (covers all of QUAL-01..05 at the test-infra level) — completed 2026-05-04, commits 2a67b4e + d5ab1cf + 2267e4a
-- [ ] 08-02-PLAN.md — SKILL.md frontmatter `requires:` block + references/version-policy.md (QUAL-05 prerequisite)
+- [x] 08-02-PLAN.md — SKILL.md frontmatter `requires:` block + references/version-policy.md (QUAL-05 prerequisite) — completed 2026-05-04, commits 7f18a3c + 9d3c3e7
 - [ ] 08-03-PLAN.md — scripts/check_skill_md_length.py standalone CI lint script (QUAL-01)
 - [ ] 08-04-PLAN.md — scripts/check_skill_versions.py first-session validator + ~/.osbuilder/last_check.txt marker (QUAL-05)
 - [ ] 08-05-PLAN.md — .github/workflows/ci.yml (lint-skill-md + test jobs, pinned @v6 actions) (QUAL-01 CI surface)
