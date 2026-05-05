@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 08-03 (scripts/check_skill_md_length.py 59-line pure-stdlib CI lint script; 3 Wave 0 RED stubs flipped GREEN; pytest 192 passed/18 skipped — +3 vs 189 baseline; QUAL-01 standalone CI surface in place)
-last_updated: "2026-05-05T02:49:27.000Z"
+stopped_at: Completed 08-07 (assets/demo/ scaffold + 87-line RECORDING-CHECKLIST.md; Task 2 demo recording DEFERRED per user choice — broken-link-in-README accepted as documented interim state; pytest 192 passed/18 skipped — matches baseline)
+last_updated: "2026-05-05T02:57:28.176Z"
 progress:
   total_phases: 8
   completed_phases: 7
   total_plans: 45
-  completed_plans: 40
-  percent: 89
+  completed_plans: 41
+  percent: 91
 ---
 
 # Project State: OSBuilder
@@ -26,14 +26,14 @@ progress:
 ## Current Position
 
 Phase: 08 (skill-quality-publish-bar) — EXECUTING
-Plan: 1 of 8
+Plan: 2 of 8
 Plans complete: 1/6 in Phase 7 (32/37 overall)
 
 - **Milestone:** v1 (initial open-source publish-ready release)
 - **Phase:** 8
 - **Plans:** 04-01 (Wave 0 RED stubs), 04-02 (gsd_driver state machine), 04-03 (failure_classifier), 04-04 (registry_verify), 04-05 (qa.md), 04-06 (HEAL-05 gap closure — registry gate wired into step 2) — all complete
-- **Status:** Executing Phase 08
-- **Progress:** [██████████] 100%
+- **Status:** Ready to execute
+- **Progress:** [█████████░] 91%
 
 ## Performance Metrics
 
@@ -87,6 +87,7 @@ Plans complete: 1/6 in Phase 7 (32/37 overall)
 | Phase 08-skill-quality-publish-bar P01 | 10min | 3 tasks | 7 files |
 | Phase 08-skill-quality-publish-bar P02 | 3min | 2 tasks | 2 files |
 | Phase 08-skill-quality-publish-bar P03 | 2min | 1 tasks | 1 files |
+| Phase 08 P07 | 10min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -147,9 +148,9 @@ To be confirmed in Phase 1:
 
 ## Session Continuity
 
-**Last session:** 2026-05-02T17:33:28.756Z
+**Last session:** 2026-05-05T02:57:12.958Z
 
-**Stopped At:** Completed 07-06 (E2E harness + slow marker + 07-HUMAN-UAT.md; all 6 Phase 7 plans complete)
+**Stopped At:** Completed 08-07 (assets/demo/ scaffold + 87-line RECORDING-CHECKLIST.md; Task 2 demo recording DEFERRED per user choice — broken-link-in-README accepted as documented interim state; pytest 192 passed/18 skipped — matches baseline)
 
 **Where to resume:**
 
@@ -159,7 +160,7 @@ To be confirmed in Phase 1:
 4. Verify against the 5 falsifiable success criteria in ROADMAP.md Phase 1
 5. Transition to Phase 2 via `/gsd-transition`
 
-**Resume file:** None
+**Resume file:** Demo recording deferred
 
 **Files of record:**
 
