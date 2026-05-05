@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: ready_to_plan
-stopped_at: Completed 07-06 (E2E harness + slow marker + 07-HUMAN-UAT.md; all 6 Phase 7 plans complete)
-last_updated: "2026-05-02T17:33:28.770Z"
+status: executing
+stopped_at: Completed 08-01 (Wave 0 RED stubs + URL-lock + HUMAN-UAT scaffold; 20/18 stubs collected; pytest 189 passed/21 skipped GREEN)
+last_updated: "2026-05-04T18:00:00.000Z"
 progress:
   total_phases: 8
-  completed_phases: 8
-  total_plans: 37
-  completed_plans: 37
-  percent: 100
+  completed_phases: 7
+  total_plans: 45
+  completed_plans: 38
+  percent: 84
 ---
 
 # Project State: OSBuilder
@@ -21,18 +21,18 @@ progress:
 
 **Core Value:** A non-developer describes what they want, and OSBuilder delivers a working, scalable, version-controlled app — without ever touching a command line manually or learning a framework.
 
-**Current Focus:** Phase --phase — 07
+**Current Focus:** Phase 08 — skill-quality-publish-bar
 
 ## Current Position
 
-Phase: 07 (additional-playbooks) — EXECUTING
-Plan: Not started
+Phase: 08 (skill-quality-publish-bar) — EXECUTING
+Plan: 1 of 8
 Plans complete: 1/6 in Phase 7 (32/37 overall)
 
 - **Milestone:** v1 (initial open-source publish-ready release)
 - **Phase:** 8
 - **Plans:** 04-01 (Wave 0 RED stubs), 04-02 (gsd_driver state machine), 04-03 (failure_classifier), 04-04 (registry_verify), 04-05 (qa.md), 04-06 (HEAL-05 gap closure — registry gate wired into step 2) — all complete
-- **Status:** Ready to plan
+- **Status:** Executing Phase 08
 - **Progress:** [██████████] 100%
 
 ## Performance Metrics
@@ -84,6 +84,7 @@ Plans complete: 1/6 in Phase 7 (32/37 overall)
 | Phase 07 P04 | 6min | 2 tasks tasks | 9 files files |
 | Phase 07-additional-playbooks P05 | 7min | 2 tasks | 15 files |
 | Phase 07 P06 | 2min | 2 tasks | 3 files |
+| Phase 08-skill-quality-publish-bar P01 | 10min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -169,7 +170,7 @@ To be confirmed in Phase 1:
 ---
 *State file initialized at roadmap creation. Updated per phase / milestone transition.*
 
-**Planned Phase:** 07 (Additional playbooks) — 6 plans — 2026-05-02T08:00:31.525Z
+**Planned Phase:** 8 (Skill quality / publish-bar) — 8 plans — 2026-05-02T21:55:59.976Z
 **Plan 01-01 completed:** 2026-04-30T04:24:21Z — commits bedee58 (pyproject+gitattributes), e3758de (test stubs)
 **Plan 04-06 completed:** 2026-04-30T21:31:11Z — commits 7b525e1 (test RED), 298b27c (feat GREEN); HEAL-05 fully satisfied; SC5 ready for re-verification
 **Plan 07-01 completed:** 2026-05-02T08:13:01Z — commits 2722929 (test RED 9 stubs), 1c8de86 (feat GREEN: PLAYBOOK_KEYWORDS + infer_app_type + _score_playbooks + _is_low_confidence; parse_paragraph wired; Electron migrated to refuse-list.md; question-bank gains "## Q: What kind of thing"); 9/9 inference tests green, 157/157 total. Wave 2 (07-02..07-05) unblocked. Decisions D-01, D-02, D-03, D-22 implemented. Requirements SCAF-02..SCAF-05 marked complete.
