@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 08-06 (README.md 154 lines; URL substituted from 08-URL-LOCK.md option-personal cdlee/osbuilder; 4/5 Wave 0 stubs RED→GREEN; demo asset SKIP pending 08-07; pytest 207/3 vs 203/7 baseline; all 7 NAMED_UPGRADES + all 8 dev-team roles verbatim). Next up Wave 4 remainder + Wave 5.
+status: phase-verified-with-waiver
+stopped_at: "Phase 8 (skill-quality-publish-bar) VERIFIED-WITH-WAIVER. All 8 plans landed; pytest 207 passed / 3 skipped (3 skips intentional — demo binary deferred per user). 5/5 success criteria PASS goal-backward; 3 documented waivers (demo binary, real screenshots, NOT_PUBLISHED example URLs); 5 manual-UAT rows pending in 08-HUMAN-UAT.md (expected steady-state for publish-bar phase). v1 milestone ready for /gsd-complete-milestone after the human runs UAT + records demo."
 last_updated: "2026-05-05T07:13:33.230Z"
 progress:
   total_phases: 8
