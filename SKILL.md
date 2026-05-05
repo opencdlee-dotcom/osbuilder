@@ -5,6 +5,12 @@ description: >
 allowed-tools: Read, Write, Edit, Bash, Agent, Glob, Grep, WebSearch, WebFetch
 user-invocable: true
 argument-hint: "[brief or @path/to/spec.md or 'build like ./reference-app']"
+requires:
+  gsd: 1.0.0
+  brainiac: 6.0.0
+  predator: 1.0.0
+  code-tester: 3.1.0
+  problem-solver: 3.0.0
 ---
 
 # OSBuilder — Idea-to-App Orchestrator
