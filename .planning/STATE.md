@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Completed 08-05 (QUAL-01 CI surface: .github/workflows/ci.yml 33 lines, 2 jobs lint-skill-md → test with needs:, all actions pinned @v6 — 3 Wave 0 stubs RED→GREEN; pytest 203/7 vs 200/10 baseline). Next up Wave 4 08-06 (README)."
-last_updated: "2026-05-05T07:07:43.263Z"
+stopped_at: Completed 08-06 (README.md 154 lines; URL substituted from 08-URL-LOCK.md option-personal cdlee/osbuilder; 4/5 Wave 0 stubs RED→GREEN; demo asset SKIP pending 08-07; pytest 207/3 vs 203/7 baseline; all 7 NAMED_UPGRADES + all 8 dev-team roles verbatim). Next up Wave 4 remainder + Wave 5.
+last_updated: "2026-05-05T07:13:33.230Z"
 progress:
   total_phases: 8
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 45
-  completed_plans: 44
-  percent: 98
+  completed_plans: 45
+  percent: 100
 ---
 
 # Project State: OSBuilder
@@ -26,14 +26,14 @@ progress:
 ## Current Position
 
 Phase: 08 (skill-quality-publish-bar) — EXECUTING
-Plan: 4 of 8
+Plan: 5 of 8
 Plans complete: 1/6 in Phase 7 (32/37 overall)
 
 - **Milestone:** v1 (initial open-source publish-ready release)
 - **Phase:** 8
 - **Plans:** 04-01 (Wave 0 RED stubs), 04-02 (gsd_driver state machine), 04-03 (failure_classifier), 04-04 (registry_verify), 04-05 (qa.md), 04-06 (HEAL-05 gap closure — registry gate wired into step 2) — all complete
 - **Status:** Ready to execute
-- **Progress:** [██████████] 98%
+- **Progress:** [██████████] 100%
 
 ## Performance Metrics
 
@@ -90,6 +90,7 @@ Plans complete: 1/6 in Phase 7 (32/37 overall)
 | Phase 08 P07 | 10min | 1 tasks | 2 files |
 | Phase 08-skill-quality-publish-bar P08-04 | 12min | 1 tasks | 1 files |
 | Phase 08-skill-quality-publish-bar P08-05 | 2min | 1 tasks | 1 files |
+| Phase 08-skill-quality-publish-bar P08-06 | 3min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -150,9 +151,9 @@ To be confirmed in Phase 1:
 
 ## Session Continuity
 
-**Last session:** 2026-05-05T07:07:43.251Z
+**Last session:** 2026-05-05T07:13:20.724Z
 
-**Stopped At:** Completed 08-05 (QUAL-01 CI surface: .github/workflows/ci.yml 33 lines, 2 jobs lint-skill-md → test with needs:, all actions pinned @v6 — 3 Wave 0 stubs RED→GREEN; pytest 203/7 vs 200/10 baseline). Next up Wave 4 08-06 (README).
+**Stopped At:** Completed 08-06 (README.md 154 lines; URL substituted from 08-URL-LOCK.md option-personal cdlee/osbuilder; 4/5 Wave 0 stubs RED→GREEN; demo asset SKIP pending 08-07; pytest 207/3 vs 203/7 baseline; all 7 NAMED_UPGRADES + all 8 dev-team roles verbatim). Next up Wave 4 remainder + Wave 5.
 
 **Where to resume:**
 

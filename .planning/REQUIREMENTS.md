@@ -164,8 +164,10 @@ Requirements for initial release. Each maps to exactly one roadmap phase (see Tr
 ### Skill quality (open-source publish-ready)
 
 - [x] **QUAL-01**: SKILL.md is ≤ 200 lines (verified via lint script)
-- [ ] **QUAL-02**: A clean `install.sh` one-liner installs OSBuilder for someone who's never used Claude Code skills
-- [ ] **QUAL-03**: README explains the dev-team metaphor and links to a 60-second demo video
+- [x] **QUAL-02
+**: A clean `install.sh` one-liner installs OSBuilder for someone who's never used Claude Code skills
+- [x] **QUAL-03
+**: README explains the dev-team metaphor and links to a 60-second demo video
 - [ ] **QUAL-04**: An `examples/` gallery contains 3-5 reference apps OSBuilder built (validation + onboarding)
 - [x] **QUAL-05
 **: First-run skill-version-drift validator (`scripts/check_skill_versions.py`) checks that GSD, brainiac, predator, code-tester, and other delegated skills meet minimum compatible versions
