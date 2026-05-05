@@ -163,7 +163,7 @@ Requirements for initial release. Each maps to exactly one roadmap phase (see Tr
 
 ### Skill quality (open-source publish-ready)
 
-- [ ] **QUAL-01**: SKILL.md is ≤ 200 lines (verified via lint script)
+- [x] **QUAL-01**: SKILL.md is ≤ 200 lines (verified via lint script)
 - [ ] **QUAL-02**: A clean `install.sh` one-liner installs OSBuilder for someone who's never used Claude Code skills
 - [ ] **QUAL-03**: README explains the dev-team metaphor and links to a 60-second demo video
 - [ ] **QUAL-04**: An `examples/` gallery contains 3-5 reference apps OSBuilder built (validation + onboarding)
@@ -285,7 +285,7 @@ Each v1 requirement maps to exactly one phase. See ROADMAP.md for full phase def
 | SCL-04 | Phase 6 | Pending |
 | SCL-05 | Phase 6 | Pending |
 | SCL-06 | Phase 6 | Pending |
-| QUAL-01 | Phase 8 | Pending |
+| QUAL-01 | Phase 8 | Complete (08-03, commit 4216da1) |
 | QUAL-02 | Phase 8 | Pending |
 | QUAL-03 | Phase 8 | Pending |
 | QUAL-04 | Phase 8 | Pending |
