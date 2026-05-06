@@ -1,10 +1,10 @@
 ---
 name: osbuilder
 description: >
-  Builds end-to-end applications from a plain-English description. Orchestrates a virtual dev team (PM, Architect, Frontend, Backend, DevOps, QA, Reviewer, Tech Writer) over the user's existing skill ecosystem (gsd, brainiac, predator, code-tester, problem-solver) to ship a working app to a private GitHub repo. Common-person friendly with tutor mode on by default. Triggers on. /osbuilder, build me an app, build a website, build a tool, build like Professor Hub.
+  Builds end-to-end applications from a plain-English description. Orchestrates a virtual dev team (PM, Architect, Frontend, Backend, DevOps, QA, Reviewer, Tech Writer) over the user's existing skill ecosystem (gsd, brainiac, predator, code-tester, problem-solver) to ship a working app to a private GitHub repo. Common-person friendly with tutor mode on by default. Triggers on. /osbuilder, build me an app, build a website, build a tool.
 allowed-tools: Read, Write, Edit, Bash, Agent, Glob, Grep, WebSearch, WebFetch
 user-invocable: true
-argument-hint: "[brief or @path/to/spec.md or 'build like ./reference-app']"
+argument-hint: "[brief or @path/to/spec.md]"
 requires:
   gsd: 1.0.0
   brainiac: 6.0.0
@@ -36,11 +36,14 @@ State persists in `<project-root>/.planning/osbuilder/state.md` (10-field markdo
 
 ## Inputs
 
-OSBuilder accepts three intake forms:
+OSBuilder accepts two intake forms in v1:
 
 1. **Paragraph** — `/osbuilder I want a website where students upload lab notebooks and I grade them`
 2. **Structured spec** — `/osbuilder @path/to/spec.md` — features list, stack hints, target users
-3. **Reference app** — `/osbuilder build like ../professor for X` — extracts patterns from an existing app *(v1.x; v1 covers paragraph + spec)*
+
+A `build like <reference-path>` reference-app form is planned for v1.x but is
+not implemented today. Trying it falls through to paragraph parsing and will
+not introspect the reference path.
 
 ## Modes
 
@@ -66,7 +69,7 @@ python ~/.claude/skills/osbuilder/scripts/state_writer.py read --project-root <p
 
 If state.md exists with non-empty `current_role` and `current_phase`, OSBuilder resumes from that role/phase. Otherwise it starts a fresh intake.
 
-The 10 persisted fields: `goal`, `app_type`, `playbook`, `current_role`, `current_phase`, `phase_step`, `last_failure`, `retry_count`, `escalation_level`, `next_action`. See `references/state-md-schema.md` for details.
+The 10 persisted fields: `goal`, `app_type`, `playbook`, `current_role`, `current_phase`, `phase_step`, `last_failure`, `retry_count`, `escalation_level`, `next_action`. The full set of writable fields (incl. extensions like `repo_url`, `stack_choices`, `production_ready`, `mode`) is the `ALLOWED_FIELDS` tuple at the top of `scripts/state_writer.py`.
 
 ## Architecture (One-Level-Deep)
 
@@ -86,14 +89,21 @@ The 10 persisted fields: `goal`, `app_type`, `playbook`, `current_role`, `curren
 │   ├── state_writer.py       ← state.md checkpoint manager (atomic via os.replace)
 │   ├── bootstrap.sh          ← POSIX Python install shim (re-execs into state_writer)
 │   ├── bootstrap.ps1         ← Windows PowerShell shim (winget; two-mode for PATH-refresh gotcha)
+│   ├── intake_handler.py     ← parses paragraph/structured spec into derived_spec.md + refuse-list gate
+│   ├── stack_researcher.py   ← per-app-type stack-menu fallback (and brainiac dispatch in --advanced)
 │   ├── scaffold_dispatch.py  ← invokes the right scaffolder for the chosen playbook
+│   ├── narration.py          ← role-banner emitter + tutor-line renderer + subprocess capturer
 │   ├── failure_classifier.py ← 4-class taxonomy: transient / context / tool / validation
 │   ├── friendly_error.py     ← translates raw stack traces into "what broke + what to do"
 │   ├── preflight_check.py    ← detects missing prereqs (Node, Python, git, gh, Docker)
 │   ├── registry_verify.py    ← slopsquatting gate (verifies packages exist before install)
+│   ├── gsd_driver.py         ← orchestrator handoff to gsd skills (3-reflection cap)
 │   ├── gh_handoff.py         ← creates private GitHub repo (Phase 6 SHIP-01..05)
 │   ├── runbook_writer.py     ← stamps clone-and-run README from state.md (Phase 6 SHIP-02)
-│   └── production_phase_writer.py  ← --production-ready named-phase emitter (Phase 6 SCL-06)
+│   ├── production_phase_writer.py  ← --production-ready named-phase emitter (Phase 6 SCL-06)
+│   ├── check_skill_md_length.py    ← SKILL.md ≤ 200-line gate (QUAL-01)
+│   ├── check_skill_versions.py     ← sub-skill version-floor first-session gate (QUAL-05)
+│   └── uninstall.py          ← removes ${HOME}/.claude/skills/osbuilder/ idempotently
 ├── assets/                   ← templates: gitignore-templates/, gitleaks/, dockerfiles/, ci-workflows/, readme-template.md
 └── examples/                 ← gallery of 3-5 reference apps OSBuilder has built
 ```
