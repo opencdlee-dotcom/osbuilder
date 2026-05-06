@@ -40,17 +40,22 @@ Hi — OSBuilder spotted **{{keyword}}** in your spec. In v1 default mode, OSBui
 won't add Kubernetes, microservices, Helm, or service-mesh to your build. These add
 ops complexity that almost always hurts a first build more than it helps.
 
-If you really need this surface area, re-run with the `--production-ready` flag:
+OSBuilder v1 does NOT scaffold Kubernetes / microservices / service-mesh — those
+are out of scope for the v1 playbooks (web, ai-service, cli, desktop, hub-platform).
+Two practical paths forward:
 
-  /osbuilder --production-ready
+1. **Drop the requirement for v1.** Ship a single-process app first; you can split
+   it into microservices later when you have real load that justifies the ops cost.
+   Rephrase your goal without **{{keyword}}** and re-run.
+2. **Use a different tool.** If you genuinely need Kubernetes from day one, OSBuilder
+   is the wrong choice — use the cloud provider's native tooling (EKS, GKE, AKS) or
+   a platform like Render, Fly.io, or Railway that exposes K8s primitives.
 
-That mode adds the seven scalable-by-default upgrades (observability, migrations,
-healthchecks, secret manager, Sentry, rate limiting, backups) as **named phases in your
-ROADMAP** — so you (or future-you) can decide which ones to actually build, in what
-order, with full context. They do NOT get bolted onto the default scaffold.
-
-If you didn't mean to ask for this, just rephrase the goal without the word
-**{{keyword}}** and re-run.
+Separately, if your concern is production-readiness rather than orchestration,
+the `--production-ready` flag adds the seven scalable-by-default upgrades
+(observability, migrations, healthchecks, secret manager, Sentry, rate limiting,
+backups) as **named phases in your ROADMAP** — but it does NOT add Kubernetes
+or microservices. They are different things.
 
 **Electron (refused; use Tauri 2 instead).** OSBuilder builds desktop apps with Tauri 2, not Electron. Tauri produces ~10MB binaries (Electron is ~150MB) and uses ~50% less RAM. Tauri uses the system WebView (WebKit on macOS, WebView2 on Windows, webkit2gtk on Linux) plus a Rust runtime — Electron bundles a full Chromium per app. If you specifically need Electron-only APIs, that is out of scope for v1; the desktop playbook (`references/playbooks/desktop.md`) covers everything else.
 
