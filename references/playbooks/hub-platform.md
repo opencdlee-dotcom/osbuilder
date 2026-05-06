@@ -52,4 +52,4 @@ Structural verification compares the built hub against `assets/hub-template/prof
 - `assets/hub-template/README.md` (snapshot vendor procedure)
 - `scripts/scaffold_dispatch.py` (scaffold_hub)
 - `scripts/intake_handler.py` (_extract_subtools)
-- `.planning/phases/07-additional-playbooks/07-RESEARCH.md` (§Pattern 4)
+- `.planning/milestones/v1.0-phases/07-additional-playbooks/07-RESEARCH.md` (§Pattern 4)

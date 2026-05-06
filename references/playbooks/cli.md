@@ -53,4 +53,4 @@ Note: `<module_name>` = `<project-name>` with hyphens replaced by underscores (`
 - `references/stack-menu.md` (## cli playbook defaults)
 - `references/question-bank.md`
 - `scripts/scaffold_dispatch.py` (`scaffold_cli`)
-- `.planning/phases/07-additional-playbooks/07-RESEARCH.md` (Pitfall 5)
+- `.planning/milestones/v1.0-phases/07-additional-playbooks/07-RESEARCH.md` (Pitfall 5)

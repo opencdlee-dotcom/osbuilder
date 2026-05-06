@@ -8,7 +8,7 @@
 > `code.claude.com/docs/en/skills` and
 > `platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices`).
 > This is an OSBuilder-local convention; future Anthropic spec changes are
-> tracked in Pitfall 7 of `.planning/phases/08-skill-quality-publish-bar/08-RESEARCH.md`.
+> tracked in Pitfall 7 of `.planning/milestones/v1.0-phases/08-skill-quality-publish-bar/08-RESEARCH.md`.
 
 ## Format
 
@@ -75,4 +75,4 @@ the full rationale.
 - `SKILL.md` — frontmatter `requires:` block (source of truth)
 - `scripts/check_skill_versions.py` — implementation
 - `~/.claude/skills/{gsd,brainiac,predator,code-tester,problem-solver}/SKILL.md` — installed versions
-- `.planning/phases/08-skill-quality-publish-bar/08-RESEARCH.md` Pitfall 2 (missing-version policy), Pitfall 7 (Anthropic-future-proofing)
+- `.planning/milestones/v1.0-phases/08-skill-quality-publish-bar/08-RESEARCH.md` Pitfall 2 (missing-version policy), Pitfall 7 (Anthropic-future-proofing)

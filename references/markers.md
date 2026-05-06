@@ -42,4 +42,4 @@ When adding a new marker:
 
 - `scripts/gh_handoff.py` — `_GITIGNORE_MARKER` (Phase 6 SHIP-03)
 - `scripts/runbook_writer.py` — `OSBUILDER_MARKER` (Phase 6 SHIP-02)
-- D-05 (no cross-script imports) — see `.planning/REQUIREMENTS.md`
+- D-05 (no cross-script imports) — see `.planning/milestones/v1.0-REQUIREMENTS.md`
