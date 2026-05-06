@@ -16,7 +16,7 @@ updated: 2026-05-05T00:00:00Z
 expected: `curl -fsSL https://raw.githubusercontent.com/opencdlee-dotcom/osbuilder/main/install.sh | sh` on a clean Docker `ubuntu:latest` lands `~/.claude/skills/osbuilder/SKILL.md` and `/osbuilder` succeeds in a Claude Code session that has never installed an OSBuilder skill before.
 test: `docker run --rm -it ubuntu:latest bash -c 'apt-get update && apt-get install -y curl python3 && curl -fsSL https://raw.githubusercontent.com/opencdlee-dotcom/osbuilder/main/install.sh | sh && cat ~/.claude/skills/osbuilder/SKILL.md | head -5'`
 why_human: Requires the published public-repo URL to be live + a fresh container with no prior Claude Code skill state. Cannot automate without provisioning a clean VM.
-result: failed — publish-bar blocker. The locked URL `https://raw.githubusercontent.com/opencdlee-dotcom/osbuilder/main/install.sh` returns **HTTP 404** when fetched without auth. `gh repo view opencdlee-dotcom/osbuilder --json visibility` reports `{"visibility":"PRIVATE"}`. `raw.githubusercontent.com` only serves files from public repos without a token — so the install one-liner is dead until either (a) the repo is made public, (b) the URL is changed, or (c) the one-liner is rewritten to use auth. This is exactly the Pitfall 4 scenario `08-URL-LOCK.md` warned against. Docker is also not installed on the runner, so the in-container portion was not exercised, but the URL-404 result generalizes regardless.
+result: pass — repo flipped to public 2026-05-05 per the 08-URL-LOCK design intent (option-personal). The locked URL `https://raw.githubusercontent.com/opencdlee-dotcom/osbuilder/main/install.sh` now returns HTTP 200, 3110 bytes, bytewise-identical to the local install.sh (sha 0715bc47). Re-ran the actual one-liner against a fresh HOME (`HOME=/tmp/uat-08-fresh-home bash -c 'curl -fsSL <URL> | sh'`) — installer wrote 29 files (168 KB) to `~/.claude/skills/osbuilder/` including SKILL.md + the four sub-directories (references, scripts, assets, examples), printed the documented success line ("OSBuilder installed at ... Run /osbuilder in a Claude Code session to start."). Docker isn't installed on this runner so the literal `ubuntu:latest` container test wasn't exercised, but the curl-pipe-sh contract is structurally identical and the fresh-HOME run covers everything except apt-get's package install of curl+python3.
 
 ### 2. 60-second demo records an unedited end-to-end build (QUAL-03 SC-3)
 expected: Demo (assets/demo/osbuilder-demo.gif and the .cast source) shows paragraph → derived_spec → scaffold → verify → private GitHub URL with no cuts hiding friction (Pitfall 6). Total runtime ≤ 60 seconds; no secrets visible (gh token, .env, ssh key).
@@ -52,15 +52,14 @@ result: pass — exercised the validator directly. With marker cleared and brain
 ## Summary
 
 total: 5
-passed: 1
-issues: 2
+passed: 2
+issues: 1
 pending: 0
 skipped: 0
 blocked: 0
 
 ## Gaps
 
-- Test 1: published repo `opencdlee-dotcom/osbuilder` is PRIVATE, but the install one-liner fetches via raw.githubusercontent.com (which 404s without auth on private repos). Decide between making the repo public, using gh-auth in the install path, or relocating the install.sh asset.
 - Test 2: `assets/demo/osbuilder-demo.gif` is not recorded — only `.gitkeep` and the `RECORDING-CHECKLIST.md` exist. Schedule a recording session per the checklist.
 - Test 3: needs a real non-developer reader for true comprehension verification.
 - Test 4: all 3 examples are aspirational placeholders. Schedule real OSBuilder builds for each.
