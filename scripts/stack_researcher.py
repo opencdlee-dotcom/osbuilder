@@ -68,8 +68,25 @@ def _mode_from_state(project_root: Path) -> str:
         return "beginner"
 
 
-def _read_stack_menu(references_root: Path) -> dict:
-    """RES-03 fallback: read stack-menu.md; return hardcoded defaults if absent."""
+_APP_TYPE_TO_SECTION = {
+    "web": "Web playbook defaults",
+    "ai-service": "ai-service playbook defaults",
+    "cli": "cli playbook defaults",
+    "desktop": "desktop playbook defaults",
+    "hub-platform": "hub-platform playbook defaults",
+}
+
+
+def _read_stack_menu(references_root: Path, app_type: str = "web") -> dict:
+    """RES-03 fallback: read stack-menu.md; return hardcoded defaults if absent.
+
+    Slices the markdown to the `## <app_type> playbook defaults` section before
+    running the row regex. Without this slice, the regex picked up rows from
+    every section (web, ai-service, cli, ...) and the dict-overwrite left the
+    LAST section's values (e.g. framework=fastapi) for any app_type — so a web
+    build would inherit fastapi as its framework. Surfaced by the v1.0 codebase
+    audit on stack_researcher.research_stack('web') in beginner mode.
+    """
     p = references_root / "stack-menu.md"
     if not p.exists():
         # Wave 2 has not shipped yet — return hardcoded defaults
@@ -77,7 +94,16 @@ def _read_stack_menu(references_root: Path) -> dict:
     try:
         import re
         content = p.read_text(encoding="utf-8")
-        # Look for "## Web playbook defaults" table section
+        section_title = _APP_TYPE_TO_SECTION.get(app_type)
+        if section_title:
+            # Slice from this section's H2 to the next H2 (or EOF).
+            section_re = re.compile(
+                r"^##\s*" + re.escape(section_title) + r"\s*$(.*?)(?=^##\s|\Z)",
+                re.MULTILINE | re.DOTALL,
+            )
+            m = section_re.search(content)
+            if m:
+                content = m.group(1)
         # Table rows: | Component | Package | Version | Rationale |
         rows = re.findall(
             r"^\|\s*(\w[\w\s]*?)\s*\|\s*([\w@./\-]+)\s*\|\s*([\w.\-]+)\s*\|",
@@ -136,13 +162,13 @@ def research_stack(
 
     if mode == "beginner":
         # Auto-resolve to stack-menu defaults (RES-03 path; no brainiac call)
-        stack_choices = _read_stack_menu(REFERENCES_ROOT)
+        stack_choices = _read_stack_menu(REFERENCES_ROOT, app_type)
     else:
         # Advanced mode: original behavior (RES-01 brainiac → RES-03 fallback)
         brainiac_result = _call_brainiac(app_type)
 
         if not brainiac_result or not isinstance(brainiac_result, dict):
-            stack_choices = _read_stack_menu(REFERENCES_ROOT)
+            stack_choices = _read_stack_menu(REFERENCES_ROOT, app_type)
         else:
             # Tag each component with its source
             stack_choices = {}
@@ -152,7 +178,7 @@ def research_stack(
                 else:
                     stack_choices[key] = val
             # Fill in any missing required keys from fallback
-            defaults = _read_stack_menu(REFERENCES_ROOT)
+            defaults = _read_stack_menu(REFERENCES_ROOT, app_type)
             for key in defaults:
                 if key not in stack_choices:
                     stack_choices[key] = defaults[key]
