@@ -56,7 +56,7 @@ passed: 3
 issues: 0
 pending: 0
 skipped: 0
-blocked: 0
+partial: 2
 
 ## Gaps
 
