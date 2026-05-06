@@ -3,7 +3,7 @@
 <!-- OSBuilder runbook -->
 > Built by OSBuilder. Stack: {{stack_summary}}. Playbook: {{playbook}}.
 
-## Quick Start
+## Quick start
 
 Clone the repo, copy the env example, install deps, and run.
 
@@ -30,8 +30,8 @@ pre-commit install
 
 ## Configuration
 
-Copy `.env.example` to `.env` and edit any placeholders. Never commit your `.env` —
-the gitleaks pre-commit hook (installed above) blocks accidental secret commits.
+Copy `.env.example` to `.env` and edit any placeholders. Never commit your `.env`.
+The gitleaks pre-commit hook (installed above) blocks accidental secret commits.
 
 ```bash
 cp .env.example .env
@@ -58,9 +58,10 @@ docker compose up -d
 
 ## How OSBuilder built this
 
-This section is filled in by the Tech Writer step (`/gsd-docs-update`) — it explains
-the dev-team metaphor (PM gathered requirements, Architect chose the stack, Frontend +
-Backend + DevOps + QA built and reviewed it) in plain English.
+This section is filled in by the Tech Writer step (`/gsd-docs-update`). It explains
+the dev-team metaphor in plain English: PM gathered requirements, Architect chose
+the stack, Frontend + Backend + DevOps + QA built it, Reviewer + Tech Writer
+checked the work and wrote this README.
 
 If you're seeing this placeholder line, the Tech Writer step has not run yet on this
 build. Re-run `/osbuilder` to complete the runbook.

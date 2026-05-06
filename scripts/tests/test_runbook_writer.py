@@ -45,8 +45,9 @@ def test_runbook_writes_quickstart(rw, fake_built_app, fake_state_md, tmp_projec
 
     content = readme.read_text(encoding="utf-8")
 
-    # Required H2 sections
-    for section in ("## Quick Start", "## Requirements", "## Configuration", "## Development", "## Tests"):
+    # Required H2 sections (sentence-case per humanizer audit; see commit fixing
+    # /humanizer flag on `## Quick Start`).
+    for section in ("## Quick start", "## Requirements", "## Configuration", "## Development", "## Tests"):
         assert section in content, f"Missing required section: {section!r}"
 
     # Pitfall 2 mitigation lines (verbatim)
