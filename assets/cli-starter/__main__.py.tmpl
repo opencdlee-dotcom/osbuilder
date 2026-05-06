@@ -19,6 +19,17 @@ app = typer.Typer(
 console = Console()
 
 
+@app.callback()
+def _root() -> None:
+    """OSBuilder CLI starter — type --help for commands.
+
+    The callback keeps Typer in multi-command mode. Without it, a single
+    @app.command() collapses into the root and `<app> ping` is rejected
+    as an unexpected positional argument.
+    """
+    return
+
+
 def _init_db() -> sqlite3.Connection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)

@@ -395,6 +395,32 @@ def _sanitize_module_name(name: str) -> str:
     return name.replace("-", "_")
 
 
+def _inject_cli_scripts_entry(pyproject_path: Path, project_name: str, module_name: str) -> None:
+    """Append [project.scripts] + [tool.uv] package=true to a uv-generated pyproject.toml.
+
+    `uv init --app` produces a pyproject.toml with [project] and dependencies, but
+    it does NOT register an entry-point table. Without [project.scripts] +
+    `tool.uv.package = true`, `uv run <project_name>` resolves to nothing
+    (uv prints "Skipping installation of entry points... because this project is
+    not packaged" then "Failed to spawn: <name>"). Both tables are required for
+    the documented `uv run <app> --help` UAT contract.
+
+    Idempotent: skips each table independently if already present.
+    """
+    existing = pyproject_path.read_text(encoding="utf-8")
+    addition = ""
+    if "[project.scripts]" not in existing:
+        addition += (
+            f'\n[project.scripts]\n'
+            f'"{project_name}" = "{module_name}.__main__:app"\n'
+        )
+    if "[tool.uv]" not in existing:
+        addition += '\n[tool.uv]\npackage = true\n'
+    if not addition:
+        return
+    pyproject_path.write_text(existing.rstrip() + "\n" + addition, encoding="utf-8")
+
+
 def scaffold_cli(project_name: str, project_root: Path) -> Path:
     """SCAF-03: scaffold a Python + Typer + Rich + SQLite CLI project.
 
@@ -448,6 +474,12 @@ def scaffold_cli(project_name: str, project_root: Path) -> Path:
     tmpl = (_CLI_STARTER / "__main__.py.tmpl").read_text(encoding="utf-8")
     rendered_main = tmpl.replace("{{project_name}}", project_name)
     atomic_write(project_dir / module_name / "__main__.py", rendered_main)
+    # Inject [project.scripts] entry so `uv run <project_name>` resolves.
+    # uv init --app does not produce a scripts table; without this, the
+    # documented `uv run <app-name> --help` UAT contract fails.
+    pyproject_path = project_dir / "pyproject.toml"
+    if pyproject_path.exists():
+        _inject_cli_scripts_entry(pyproject_path, project_name, module_name)
     # Add typer dep — rich is transitive (Pitfall 5: NO `typer[all]`).
     result = subprocess.run(
         ["uv", "add", "typer"],

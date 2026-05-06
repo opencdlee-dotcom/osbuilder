@@ -185,3 +185,79 @@ def test_scaffold_cli_writes_main_template(has_cli, fake_shell, fake_which, tmp_
     assert "CREATE TABLE IF NOT EXISTS pings" in content, (
         "Substituted file must still contain the SQLite ping table (SC-02 verification)"
     )
+
+
+# ---------- 6. scaffold injects [project.scripts] so `uv run <name>` resolves ----------
+
+def test_scaffold_cli_injects_project_scripts(has_cli, fake_shell, fake_which, tmp_path):
+    """v1.0 HUMAN-UAT 07-2(a): generated pyproject.toml gets a [project.scripts] entry.
+
+    Without this, `uv run my-cli --help` fails with `error: Failed to spawn:
+    'my-cli' Caused by: No such file or directory (os error 2)` and the documented
+    stranger-clone UAT contract for the cli playbook breaks. Seeds a uv-init-like
+    pyproject.toml beforehand because the mocked `uv init --app` creates no file.
+    """
+    sd = has_cli
+    fake_which["uv"] = "/usr/local/bin/uv"
+    fake_shell.program("uv init --app", returncode=0, stdout="")
+    fake_shell.program("uv add typer", returncode=0, stdout="")
+    project_dir = tmp_path / "my-cli"
+    project_dir.mkdir()
+    (project_dir / "pyproject.toml").write_text(
+        '[project]\nname = "my-cli"\nversion = "0.1.0"\n'
+        'requires-python = ">=3.13"\ndependencies = []\n',
+        encoding="utf-8",
+    )
+    sd.scaffold_cli("my-cli", tmp_path)
+    pyproject_text = (project_dir / "pyproject.toml").read_text(encoding="utf-8")
+    assert "[project.scripts]" in pyproject_text, (
+        "scaffold_cli must inject [project.scripts] so `uv run <name>` resolves"
+    )
+    assert '"my-cli" = "my_cli.__main__:app"' in pyproject_text, (
+        "scaffold_cli must point the script entry at the package's app object"
+    )
+    # [project.scripts] alone isn't enough — uv refuses to install entry points
+    # for an unpackaged project. tool.uv.package = true tells uv to install them.
+    assert "[tool.uv]" in pyproject_text and "package = true" in pyproject_text, (
+        "scaffold_cli must also set tool.uv.package=true so uv installs the entry points"
+    )
+
+
+def test_scaffold_cli_injection_is_idempotent(has_cli, fake_shell, fake_which, tmp_path):
+    """Second scaffold_cli call against a project that already has [project.scripts]
+    must not duplicate the table."""
+    sd = has_cli
+    fake_which["uv"] = "/usr/local/bin/uv"
+    fake_shell.program("uv init --app", returncode=0, stdout="")
+    fake_shell.program("uv add typer", returncode=0, stdout="")
+    project_dir = tmp_path / "my-cli"
+    project_dir.mkdir()
+    (project_dir / "pyproject.toml").write_text(
+        '[project]\nname = "my-cli"\nversion = "0.1.0"\n'
+        'requires-python = ">=3.13"\ndependencies = []\n\n'
+        '[project.scripts]\n"my-cli" = "my_cli.__main__:app"\n',
+        encoding="utf-8",
+    )
+    sd.scaffold_cli("my-cli", tmp_path)
+    pyproject_text = (project_dir / "pyproject.toml").read_text(encoding="utf-8")
+    assert pyproject_text.count("[project.scripts]") == 1, (
+        f"Idempotency broken — duplicate [project.scripts] table:\n{pyproject_text}"
+    )
+
+
+# ---------- 7. cli template uses @app.callback() so subcommands stay reachable ----------
+
+def test_cli_starter_template_uses_app_callback():
+    """v1.0 HUMAN-UAT 07-2(b): single-`@app.command()` collapses into the root command
+    unless an `@app.callback()` is also registered. Without the callback, `python -m
+    my_cli ping` fails with "Got unexpected extra argument (ping)".
+    """
+    tmpl = REPO_ROOT / "assets" / "cli-starter" / "__main__.py.tmpl"
+    if not tmpl.exists():
+        pytest.skip("cli-starter template not yet created")
+    content = tmpl.read_text(encoding="utf-8")
+    assert "@app.callback()" in content, (
+        "cli starter template must register an @app.callback() to keep Typer in "
+        "multi-command mode (otherwise `<app> ping` is interpreted as an extra "
+        "positional argument when only one @app.command() is registered)"
+    )
