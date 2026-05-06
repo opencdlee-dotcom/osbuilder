@@ -109,3 +109,22 @@ def test_advanced_override(sr, fake_shell, tmp_project_root):
         "--advanced override must replace researched orm choice (RES-04). "
         f"Got: {result.get('orm')}"
     )
+
+
+def test_stack_menu_slices_per_app_type(sr):
+    """v1.0 audit: _read_stack_menu MUST slice to the requested app_type's
+    section before harvesting `| Component | Package | ... |` rows. Previously
+    the regex ran across the whole file and the dict-overwrite left the LAST
+    section's values for every app_type — a web build inherited
+    framework=fastapi because the ai-service section came later in the file.
+    """
+    from pathlib import Path
+    refs = Path(__file__).resolve().parents[2] / "references"
+    web = sr._read_stack_menu(refs, "web")
+    ai = sr._read_stack_menu(refs, "ai-service")
+    assert web.get("framework", {}).get("name") == "next.js", (
+        f"web playbook must resolve to next.js framework; got {web.get('framework')}"
+    )
+    assert ai.get("framework", {}).get("name") == "fastapi", (
+        f"ai-service playbook must resolve to fastapi framework; got {ai.get('framework')}"
+    )
