@@ -279,3 +279,45 @@ def test_state_writer_subtools_field(sw):
             "subtools must NOT be required (additive). It is hub-only and would "
             "break validate() for non-hub builds."
         )
+
+
+# ---------- 9. v1.0 audit follow-ups: AGENTS.md emission + TBD routing cells ----------
+
+def test_hub_emits_agents_md(has_hub, tmp_path):
+    """v1.0 audit (Professor Hub fit): scaffold_hub must emit a top-level
+    AGENTS.md alongside CLAUDE.md so non-Claude agents (Codex, Cursor, etc.)
+    have a router. Live Professor Hub ships both files in parallel.
+    """
+    sd = has_hub
+    project_dir = sd.scaffold_hub(
+        "test-hub", tmp_path, subtools=["grading", "rostering"]
+    )
+    agents_md = project_dir / "AGENTS.md"
+    assert agents_md.exists(), (
+        "scaffold_hub must emit AGENTS.md alongside CLAUDE.md "
+        "(matches Professor Hub structure)"
+    )
+    body = agents_md.read_text(encoding="utf-8")
+    assert "test-hub" in body, "AGENTS.md must substitute {{project_name}}"
+    assert "`grading/`" in body and "`rostering/`" in body, (
+        "AGENTS.md routing-table must list every subtool"
+    )
+
+
+def test_hub_routing_skill_cell_is_tbd_not_na(has_hub, tmp_path):
+    """v1.0 audit: routing-table skill cells default to TBD (not n/a) so the
+    user can see at-a-glance which rows still need a Claude-Code-skill
+    assignment after scaffolding. n/a was misleading because the field IS
+    expected to be filled in.
+    """
+    sd = has_hub
+    project_dir = sd.scaffold_hub("test-hub", tmp_path, subtools=["grading"])
+    claude_md = (project_dir / "CLAUDE.md").read_text(encoding="utf-8")
+    assert "| TBD |" in claude_md, (
+        "scaffold_hub routing cells must default to 'TBD' so user knows to "
+        "fill them in"
+    )
+    assert "| n/a |" not in claude_md, (
+        "scaffold_hub must not emit 'n/a' — that implies no skill is wanted "
+        "when the actual intent is 'pick one later'"
+    )
