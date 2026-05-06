@@ -22,7 +22,7 @@ result: pass — scaffolded ai-service via `scaffold_dispatch.py scaffold --play
 expected: `uv run <app-name> --help` prints Rich-formatted help screen within 5 minutes of clone; `<app-name> ping` writes a row to SQLite and reads it back.
 test: On second machine with `uv` installed: clone → `cd <dir> && uv sync && uv run <app-name> --help` → confirm Rich-styled output → `uv run <app-name> ping` → confirm "ping #1" message + DB path → run again → confirm "ping #2" (state persisted across runs per SC-02).
 why_human: Subjective Rich-formatting verification + cross-run persistence behavior; can't be deterministically automated without a real shell.
-result: failed — two real defects in the cli scaffold output. (a) `pyproject.toml` written by `scaffold_dispatch.scaffold_cli` declares no `[project.scripts]` entry, so `uv run uat-cli --help` fails with `error: Failed to spawn: 'uat-cli' Caused by: No such file or directory (os error 2)`. (b) Even invoking via `python -m uat_cli`, the documented `ping` subcommand is unreachable: with only one `@app.command()` in `uat_cli/__main__.py`, Typer treats the app as a single-command app and `python -m uat_cli ping` returns "Got unexpected extra argument (ping)". Both block the documented UAT contract verbatim.
+result: pass — both defects fixed in commit 0641a63 (fix(scaffold-cli): inject [project.scripts] + tool.uv.package=true; keep Typer multi-command). (a) scaffold_cli now appends [project.scripts] + [tool.uv] package=true to the uv-init pyproject.toml so `uv run <name> --help` resolves. (b) cli-starter __main__.py.tmpl now registers an @app.callback() so Typer keeps multi-command mode and `<app> ping` is reachable. Re-verified end-to-end on 2026-05-05: `uv run uat-cli --help` shows Rich-formatted help with `ping` listed; `uv run uat-cli ping` writes "ping #1 at <ts>" + DB path; second invocation writes "ping #2" (cross-run persistence confirmed). Two regression tests added (test_scaffold_cli_injects_project_scripts, test_cli_starter_template_uses_app_callback).
 
 ### 3. Stranger clone-and-run on fresh machine — desktop
 expected: `pnpm tauri dev` opens a native window with hot-reload within 5 minutes of clone (Rust toolchain install is not counted in the 5-min budget).
@@ -40,7 +40,7 @@ result: pass — scaffolded hub via `scaffold_dispatch.py scaffold --playbook hu
 expected: Submitting a spec containing "build me an Electron desktop app for X" produces a refusal pointing the user at Tauri 2 with the documented rationale (smaller binaries, less RAM); refusal copy is human-friendly (no jargon).
 test: Run OSBuilder with intake "I want an Electron desktop app for note-taking" → confirm OSBuilder refuses → confirm the refusal text mentions: (a) "Electron" by name, (b) "Tauri 2" as the alternative, (c) the rationale (~10MB vs 150MB binaries, ~50% less RAM, system WebView). Verify state.md `last_failure` matches the refusal pattern.
 why_human: Default-mode refusal copy is human-judged for friendliness; automated test only verifies the refuse-list.md text contains "Electron" and "Tauri" — actual UX evaluation is human.
-result: failed — defect in `scripts/intake_handler.py:57-68`. The Electron refusal copy is correctly authored in `references/refuse-list.md` (mentions "Electron", "Tauri 2", "~10MB binaries", "Electron is ~150MB", "~50% less RAM") but `REFUSE_KEYWORDS` does not include "electron". `_matches_refuse_keyword("I want an Electron desktop app for note-taking")` returns `None`; `check_refuse_list` returns `False`; no refusal fires; `state.md` `last_failure` stays empty. The gate is wired correctly for k8s/microservices/etc. but Electron is missing from the keyword list.
+result: pass — fixed in commit fd52de7 (fix(intake): refuse Electron + coerce string scalars in parse_structured). Added "electron" to REFUSE_KEYWORDS and to references/refuse-list.md `## Refuse keywords` (kept the test_refuse_list_synced gate green). Re-verified on 2026-05-05: `_matches_refuse_keyword("I want an Electron desktop app for note-taking")` returns "electron"; `check_refuse_list(root)` returns True; state.md `last_failure: refused: electron` is set; the full refusal copy (including the Electron / Tauri 2 / 10MB-vs-150MB / 50%-less-RAM rationale) prints to stderr. Regression test test_electron_keyword_in_refuse_keywords added.
 
 ### 6. /summarize endpoint smoke (Pydantic v2 verification)
 expected: After ai-service boot, POST to /summarize with valid JSON returns the summary stub (text[:200]); request validation fires on invalid input (e.g., empty text); response uses Pydantic v2 patterns (no v1 silent no-op per Pitfall 4).
@@ -59,14 +59,12 @@ result: pass — booted on port 8123. `POST /summarize {"text":"hello world"}` �
 ## Summary
 
 total: 6
-passed: 3
-issues: 2
+passed: 5
+issues: 0
 pending: 0
 skipped: 0
-blocked: 1
+partial: 1
 
 ## Gaps
 
-- Test 2 (cli): two defects in `scaffold_dispatch.scaffold_cli` — (a) missing `[project.scripts]` entry; (b) single-`@app.command()` Typer pattern collapses subcommand into root. File against 07 follow-up.
-- Test 5 (Electron refusal): `REFUSE_KEYWORDS` in `scripts/intake_handler.py` is missing `"electron"`. Add the keyword (and any aliases like `electron.js`) and pin a regression test.
-- Test 3 (desktop GUI): needs a human at a graphical session to confirm the native window actually opens.
+- Test 3 (desktop GUI): needs a human at a graphical session to confirm the native window actually opens. Tauri 2 scaffold structure is verified; only the OS-level window-opens-and-renders step is gated.

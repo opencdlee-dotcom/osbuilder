@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Publish-Ready
 status: milestone-shipped
-stopped_at: "v1.0 (Publish-Ready) milestone shipped 2026-05-05. All 8 phases archived to milestones/v1.0-phases/; ROADMAP.md collapsed to milestone-grouped form; REQUIREMENTS.md archived and removed. 11 manual-UAT/verification items deferred (see Deferred Items section) — by-design publish-bar gaps with documented unblock paths. Tagged v1.0. Ready for /gsd-new-milestone (v1.1)."
-last_updated: "2026-05-05T08:55:00.000Z"
+stopped_at: "v1.0 (Publish-Ready) milestone shipped 2026-05-05. Post-close fixes 2026-05-05/06: (a) install.sh now copies all 16 orchestrator helpers + assets/ (was: only state_writer + bootstrap shims, making /osbuilder non-functional after one-liner install); (b) repo flipped to public per 08-URL-LOCK design intent — install one-liner now lives; (c) 60-second demo recorded (cast + gif under assets/demo/); (d) cli scaffold pyproject.toml now injects [project.scripts] + tool.uv.package=true so `uv run <name>` works; (e) Electron now in REFUSE_KEYWORDS so the v1 gate fires; (f) stack-menu fallback now slices by app_type (web no longer inherits ai-service framework); (g) macOS docker mapping switched to brew --cask orbstack (legacy `brew install docker` was CLI-only); (h) _SECRET_PATTERNS tightened to value-shape literals (no false positives on benign nouns); (i) scaffold_hub now emits AGENTS.md alongside CLAUDE.md, idempotent, TBD routing cells. Tagged v1.0. Ready for /gsd-new-milestone (v1.1)."
+last_updated: "2026-05-06T20:30:00.000Z"
 progress:
   total_phases: 8
   completed_phases: 8
@@ -34,8 +34,8 @@ Items acknowledged and deferred at v1.0 milestone close on 2026-05-05:
 | uat_gap | 02 | 02-HUMAN-UAT.md | partial | 2 pending: fresh-Mac install timing (SC-6); Windows --no-docker flow (SC-5) |
 | uat_gap | 03 | 03-HUMAN-UAT.md | partial | 2 pending: pnpm install && pnpm dev boots localhost:3000 (SC-5); 60s E2E timing (SC-7) |
 | uat_gap | 05 | 05-HUMAN-UAT.md | partial | 5 pending: live build narration; top-30 errors live test; README humanizer; --advanced flag UX; dictionary expansion path |
-| uat_gap | 07 | 07-HUMAN-UAT.md | pending | 6 stranger-clone tests across 4 playbooks + Electron refusal UX + /summarize smoke |
-| uat_gap | 08 | 08-HUMAN-UAT.md | pending | 5 publish-bar checks: clean-machine install one-liner, demo honesty, README readability, examples-really-built, version-drift validator UX |
+| uat_gap | 07 | 07-HUMAN-UAT.md | partial | 4 of 6 PASS (07-1 ai-service, 07-4 hub-platform routing, 07-6 /summarize smoke, 07-2 cli — fixed in scaffold_dispatch [project.scripts]; 07-5 Electron refusal — fixed in REFUSE_KEYWORDS); 1 partial (07-3 desktop GUI window — needs graphical session); 1 fail-flipped-pass after fixes |
+| uat_gap | 08 | 08-HUMAN-UAT.md | partial | 3 PASS (08-1 install one-liner — repo public + URL live + clean-HOME run verified; 08-2 60s demo — recorded as cast + gif via run_demo.py driver; 08-5 version-drift validator); 2 partial (08-3 README non-dev reader, 08-4 examples gallery built-by-OSBuilder verification) |
 | verification_gap | 02 | 02-VERIFICATION.md | human_needed | 12/13 truths VERIFIED; SC-6 deferred to manual-only smoke |
 | verification_gap | 03 | 03-VERIFICATION.md | human_needed | 9/11 truths VERIFIED; 2 require live pnpm execution |
 | verification_gap | 05 | 05-VERIFICATION.md | human_needed | 6/6 must-haves VERIFIED; 5 UX-judgment items live-build-only |
