@@ -69,7 +69,7 @@ repo (github.com/.../OSBuilder). At install time the skill lives at
 ~/.claude/skills/osbuilder/ and does not include `.planning/`. Keep this block
 HTML-commented so installed-skill users do not see broken links. -->
 <!--
-- `.planning/REQUIREMENTS.md` — SCL-05 + SCL-06 requirement IDs (maintainers only)
-- `.planning/ROADMAP.md` Phase 6 success criteria #5 — the falsifiable test (maintainers only)
+- `.planning/milestones/v1.0-REQUIREMENTS.md` — SCL-05 + SCL-06 requirement IDs (maintainers only)
+- `.planning/milestones/v1.0-ROADMAP.md` Phase 6 success criteria #5 — the falsifiable test (maintainers only)
 -->
 

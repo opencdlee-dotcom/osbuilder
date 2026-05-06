@@ -53,4 +53,4 @@ Source: https://fastapi.tiangolo.com/fastapi-cli/ + https://docs.astral.sh/uv/gu
 - `references/stack-menu.md` (## ai-service playbook defaults)
 - `references/question-bank.md`
 - `scripts/scaffold_dispatch.py` (scaffold_ai_service)
-- `.planning/phases/07-additional-playbooks/07-RESEARCH.md`
+- `.planning/milestones/v1.0-phases/07-additional-playbooks/07-RESEARCH.md`

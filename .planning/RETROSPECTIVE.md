@@ -13,7 +13,7 @@
 - Cross-platform pre-flight installer (`preflight_check.py`, 595 lines, pure stdlib) with transactional rollback, AST-verified read-only `render_preview()`, version-manager refusal, per-OS package matrices for brew / apt / dnf / winget
 - Intake → research → scaffold loop for 4 playbooks (web, ai-service, cli, desktop) + hub-platform: deterministic-scaffolder-first; vendored `professor-snapshot/` for hub-platform
 - GSD handoff orchestrator (`gsd_driver.py`, 678 lines) with 4-class failure taxonomy, 3-reflection cap (Aider's empirically-validated limit), exponential backoff, slopsquatting gate via `registry_verify.py`
-- Common-person UX: 30-entry friendly-error dictionary with `format_version: "1.0"` gate; 8 dev-team role briefs driving `[ROLE]` banner + `> In plain English` tutor lines; beginner-mode default with zero hits for 9 forbidden tech tokens
+- Common-person UX: 39-entry friendly-error dictionary with `format_version: "1.0"` gate; 8 dev-team role briefs driving `[ROLE]` banner + `> In plain English` tutor lines; beginner-mode default with zero hits for 9 forbidden tech tokens
 - Ship-to-private-GitHub flow: `gh repo create --private` with token redaction; `runbook_writer.py` clone-and-run README from template; gitleaks pre-commit hook v8.30.1; refuse-list with word-boundary regex
 - Publish-bar surface: `check_skill_md_length.py` + `check_skill_versions.py`; `requires:` block declaring 5 sub-skill minimums; CI workflow with pinned `@v6` actions; install one-liner; 3-example gallery (web/cli/ai-service)
 

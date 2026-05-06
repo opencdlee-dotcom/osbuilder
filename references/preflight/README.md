@@ -65,7 +65,7 @@ builds without Docker Desktop license friction.
 
 ## See also
 
-- `.planning/phases/02-pre-flight-installer-cross-platform/02-RESEARCH.md` — full
+- `.planning/milestones/v1.0-phases/02-pre-flight-installer-cross-platform/02-RESEARCH.md` — full
   research output that informed this design
 - `.planning/research/STACK.md` §"Pre-flight Installer — Cross-Platform Compatibility Matrix" — verified package IDs
 - `.planning/research/PITFALLS.md` §13 (preflight breaks system) and §14 (cross-platform script breakage)

@@ -27,7 +27,7 @@ A `repo-url.txt` containing `NOT_PUBLISHED` means the example's SPEC has been
 documented but a real OSBuilder build has not yet produced a GitHub repo for
 it (e.g., the build is gated on Phase 6 / Phase 7 completion of OSBuilder
 itself). The manual UAT in
-`.planning/phases/08-skill-quality-publish-bar/08-HUMAN-UAT.md` row 4 tracks
+`.planning/milestones/v1.0-phases/08-skill-quality-publish-bar/08-HUMAN-UAT.md` row 4 tracks
 the upgrade-to-real-URL milestone.
 
 Once a real OSBuilder build produces a repo URL, replace the placeholder
@@ -68,4 +68,4 @@ to point to.
 
 - [`../README.md`](../README.md) — main project README (links to this gallery)
 - [`../references/playbooks/`](../references/playbooks/) — per-playbook scaffolder docs
-- [`../.planning/phases/08-skill-quality-publish-bar/08-HUMAN-UAT.md`](../.planning/phases/08-skill-quality-publish-bar/08-HUMAN-UAT.md) row 4 — manual UAT for "examples were really built"
+- [`../.planning/milestones/v1.0-phases/08-skill-quality-publish-bar/08-HUMAN-UAT.md`](../.planning/milestones/v1.0-phases/08-skill-quality-publish-bar/08-HUMAN-UAT.md) row 4 — manual UAT for "examples were really built"
