@@ -65,6 +65,7 @@ REFUSE_KEYWORDS = (
     "istio",
     "linkerd",
     "consul",
+    "electron",
 )
 
 REFUSE_LIST_MD = REPO_ROOT / "references" / "refuse-list.md"
@@ -415,6 +416,22 @@ def parse_paragraph(text: str, project_root: Path | None = None) -> Path:
     return dest
 
 
+def _coerce_str_list(value: object) -> "list[str]":
+    """Accept either a list/tuple of strings or a single string.
+
+    Guards against the bug where `list("students and teachers")` iterates the
+    string char-by-char and renders 22 single-character bullets in derived_spec.
+    None → []; str → [str]; list/tuple → list copy; anything else is wrapped.
+    """
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, (list, tuple)):
+        return [str(v) for v in value]
+    return [str(value)]
+
+
 def parse_structured(data: dict, project_root: Path | None = None) -> Path:
     """IN-02: Parse structured dict spec → derived_spec.md.
 
@@ -429,9 +446,9 @@ def parse_structured(data: dict, project_root: Path | None = None) -> Path:
     atomic_write(dest, _render_derived_spec(
         goal=str(data.get("goal", "")),
         app_type=str(data.get("app_type", "web")),
-        features=list(data.get("features", [])),
-        users=list(data.get("users", [])),
-        stack_hints=list(data.get("stack_hints", [])),
+        features=_coerce_str_list(data.get("features")),
+        users=_coerce_str_list(data.get("users")),
+        stack_hints=_coerce_str_list(data.get("stack_hints")),
         mode=_mode,
     ))
     return dest

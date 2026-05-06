@@ -117,3 +117,45 @@ def test_derived_spec_format(ih, tmp_project_root):
         assert pat.lower() not in content.lower(), (
             f"derived_spec.md must not contain secrets. Found pattern: {pat}"
         )
+
+
+def test_parse_structured_string_users_not_iterated_char_by_char(ih, tmp_project_root):
+    """v1.0 HUMAN-UAT 05 side-defect: when callers pass `users` as a string,
+    `list("students and teachers")` iterates the string char-by-char and renders
+    one bullet per character in derived_spec.md. parse_structured must coerce
+    string scalars to a single-element list instead.
+    """
+    ih.parse_structured(
+        {
+            "goal": "lab notebook upload",
+            "users": "students and teachers",
+            "features": ["upload", "grade"],
+        },
+        project_root=tmp_project_root,
+    )
+    spec_path = tmp_project_root / ".planning" / "osbuilder" / "derived_spec.md"
+    content = spec_path.read_text(encoding="utf-8")
+    assert "- students and teachers" in content, (
+        "string `users` must be rendered as a single bullet, not character-by-character"
+    )
+    # Also assert the per-character symptom does NOT appear
+    assert "- s\n- t\n- u\n- d" not in content, (
+        "regression: string `users` is being iterated char-by-char"
+    )
+
+
+def test_electron_keyword_in_refuse_keywords(ih):
+    """v1.0 HUMAN-UAT 07-5: 'electron' must be in REFUSE_KEYWORDS so the gate fires.
+
+    The Electron rationale copy lives in references/refuse-list.md, but without
+    the keyword in the runtime tuple `_matches_refuse_keyword('Electron desktop
+    app')` returns None and no refusal ever shows.
+    """
+    assert "electron" in {kw.lower() for kw in ih.REFUSE_KEYWORDS}, (
+        "REFUSE_KEYWORDS must include 'electron' so the v1 gate refuses Electron specs"
+    )
+    matched = ih._matches_refuse_keyword("I want an Electron desktop app for note-taking")
+    assert matched is not None, (
+        "_matches_refuse_keyword must match 'Electron' in a desktop-app spec"
+    )
+    assert matched.lower() == "electron"
