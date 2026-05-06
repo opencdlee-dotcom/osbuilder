@@ -131,13 +131,16 @@ def test_windows_uses_winget(pf, fake_shell, fake_which, monkeypatch):
 def test_failure_triggers_rollback(pf, fake_shell, fake_which, tmp_install_log, monkeypatch):
     """PRE-04: A failed install triggers rollback of successfully-installed earlier tools.
 
-    Program: brew install gh → success, brew install docker → failure.
+    Program: brew install gh → success, brew install --cask orbstack → failure.
     Assert fake_shell.calls contains 'brew uninstall gh' (rollback of prior success).
+    The macOS docker install argv is `brew install --cask orbstack` (D-11) since
+    OrbStack ships the daemon; the legacy `brew install docker` is CLI-only and
+    leaves the user without a working engine.
     """
     monkeypatch.setattr("platform.system", lambda: "Darwin")
     fake_which["brew"] = "/opt/homebrew/bin/brew"
     fake_shell.program("brew install gh", returncode=0)
-    fake_shell.program("brew install docker", returncode=1)
+    fake_shell.program("brew install --cask orbstack", returncode=1)
     plan = pf.plan(no_docker=False)
     pf.apply(plan)
     signatures = [
@@ -146,7 +149,35 @@ def test_failure_triggers_rollback(pf, fake_shell, fake_which, tmp_install_log, 
     ]
     rollback_calls = [s for s in signatures if "brew uninstall gh" in s]
     assert len(rollback_calls) >= 1, (
-        f"Expected 'brew uninstall gh' rollback after docker install failure; calls: {signatures}"
+        f"Expected 'brew uninstall gh' rollback after orbstack install failure; calls: {signatures}"
+    )
+
+
+def test_macos_docker_maps_to_orbstack_cask(pf, monkeypatch):
+    """v1.0 audit: macOS docker install argv must be `brew install --cask orbstack`.
+
+    The earlier mapping `brew install docker` installed the legacy Docker CLI
+    formula, which is CLI-only — no daemon, no engine. A user who relied on
+    OSBuilder for docker setup would still have `docker ps` fail. OrbStack
+    is the documented v1 macOS Docker runtime (D-11) and ships as a cask.
+    """
+    monkeypatch.setattr("platform.system", lambda: "Darwin")
+    plan = pf.plan(no_docker=False)
+    docker_actions = [a for a in plan.actions if getattr(a, "tool", None) == "docker"]
+    if not docker_actions:
+        # If pf.plan finds nothing missing on this runner, the macOS table is
+        # what counts — assert directly.
+        assert pf._MACOS_INSTALL["docker"][2] == [
+            "brew", "install", "--cask", "orbstack"
+        ], f"macOS docker mapping must use --cask orbstack; got {pf._MACOS_INSTALL['docker'][2]}"
+        return
+    action = docker_actions[0]
+    assert action.install_argv == ["brew", "install", "--cask", "orbstack"], (
+        f"macOS docker install argv must be `brew install --cask orbstack`; got {action.install_argv}"
+    )
+    assert action.manager == "brew --cask", (
+        f"macOS docker manager key must be 'brew --cask' so _UNINSTALL_FORM picks the "
+        f"cask variant; got {action.manager}"
     )
 
 

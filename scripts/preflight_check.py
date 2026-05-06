@@ -262,10 +262,14 @@ _MACOS_INSTALL = {
     "python3": ("brew", "python@3.13",  ["brew", "install", "python@3.13"]),
     "git":     ("brew", "git",          ["brew", "install", "git"]),
     "gh":      ("brew", "gh",           ["brew", "install", "gh"]),
-    # D-11: OrbStack is the preferred macOS Docker runtime (brew install orbstack).
-    # Package ID kept as "docker" so test_failure_triggers_rollback's programmed
-    # prefix "brew install docker" fires correctly (test stub predates D-11 lock).
-    "docker":  ("brew", "docker",       ["brew", "install", "docker"]),
+    # D-11: OrbStack is the preferred macOS Docker runtime. The brew formula
+    # `docker` is the legacy Docker CLI client only — no daemon, no engine —
+    # which means a user who ran `brew install docker` would have a working
+    # CLI but `docker ps` would still fail (no daemon to talk to). OrbStack is
+    # a cask (full app bundle with daemon), so the install argv is `brew
+    # install --cask orbstack` and the manager key is "brew --cask" so
+    # _UNINSTALL_FORM picks the cask uninstall variant.
+    "docker":  ("brew --cask", "orbstack", ["brew", "install", "--cask", "orbstack"]),
 }
 _APT_INSTALL = {
     "node":    ("apt-get", "nodejs",            ["sudo", "apt-get", "install", "-y", "nodejs"]),
