@@ -75,7 +75,7 @@ def _resolve_project_root(arg: str | None) -> Path:
             if (parent / ".planning").is_dir():
                 return parent
         return cur
-    if ".." in arg:
+    if any(part == ".." for part in Path(arg).parts):
         raise SystemExit("OSBuilder: --project-root cannot contain '..' segments.")
     return Path(arg).resolve()
 
