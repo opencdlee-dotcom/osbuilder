@@ -624,18 +624,38 @@ def scaffold_hub(project_name: str, project_root: Path, *, subtools: "list[str]"
         _validate_project_name(sub)
 
     project_dir = project_root / project_name
-    # mkdir(exist_ok=False) makes second-call behavior explicit (RESEARCH.md line 535).
-    project_dir.mkdir(parents=True, exist_ok=False)
+    # Idempotent: re-running with the same project_name does not crash. The
+    # earlier exist_ok=False raised FileExistsError that fell through to the
+    # bare-Exception handler in main() with no friendly translation. Honor
+    # the same atomic_write contract used elsewhere — if files exist, they
+    # are overwritten via os.replace; the directory itself is fine to reuse.
+    project_dir.mkdir(parents=True, exist_ok=True)
 
     # Top-level CLAUDE.md — substitute {{routing_table}} with N rows.
+    # Skill cells default to "TBD" (not "n/a") so the user can see at a glance
+    # which rows still need a Claude-Code-skill assignment after scaffolding.
     template = (_HUB_TEMPLATE / "CLAUDE.md.tmpl").read_text(encoding="utf-8")
-    rows = "\n".join(
-        f"| `{s}/` | TODO — describe {s} | n/a |" for s in subtools
+    claude_rows = "\n".join(
+        f"| `{s}/` | TODO — describe {s} | TBD |" for s in subtools
     )
-    rendered = template.replace("{{routing_table}}", rows).replace(
+    rendered = template.replace("{{routing_table}}", claude_rows).replace(
         "{{project_name}}", project_name
     )
     atomic_write(project_dir / "CLAUDE.md", rendered)
+
+    # Top-level AGENTS.md — same shape but Runtime column instead of Key Skill,
+    # mirroring Professor Hub's parallel CLAUDE.md/AGENTS.md split so non-Claude
+    # agents (Codex, Cursor, etc.) have a router too.
+    agents_tmpl_path = _HUB_TEMPLATE / "AGENTS.md.tmpl"
+    if agents_tmpl_path.exists():
+        agents_template = agents_tmpl_path.read_text(encoding="utf-8")
+        agents_rows = "\n".join(
+            f"| `{s}/` | TODO — describe {s} | TBD |" for s in subtools
+        )
+        agents_rendered = agents_template.replace(
+            "{{routing_table}}", agents_rows
+        ).replace("{{project_name}}", project_name)
+        atomic_write(project_dir / "AGENTS.md", agents_rendered)
 
     # Per-subtool placeholder dirs + CLAUDE.md.
     sub_template = (_HUB_TEMPLATE / "subtool-CLAUDE.md.tmpl").read_text(encoding="utf-8")
