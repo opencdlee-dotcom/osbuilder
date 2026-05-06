@@ -28,6 +28,7 @@ for multi-word phrases):
 - istio
 - linkerd
 - consul
+- electron
 
 ## Refusal copy
 
