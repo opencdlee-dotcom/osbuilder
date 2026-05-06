@@ -21,10 +21,10 @@
   category: registry
   title: "OSBuilder blocked a suspicious package"
   what_broke: "A package name OSBuilder couldn't verify on the public registry was rejected for safety."
-  what_to_do: "Check the package name for typos. If you trust the package, ask OSBuilder to retry with --allow-unverified."
+  what_to_do: "Check the package name for typos and re-run OSBuilder with the corrected name. If you're sure the package is real but newly published, install it manually first, then re-run."
   copy_paste_command: ~
   phase_seen: "preflight, 4"
-  expansion_note: "PITFALLS.md P6 — slopsquatting prevention"
+  expansion_note: "PITFALLS.md P6 — slopsquatting prevention. The earlier copy referenced a `--allow-unverified` flag that does not exist; v1 takes the conservative path of refusing unverified packages and asking the user to install manually if they trust the source."
 
 - id: npm-404
   match_pattern: "npm ERR! 404"
