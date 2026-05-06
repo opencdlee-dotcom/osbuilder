@@ -37,15 +37,28 @@ _REQUIRED_SECTIONS = ("# OSBuilder Derived Spec", "**Goal:**", "**App type:**", 
 # it reaches state.md or any subprocess. Keep entries lower-case — comparison
 # is case-insensitive in _cmd_validate.
 _SECRET_PATTERNS = (
-    "api_key",
-    "password",
-    "token",
+    # All entries are value-shape literals or unambiguous prefixes. Bare nouns
+    # like "password", "token", "api_key" were removed because a plain-English
+    # spec ("a login page where users enter their password") would falsely
+    # trigger as a secret leak. Only patterns that genuinely indicate a pasted
+    # credential remain.
+    "api_key=",
+    "api_key:",
+    "password=",
+    "password:",
+    "token=",
+    "token:",
     "database_url=postgresql://",
-    # AI service token prefixes — common paste-from-dashboard shapes
-    "openai_api_key",
-    "anthropic_api_key",
-    "sk-",       # OpenAI / Anthropic / Stripe key prefix
-    "bearer ",   # Authorization header paste — trailing space disambiguates from words like "bearer-token"
+    "openai_api_key=",
+    "anthropic_api_key=",
+    "sk-ant-",   # Anthropic key prefix
+    "sk-proj-",  # OpenAI project key prefix
+    "ghp_",      # GitHub personal access token prefix
+    "gho_",      # GitHub OAuth token prefix
+    "ghs_",      # GitHub server-to-server prefix
+    "github_pat_",  # GitHub fine-grained PAT prefix
+    "akia",      # AWS access key prefix (case-insensitive match)
+    "bearer ",   # Authorization header paste — trailing space disambiguates from "bearer-token"
 )
 
 # Phase 6 — refuse-list (SCL-05): hardcoded keyword tuple sourced from references/refuse-list.md

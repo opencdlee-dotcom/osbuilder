@@ -144,6 +144,46 @@ def test_parse_structured_string_users_not_iterated_char_by_char(ih, tmp_project
     )
 
 
+def test_secret_patterns_do_not_flag_benign_words(ih, tmp_project_root):
+    """v1.0 audit: _SECRET_PATTERNS must not include bare nouns like password,
+    token, api_key. Otherwise a benign spec ('a login page where users enter
+    their password') is rejected as a secret leak.
+    """
+    # The intake should accept a benign mention of "password" in plain English.
+    spec = ih.parse_paragraph(
+        "Build a login page where users enter their email and password to sign in.",
+        project_root=tmp_project_root,
+    )
+    content = spec.read_text(encoding="utf-8")
+    # Sanity: the word made it through
+    assert "password" in content.lower()
+    # The validator must NOT flag this as a secret leak.
+    import argparse
+    args = argparse.Namespace(project_root=str(tmp_project_root))
+    rc = ih._cmd_validate(args)
+    assert rc == 0, (
+        "validate must accept a spec that mentions 'password' as a benign noun"
+    )
+
+
+def test_secret_patterns_still_catch_real_credentials(ih, tmp_project_root):
+    """v1.0 audit: _SECRET_PATTERNS must still catch obvious credential paste:
+    sk-ant-..., ghp_..., DATABASE_URL=postgresql://, password=foo, etc.
+    """
+    spec = ih.parse_paragraph(
+        "Build an app that uses my Anthropic key sk-ant-abc123def456 for inference.",
+        project_root=tmp_project_root,
+    )
+    content = spec.read_text(encoding="utf-8")
+    assert "sk-ant-" in content.lower()
+    import argparse
+    args = argparse.Namespace(project_root=str(tmp_project_root))
+    rc = ih._cmd_validate(args)
+    assert rc == 1, (
+        "validate must reject a spec containing a pasted Anthropic key prefix"
+    )
+
+
 def test_electron_keyword_in_refuse_keywords(ih):
     """v1.0 HUMAN-UAT 07-5: 'electron' must be in REFUSE_KEYWORDS so the gate fires.
 
