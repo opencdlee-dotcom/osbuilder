@@ -148,7 +148,7 @@
   expansion_note: "Standard Docker failure mode"
 
 - id: pg-conn-refused
-  match_pattern: "connection refused.*5432"
+  match_pattern: "connection.*refused.*5432"
   pattern_type: regex
   category: docker
   title: "Postgres isn't running yet"

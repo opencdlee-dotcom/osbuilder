@@ -181,3 +181,22 @@ def test_error_paths_wrapped_in_known_sites():
         assert re.search(r"if\s+_fe\s+is\s+not\s+None", text), (
             f"{name} missing 'if _fe is not None' guard pattern"
         )
+
+
+# ---------- v1.0 HUMAN-UAT 05-2: pg-conn-refused regex covers real-world phrasing ----------
+
+@pytest.mark.parametrize("raw", [
+    "psql: error: connection to server refused on port 5432",
+    "Error: connection refused at localhost:5432",
+    "FATAL: connection refused (Postgres) port 5432",
+])
+def test_pg_conn_refused_regex_matches_common_phrasings(fe, raw):
+    """v1.0 HUMAN-UAT 05-2: the original regex `connection refused.*5432` failed
+    against psql's typical phrasing `connection to server refused on port 5432`
+    because of the words between `connection` and `refused`. The fix loosens to
+    `connection.*refused.*5432` so all three common phrasings route correctly.
+    """
+    msg = fe.translate(raw)
+    assert msg.title == "Postgres isn't running yet", (
+        f"pg-conn-refused regex must match {raw!r}; got title={msg.title!r}"
+    )
