@@ -193,7 +193,7 @@ def build_escalation_handoff(
         Markdown string with sections: OSBuilder Escalation Handoff, Last Error,
         What Was Tried, State Checkpoint, Recommended Next Action.
     """
-    ts = _dt.datetime.utcnow().isoformat(timespec="seconds") + "Z"
+    ts = _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
     tried_lines = "\n".join(
         f"{i + 1}. {step}" for i, step in enumerate(escalation_log)
     )
