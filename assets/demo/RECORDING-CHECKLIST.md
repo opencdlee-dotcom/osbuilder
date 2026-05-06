@@ -24,13 +24,35 @@ private GitHub, end-to-end, with no cuts hiding friction.
 ## Recording — option A: asciinema + agg (recommended)
 
 1. Install asciinema: `brew install asciinema` (macOS) or `pipx install asciinema` (Linux)
-2. Install agg: `cargo install --git https://github.com/asciinema/agg`
-3. Start recording: `asciinema rec assets/demo/osbuilder-demo.cast`
-4. Run the demo (see "Demo script" below)
-5. Exit recording: `Ctrl-D` or `exit`
-6. Convert to GIF: `agg --speed 2 assets/demo/osbuilder-demo.cast assets/demo/osbuilder-demo.gif`
-   (`--speed 2` post-processes a 2-minute real run down to ~60s; capture every
-   state visibly per Pitfall 6 — speed up but don't cut)
+2. Install agg: `brew install agg` (macOS) or `cargo install --git https://github.com/asciinema/agg` (Linux)
+3. Re-record (headless, fixed terminal size, capped idle time):
+
+       asciinema rec assets/demo/osbuilder-demo.cast \
+         --headless --idle-time-limit 2 --output-format asciicast-v2 \
+         --window-size 100x32 \
+         --command "python3 -u scripts/demo/run_demo.py"
+
+4. Convert to GIF:
+
+       agg --speed 2 assets/demo/osbuilder-demo.cast assets/demo/osbuilder-demo.gif
+
+   (`--speed 2` halves perceived duration without cutting any frames per
+   Pitfall 6 — speed up but don't cut.)
+
+The driver script (`scripts/demo/run_demo.py`) runs the actual OSBuilder
+pipeline functions (parse_paragraph -> research_stack -> scaffold_web ->
+write_readme) with the same dev-team narration emitter that /osbuilder
+prints at runtime. It writes to `/tmp/osbuilder-demo` (cleaned each run)
+and stops at "ready to ship" — `gh repo create` is the user's next manual
+step. Reasons for the manual stopping point:
+
+- Pitfall 6 (no cuts hiding friction): a real `gh repo create` step would
+  either expose throwaway-account auth state or require setup most demo
+  recorders lack. Showing the prepared command and letting the viewer run
+  it is the honest stopping point.
+- /osbuilder itself is a Claude Code skill, not a shell command, so the
+  literal interactive flow can't be captured by asciinema. The driver
+  exercises the same Python entry points the skill calls.
 
 ## Recording — option B: screen-recorder + ffmpeg fallback
 
