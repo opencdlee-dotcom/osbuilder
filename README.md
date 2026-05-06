@@ -41,7 +41,7 @@ delegation to your existing skill ecosystem — never parallel, never multi-agen
 | 3. Scaffold | **DevOps** | `DevOps is setting up Docker Compose…` | `scripts/scaffold_dispatch.py` |
 | 4. Plan | **Architect** | `Architect is planning phase 1…` | `/gsd:new-project --auto` + `/gsd:plan-phase` |
 | 5. Build | **Frontend / Backend / DevOps** | `Frontend dev is building the homepage…` | `/gsd:execute-phase` |
-| 6. Verify | **QA + Reviewer** | `QA is running adversarial tests…` / `Reviewer is checking architecture…` | `/code-tester` + `/gsd:verify-work` + `/predator` + `/gsd:code-review` |
+| 6. Verify | **QA + Reviewer** | `QA is trying to break the app on purpose…` / `Reviewer is reading the code for problems…` | `/code-tester` + `/gsd:verify-work` + `/predator` + `/gsd:code-review` |
 | 7. Heal | **Debug-cap** (silent unless broken) | `Hit retry cap on validation; escalating to /problem-solver…` | `/gsd:debug` + `/problem-solver` |
 | 8. Ship | **DevOps** | `DevOps is pushing to GitHub…` | `gh repo create --private` |
 
