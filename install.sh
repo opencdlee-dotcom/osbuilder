@@ -8,8 +8,10 @@
 # What it does:
 #   1. Resolves the repo root from the script's own location.
 #   2. Creates the four-directory skill layout under ${HOME}/.claude/skills/osbuilder/.
-#   3. Copies the artifact set: SKILL.md, references/, scripts/state_writer.py,
-#      scripts/bootstrap.sh, scripts/bootstrap.ps1.
+#   3. Copies the artifact set: SKILL.md, references/, scripts/ (all *.py and the
+#      bootstrap shims — the orchestrator needs every helper at runtime, not just
+#      state_writer), and assets/ (vendored starters + templates the scaffolders
+#      read from disk at runtime).
 #   4. Sets executable bits on copied scripts.
 #
 # Anti-patterns (deliberately avoided):
@@ -50,30 +52,49 @@ else
   echo "warn: ${SCRIPT_DIR}/references/ missing — skipping references copy" >&2
 fi
 
-# 2c. state_writer.py (required for FOUND-05)
-if [ -f "${SCRIPT_DIR}/scripts/state_writer.py" ]; then
-  cp -p "${SCRIPT_DIR}/scripts/state_writer.py" "${SKILL_DIR}/scripts/state_writer.py"
+# 2c. scripts/ — every *.py orchestrator helper plus the bootstrap shims.
+# The orchestrator (SKILL.md routing) calls these by path at runtime
+# (preflight_check.py, scaffold_dispatch.py, intake_handler.py, runbook_writer.py,
+# stack_researcher.py, narration.py, friendly_error.py, registry_verify.py,
+# gh_handoff.py, gsd_driver.py, failure_classifier.py, production_phase_writer.py,
+# check_skill_md_length.py, check_skill_versions.py, state_writer.py). Skip the
+# tests/ subtree — those are dev-only. Skip __pycache__ — runtime artifacts.
+if [ -d "${SCRIPT_DIR}/scripts" ]; then
+  for src in "${SCRIPT_DIR}"/scripts/*.py "${SCRIPT_DIR}"/scripts/bootstrap.sh "${SCRIPT_DIR}"/scripts/bootstrap.ps1; do
+    [ -f "$src" ] || continue
+    cp -p "$src" "${SKILL_DIR}/scripts/$(basename "$src")"
+  done
+  # Optional sub-trees that scaffold helpers expect alongside the scripts (none today,
+  # but keep the structure obvious for future additions).
 else
-  echo "warn: ${SCRIPT_DIR}/scripts/state_writer.py missing — skipping" >&2
+  echo "warn: ${SCRIPT_DIR}/scripts/ missing — skipping scripts copy" >&2
 fi
 
-# 2d. bootstrap.sh (POSIX shim)
-if [ -f "${SCRIPT_DIR}/scripts/bootstrap.sh" ]; then
-  cp -p "${SCRIPT_DIR}/scripts/bootstrap.sh" "${SKILL_DIR}/scripts/bootstrap.sh"
+# 2d. assets/ tree — vendored starters + templates the scaffolders read at runtime
+# (cli-starter, fastapi-starter, hub-template, dockerfiles, ci-workflows,
+# gitignore-templates, gitleaks, readme-template.md). Without this the cli +
+# ai-service + desktop scaffolders break with FileNotFoundError on the first run.
+if [ -d "${SCRIPT_DIR}/assets" ]; then
+  cp -Rp "${SCRIPT_DIR}/assets/." "${SKILL_DIR}/assets/"
+  # assets/hub-template/professor-snapshot/ is a vendored example (depth-3+ tree
+  # of contributor reference material), not runtime-needed — scaffold_hub() only
+  # uses CLAUDE.md.tmpl + subtool-CLAUDE.md.tmpl at the top of hub-template/.
+  # Pruning it keeps the installed skill within the Anthropic one-level-deep
+  # contract (test_install_no_nested_dirs).
+  rm -rf "${SKILL_DIR}/assets/hub-template/professor-snapshot"
 else
-  echo "warn: ${SCRIPT_DIR}/scripts/bootstrap.sh missing — skipping" >&2
+  echo "warn: ${SCRIPT_DIR}/assets/ missing — skipping assets copy" >&2
 fi
 
-# 2e. bootstrap.ps1 (Windows PowerShell shim)
-if [ -f "${SCRIPT_DIR}/scripts/bootstrap.ps1" ]; then
-  cp -p "${SCRIPT_DIR}/scripts/bootstrap.ps1" "${SKILL_DIR}/scripts/bootstrap.ps1"
-else
-  echo "warn: ${SCRIPT_DIR}/scripts/bootstrap.ps1 missing — skipping" >&2
-fi
+# Note: examples/ (web/cli/ai-service galleries) is NOT installed. The skill
+# never reads it at runtime; the gallery exists in the source repo for
+# documentation purposes (and would otherwise create depth-3 dirs via the
+# screenshots/ subdirs). Users who need it can browse the public repo on GitHub.
 
-# Step 3: Ensure executable bits on copied scripts (only if files exist after copy)
-[ -f "${SKILL_DIR}/scripts/state_writer.py" ] && chmod +x "${SKILL_DIR}/scripts/state_writer.py" || true
-[ -f "${SKILL_DIR}/scripts/bootstrap.sh" ]    && chmod +x "${SKILL_DIR}/scripts/bootstrap.sh"    || true
+# Step 3: Ensure executable bits on every copied .py + bootstrap shim.
+for f in "${SKILL_DIR}"/scripts/*.py "${SKILL_DIR}/scripts/bootstrap.sh"; do
+  [ -f "$f" ] && chmod +x "$f" || true
+done
 
 echo "OSBuilder installed at ${SKILL_DIR}" >&2
 echo "Run /osbuilder in a Claude Code session to start." >&2

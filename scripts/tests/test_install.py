@@ -85,3 +85,71 @@ def test_install_no_nested_dirs(fake_home):
                  and len(p.relative_to(skill_dir).parts) >= 3]
     assert deep_dirs == [], \
         f"Anthropic one-level-deep rule violated: {deep_dirs}"
+
+
+def test_install_copies_orchestrator_scripts(fake_home):
+    """v1.0 HUMAN-UAT follow-up: install.sh must copy every orchestrator helper
+    script the skill calls at runtime, not just state_writer + bootstrap shims.
+
+    A previous version of install.sh shipped only state_writer.py + the two
+    bootstrap shims, which made `/osbuilder` non-functional after a clean
+    one-liner install — preflight_check.py / scaffold_dispatch.py / intake_handler.py
+    / runbook_writer.py and the rest were missing under ~/.claude/skills/osbuilder/.
+    This test pins the full set so that regression cannot recur silently.
+    """
+    if not INSTALL_SH.exists():
+        pytest.skip("install.sh not yet created")
+    result = _run_install(fake_home)
+    assert result.returncode == 0, f"install.sh failed: {result.stderr}"
+    skill_scripts = fake_home / ".claude" / "skills" / "osbuilder" / "scripts"
+    required = {
+        "state_writer.py",
+        "bootstrap.sh",
+        "bootstrap.ps1",
+        "preflight_check.py",
+        "scaffold_dispatch.py",
+        "intake_handler.py",
+        "stack_researcher.py",
+        "runbook_writer.py",
+        "narration.py",
+        "friendly_error.py",
+        "registry_verify.py",
+        "gh_handoff.py",
+        "gsd_driver.py",
+        "failure_classifier.py",
+        "production_phase_writer.py",
+        "check_skill_md_length.py",
+        "check_skill_versions.py",
+    }
+    present = {p.name for p in skill_scripts.iterdir() if p.is_file()}
+    missing = required - present
+    assert not missing, (
+        f"install.sh did not copy orchestrator scripts: {sorted(missing)}. "
+        f"The skill cannot run at /osbuilder invocation without them."
+    )
+
+
+def test_install_copies_runtime_assets(fake_home):
+    """v1.0 HUMAN-UAT follow-up: install.sh must copy assets/ subtrees the
+    scaffolders read at runtime — without these, scaffold_cli / scaffold_ai_service /
+    scaffold_hub fail with FileNotFoundError on the very first OSBuilder run.
+    """
+    if not INSTALL_SH.exists():
+        pytest.skip("install.sh not yet created")
+    result = _run_install(fake_home)
+    assert result.returncode == 0
+    skill_assets = fake_home / ".claude" / "skills" / "osbuilder" / "assets"
+    required_files = [
+        "readme-template.md",
+        "cli-starter/__main__.py.tmpl",
+        "cli-starter/pyproject.snippet.toml",
+        "fastapi-starter/main.py",
+        "hub-template/CLAUDE.md.tmpl",
+        "hub-template/subtool-CLAUDE.md.tmpl",
+    ]
+    missing = [rel for rel in required_files
+               if not (skill_assets / rel).is_file()]
+    assert not missing, (
+        f"install.sh did not copy runtime assets: {missing}. "
+        f"Scaffold helpers will fail with FileNotFoundError when called."
+    )
